@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import toast from 'react-hot-toast';
 
-export default function GoogleCallbackPage() {
+function GoogleCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { checkAuth } = useAuthStore();
@@ -43,5 +43,18 @@ export default function GoogleCallbackPage() {
       <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mb-4"></div>
       <p className="text-white/60 animate-pulse">Authenticating with Google...</p>
     </div>
+  );
+}
+
+export default function GoogleCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background text-white">
+        <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-white/60">Loading...</p>
+      </div>
+    }>
+      <GoogleCallbackContent />
+    </Suspense>
   );
 }

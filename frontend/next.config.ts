@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
         protocol: 'http',
         hostname: 'localhost',
       },
+      {
+  protocol: 'https',
+  hostname: 'glacis-brittle-terrace-peewee.trycloudflare.com', 
+      }
     ],
   },
   async rewrites() {
