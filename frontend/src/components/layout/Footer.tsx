@@ -1,0 +1,90 @@
+import Link from 'next/link';
+import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from 'lucide-react';
+
+export default function Footer() {
+  return (
+    <footer className="border-t border-white/5 bg-surface mt-auto">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12 lg:py-16 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8 lg:gap-12">
+          
+          {/* Info Section - No Logo */}
+          <div className="col-span-2 md:col-span-2 lg:col-span-1">
+            <p className="text-sm text-white/50 leading-relaxed mb-6">
+              Southzone delivers premium streetwear crafted for the bold. 
+              Elevate your daily hustle with high-quality fits designed to stand out.
+            </p>
+            <div className="flex space-x-4">
+              <a href="#" className="p-2 glass rounded-full text-white/50 hover:text-white transition-colors">
+                <span className="sr-only">Instagram</span>
+                <Instagram className="h-5 w-5" />
+              </a>
+              <a href="#" className="p-2 glass rounded-full text-white/50 hover:text-white transition-colors">
+                <span className="sr-only">Twitter</span>
+                <Twitter className="h-5 w-5" />
+              </a>
+              <a href="#" className="p-2 glass rounded-full text-white/50 hover:text-white transition-colors">
+                <span className="sr-only">Facebook</span>
+                <Facebook className="h-5 w-5" />
+              </a>
+            </div>
+            <div className="mt-6 flex flex-col gap-3 text-sm text-white/40">
+              <a href="mailto:hello@southzone.in" className="flex items-center gap-2 hover:text-white/70 transition-colors">
+                <Mail className="w-4 h-4" /> hello@southzone.in
+              </a>
+              <a href="tel:+919876543210" className="flex items-center gap-2 hover:text-white/70 transition-colors">
+                <Phone className="w-4 h-4" /> +91 98765 43210
+              </a>
+              <span className="flex items-center gap-2">
+                <MapPin className="w-4 h-4" /> Chennai, India
+              </span>
+            </div>
+          </div>
+
+          {/* Shop Links */}
+          <div>
+            <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-6">Shop</h3>
+            <ul className="space-y-4">
+              <li><Link href="/shop?category=hoodies" className="text-sm text-white/50 hover:text-accent transition-colors">Hoodies</Link></li>
+              <li><Link href="/shop?category=shirts" className="text-sm text-white/50 hover:text-accent transition-colors">Shirts</Link></li>
+              <li><Link href="/shop?category=pants" className="text-sm text-white/50 hover:text-accent transition-colors">Pants</Link></li>
+              <li><Link href="/shop?category=traditional" className="text-sm text-white/50 hover:text-accent transition-colors">Traditional</Link></li>
+            </ul>
+          </div>
+
+          {/* Support Links */}
+          <div>
+            <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-6">Support</h3>
+            <ul className="space-y-4">
+              <li><Link href="/track" className="text-sm text-white/50 hover:text-accent transition-colors">Track Order</Link></li>
+              <li><Link href="/returns" className="text-sm text-white/50 hover:text-accent transition-colors">Returns & Exchanges</Link></li>
+              <li><Link href="/faq" className="text-sm text-white/50 hover:text-accent transition-colors">FAQ</Link></li>
+              <li><Link href="/contact" className="text-sm text-white/50 hover:text-accent transition-colors">Contact Us</Link></li>
+            </ul>
+          </div>
+
+          {/* Company Links */}
+          <div>
+            <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-6">Company</h3>
+            <ul className="space-y-4">
+              <li><Link href="/about" className="text-sm text-white/50 hover:text-accent transition-colors">About Us</Link></li>
+              <li><Link href="/terms" className="text-sm text-white/50 hover:text-accent transition-colors">Terms of Service</Link></li>
+              <li><Link href="/privacy" className="text-sm text-white/50 hover:text-accent transition-colors">Privacy Policy</Link></li>
+            </ul>
+          </div>
+        </div>
+        
+        {/* Bottom Bar */}
+        <div className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-white/40">
+            &copy; {new Date().getFullYear()} Southzone. All rights reserved.
+          </p>
+          <div className="flex items-center gap-4 text-xs text-white/40">
+            <span>Designed for the Streets</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+            <span>Always Bold</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}

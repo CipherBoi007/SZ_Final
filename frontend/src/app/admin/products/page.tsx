@@ -1,0 +1,132 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { PlusCircle, PenLine, Trash2, Search, Package } from 'lucide-react';
+import Image from 'next/image';
+import toast from 'react-hot-toast';
+import { productAPI, adminAPI } from '@/lib/api';
+import AddProductModal from './AddProductModal';
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+export default function AdminProducts() {
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editProduct, setEditProduct] = useState<any>(null);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  async function fetchProducts() {
+    try {
+      const { data } = await productAPI.getAll();
+      setProducts(data.data?.products || []);
+    } catch { 
+      toast.error('Failed to load products');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this product?')) return;
+    try {
+      await adminAPI.deleteProduct(id);
+      setProducts(products.filter((p) => p.id.toString() !== id));
+      toast.success('Product deleted');
+    } catch { toast.error('Failed to delete'); }
+  };
+
+  const filtered = products.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-bold text-white">Products</h1>
+        <button onClick={() => { setEditProduct(null); setIsModalOpen(true); }} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-white text-sm font-semibold transition-all glow-red-hover">
+          <PlusCircle className="w-4 h-4" /> Add Product
+        </button>
+      </div>
+
+      <div className="relative mb-6">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search products..."
+          className="w-full sm:w-80 rounded-xl bg-white/5 border border-white/10 py-2.5 pl-11 pr-4 text-sm text-white placeholder:text-white/30 outline-none focus:border-accent/50 transition-colors" />
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" /></div>
+      ) : (
+        <div className="rounded-2xl glass-strong overflow-hidden">
+          <table className="w-full text-sm">
+            <thead><tr className="text-white/30 border-b border-white/5">
+              <th className="text-left p-4 font-medium">Product</th>
+              <th className="text-left p-4 font-medium hidden md:table-cell">Category</th>
+              <th className="text-left p-4 font-medium">Price</th>
+              <th className="text-left p-4 font-medium hidden sm:table-cell">Stock</th>
+              <th className="text-left p-4 font-medium hidden lg:table-cell">Status</th>
+              <th className="text-right p-4 font-medium">Actions</th>
+            </tr></thead>
+            <tbody>
+              {filtered.map((product) => {
+                const img = product.images?.find((im: any) => im.isPrimary) || product.images?.[0];
+                const imgSrc = img?.url || img?.imageUrl || '/images/hero2.jpg';
+                const variants = product.variants || [];
+                const totalStock = variants.reduce((sum: number, v: any) => sum + (v.stock || 0), 0);
+                const prices = variants.map((v: any) => Number(v.price)).filter((p: number) => p > 0);
+                const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+                const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
+                return (
+                  <tr key={product.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg overflow-hidden relative shrink-0"><Image src={imgSrc} alt="" fill className="object-cover" /></div>
+                        <div className="min-w-0">
+                          <span className="text-white/80 truncate max-w-[200px] block">{product.name}</span>
+                          <span className="text-[10px] text-white/25">{variants.length} variant{variants.length !== 1 ? 's' : ''}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-4 text-white/40 hidden md:table-cell">{product.Category?.name || '—'}</td>
+                    <td className="p-4 text-white">
+                      {minPrice === maxPrice 
+                        ? `₹${minPrice.toLocaleString()}` 
+                        : `₹${minPrice.toLocaleString()} – ₹${maxPrice.toLocaleString()}`
+                      }
+                    </td>
+                    <td className="p-4 hidden sm:table-cell">
+                      <span className={`text-sm ${totalStock > 10 ? 'text-emerald-400' : totalStock > 0 ? 'text-yellow-400' : 'text-red-400'}`}>{totalStock}</span>
+                    </td>
+                    <td className="p-4 hidden lg:table-cell">
+                      <span className={`px-3 py-1.5 rounded-full text-[14px] font-bold ${product.isActive !== false ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                        {product.isActive !== false ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button onClick={() => { setEditProduct(product); setIsModalOpen(true); }} className="p-2 rounded-lg glass text-white/30 hover:text-white transition-colors"><PenLine className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => handleDelete(product.id.toString())} className="p-2 rounded-lg glass text-white/30 hover:text-red-400 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          {filtered.length === 0 && <div className="p-8 text-center text-white/20"><Package className="w-8 h-8 mx-auto mb-2" /><p>No products found</p></div>}
+        </div>
+      )}
+
+      <AddProductModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSuccess={fetchProducts} 
+        initialData={editProduct}
+      />
+    </div>
+  );
+}
