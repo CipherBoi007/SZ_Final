@@ -75,11 +75,6 @@ export default function OTPLoginPage() {
         </Link>
         <div className="glass-strong p-8 rounded-3xl border border-white/5 relative overflow-hidden">
           <div className="mb-10 text-center">
-            <Link href="/" className="inline-block mb-8">
-              <h1 className="text-3xl font-black italic tracking-tighter text-white">
-                SOUTH<span className="text-accent">ZONE</span>
-              </h1>
-            </Link>
             <h2 className="text-2xl font-bold text-white mb-2">
               {step === 'request' ? 'OTP Login' : 'Verify OTP'}
             </h2>
