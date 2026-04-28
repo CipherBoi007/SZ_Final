@@ -34,7 +34,8 @@ const createSendToken = async (user, statusCode, res) => {
   res.cookie('refreshToken', refreshToken, {
     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     httpOnly: true,
-    secure: config.NODE_ENV === 'production',
+    secure: true, // Always true for cross-site tunneling/vercel
+    sameSite: 'none', // Required for cross-site cookies
   });
 
   res.status(statusCode).json({
@@ -162,7 +163,8 @@ exports.googleAuthCallback = catchAsync(async (req, res, next) => {
   res.cookie('refreshToken', refreshToken, {
     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     httpOnly: true,
-    secure: config.NODE_ENV === 'production',
+    secure: true,
+    sameSite: 'none',
   });
 
   // Redirect to frontend with token
