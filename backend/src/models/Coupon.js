@@ -41,6 +41,10 @@ const Coupon = sequelize.define('Coupon', {
   usageLimit: {
     type: DataTypes.INTEGER,
   },
+  usageLimitPerUser: {
+    type: DataTypes.INTEGER,
+    defaultValue: 1,
+  },
   isPublic: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,

@@ -20,7 +20,27 @@ const User = sequelize.define('User', {
     allowNull: false,
     unique: true,
     validate: {
-      isEmail: true,
+      isEmail: { msg: 'Please provide a valid elite email address' },
+      notTempEmail(value) {
+        const blockedDomains = [
+          '10minutemail.com', 'guerrillamail.com', 'mailinator.com', 
+          'dispostable.com', 'temp-mail.org', 'burnablemail.com', 
+          'trashmail.com', 'yopmail.com'
+        ];
+        const domain = value.split('@')[1];
+        
+        if (blockedDomains.includes(domain)) {
+          throw new Error('No temporary email supported. Please use a professional domain.');
+        }
+
+        // Reserve southzone.com for admins only
+        if (domain === 'southzone.com') {
+          const currentRole = this.getDataValue('role') || this.role;
+          if (currentRole !== 'admin') {
+            throw new Error('This domain is reserved for internal SouthZone authority only.');
+          }
+        }
+      }
     },
   },
   phone: {

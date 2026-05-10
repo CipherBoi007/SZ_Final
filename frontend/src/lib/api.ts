@@ -1,11 +1,35 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const getBaseUrl = () => {
+  let url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  return url.replace(/\/$/, ''); // Remove trailing slash
+};
+
+const API_BASE_URL = getBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
+  paramsSerializer: {
+    serialize: (params) => {
+      const searchParams = new URLSearchParams();
+      const appendParams = (key: string, value: any) => {
+        if (value === undefined || value === null) return;
+        if (Array.isArray(value)) {
+          value.forEach(v => searchParams.append(key, v.toString()));
+        } else if (typeof value === 'object') {
+          Object.entries(value).forEach(([subKey, subValue]) => {
+            appendParams(`${key}[${subKey}]`, subValue);
+          });
+        } else {
+          searchParams.append(key, value.toString());
+        }
+      };
+      Object.entries(params).forEach(([key, value]) => appendParams(key, value));
+      return searchParams.toString();
+    }
+  }
 });
 
 // Request interceptor — attach JWT token
@@ -83,6 +107,8 @@ export const productAPI = {
     api.get('/products/new-arrivals'),
   getTrending: () =>
     api.get('/products/trending'),
+  getTopRated: () =>
+    api.get('/products/top-rated'),
   search: (query: string) =>
     api.get('/products/search', { params: { q: query } }),
   getByCategory: (categoryId: string) =>
@@ -204,6 +230,7 @@ export const paymentAPI = {
 
 export const configAPI = {
   getCategories: () => api.get('/config/categories'),
+  getPromotions: () => api.get('/promotions/active'),
 };
 
 // ─── Admin ───────────────────────────────────────
@@ -217,11 +244,14 @@ export const adminAPI = {
   deactivateUser: (id: string) => api.post(`/admin/users/${id}/deactivate`),
 
   // Orders
-  getOrders: () => api.get('/admin/orders'),
+  getOrders: (params?: { page?: number; limit?: number }) => api.get('/admin/orders', { params }),
+  getOrder: (id: string) => api.get(`/admin/orders/${id}`),
+  getTransactions: () => api.get('/admin/transactions'),
   updateOrderStatus: (id: string, data: Record<string, string>) =>
     api.patch(`/admin/orders/${id}/status`, data),
   updateOrderDeliveryDate: (id: string, data: { deliveryDate: string }) =>
     api.patch(`/admin/orders/${id}/delivery-date`, data),
+  processRefund: (id: string) => api.post(`/admin/orders/${id}/refund`),
   // Products (admin uses the product routes which are admin-restricted)
   createProduct: (data: FormData | Record<string, unknown>) =>
     api.post('/products', data, data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {}),
@@ -239,4 +269,14 @@ export const adminAPI = {
   createCoupon: (data: Record<string, unknown>) => api.post('/coupons', data),
   updateCoupon: (id: string, data: Record<string, unknown>) => api.patch(`/coupons/${id}`, data),
   deleteCoupon: (id: string) => api.delete(`/coupons/${id}`),
+
+  // Promotions
+  getPromotions: () => api.get('/promotions'),
+  createPromotion: (data: Record<string, unknown>) => api.post('/promotions', data),
+  updatePromotion: (id: string, data: Record<string, unknown>) => api.patch(`/promotions/${id}`, data),
+  deletePromotion: (id: string) => api.delete(`/promotions/${id}`),
+
+  // Reviews
+  getAllReviews: () => api.get('/products/reviews/all'),
+  deleteReview: (id: string) => api.delete(`/products/reviews/${id}`),
 };

@@ -10,6 +10,7 @@ router.get('/', apiLimiter, productController.getAllProducts);
 router.get('/featured', productController.getFeaturedProducts);
 router.get('/new-arrivals', productController.getNewArrivals);
 router.get('/trending', productController.getTrendingProducts);
+router.get('/top-rated', productController.getTopRatedProducts);
 router.get('/search', productController.searchProducts);
 router.get('/category/:categoryId', productController.getProductsByCategory);
 router.get('/:id', productController.getProduct);
@@ -22,6 +23,10 @@ router.post('/:id/reviews', productController.addReview);
 
 // Admin only routes
 router.use(restrictTo('admin'));
+
+// Review management
+router.get('/reviews/all', productController.getAllReviews);
+router.delete('/reviews/:id', productController.deleteReview);
 
 // Product management
 router.post(

@@ -3,9 +3,12 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, ShoppingBag, Heart, User, Menu, X, ChevronDown,
+  Home, Sparkles, Percent, SlidersHorizontal, Store, Package,
+  Shield, MapPin
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
@@ -13,21 +16,92 @@ import { productAPI } from '@/lib/api';
 import { getProductPriceRange, getDiscountedPrice } from '@/types';
 import CartDrawer from './CartDrawer';
 
+/* ─── Mobile Nav Item Component ────────────────────────── */
+function MobileNavItem({ link, setMobileOpen }: { link: any; setMobileOpen: (v: boolean) => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const hasChildren = link.children;
+
+  return (
+    <div className="flex flex-col">
+      <div className="flex items-center">
+        <Link
+          href={link.href === '#' ? '' : link.href}
+          onClick={(e) => {
+            if (hasChildren) {
+              e.preventDefault();
+              setExpanded(!expanded);
+            } else {
+              setMobileOpen(false);
+            }
+          }}
+          className={`flex-1 flex items-center gap-3 px-4 py-3.5 text-base font-medium rounded-xl transition-all ${
+            expanded ? 'bg-white/5 text-accent' : 'text-white/70 hover:text-white hover:bg-white/5'
+          }`}
+          style={{ fontFamily: "'Times New Roman', Georgia, serif" }}
+        >
+          {link.icon && <link.icon className="w-5 h-5 opacity-70" />}
+          {link.label}
+        </Link>
+        {hasChildren && (
+          <button 
+            onClick={() => setExpanded(!expanded)}
+            className="p-3.5 text-white/30 hover:text-white"
+          >
+            <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`} />
+          </button>
+        )}
+      </div>
+      
+      <AnimatePresence>
+        {hasChildren && expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden pl-12 pr-4"
+          >
+            <div className="py-2 flex flex-col gap-1 border-l border-white/5 ml-2">
+              {link.children.map((child: any) => (
+                <Link
+                  key={child.label}
+                  href={child.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="block px-4 py-2.5 text-sm text-white/40 hover:text-accent transition-colors"
+                  style={{ fontFamily: "'Times New Roman', Georgia, serif" }}
+                >
+                  {child.label}
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 const navLinks = [
-  { href: '/', label: 'Home' },
+  { href: '/', label: 'Home', icon: Home },
   {
-    href: '/shop', label: 'Shop', children: [
-      { href: '/shop?category=hoodies', label: 'Hoodies' },
-      { href: '/shop?category=shirts', label: 'Shirts' },
-      { href: '/shop?category=pants', label: 'Pants' },
-      { href: '/shop?category=traditional', label: 'Traditional' },
+    href: '/shop', label: 'Showroom', icon: Store, children: [
+      { href: '/shop?category=Formals', label: 'The Formal Edit' },
+      { href: '/shop?category=Traditional', label: 'Heritage Collection' },
+      { href: '/shop?category=Casuals', label: 'Daily Essentials' },
+      { href: '/shop?category=Sports', label: 'Active Performance' },
     ],
   },
-  { href: '/shop?new=true', label: 'New Arrivals' },
-  { href: '/shop?sale=true', label: 'Sale' },
+  { 
+    href: '#', label: 'Campaigns', icon: Sparkles, children: [
+      { href: '/shop?tag=New Drops', label: 'Fresh Arrivals' },
+      { href: '/shop?tag=Trending', label: 'Boutique Trending' },
+      { href: '/shop?sortBy=Rating', label: 'Elite Favorites' },
+    ]
+  },
+  { href: '/shop?sale=true', label: 'Exclusive Offers', icon: Percent },
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -35,16 +109,25 @@ export default function Navbar() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const openCart = useCartStore((s) => s.openCart);
-  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const { user } = useAuthStore();
   
+  // Hide Navbar on Admin pages to avoid redundancy
+  const isAdmin = pathname.startsWith('/admin');
+
+  const memberLinks = [
+    { href: '/profile', label: 'Member Identity', icon: User },
+    { href: '/profile?tab=orders', label: 'Order Manifests', icon: Package },
+    { href: '/profile?tab=addresses', label: 'Delivery Hubs', icon: MapPin },
+    { href: '/wishlist', label: 'Curated Wishlist', icon: Heart },
+  ];
+
   const currentNavLinks = user?.role === 'admin' ? [
-    { href: '/admin', label: 'Dashboard' },
-    { href: '/admin/products', label: 'Products' },
-    { href: '/admin/orders', label: 'Orders' },
-    { href: '/admin/settings', label: 'Settings' }
-  ] : navLinks;
+    { href: '/admin', label: 'Executive Hub', icon: SlidersHorizontal },
+    { href: '/admin/products', label: 'Catalog Audit', icon: Package },
+    { href: '/admin/orders', label: 'Fulfillment', icon: ShoppingBag },
+    { href: '/admin/reviews', label: 'Social Proof', icon: Heart }
+  ] : (user ? [...navLinks, { href: '#', label: 'Member Vault', icon: Shield, children: memberLinks }] : navLinks);
   
   const cartItems = useCartStore((s) => s.items);
   const totalItemsCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
@@ -85,9 +168,19 @@ export default function Navbar() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery, searchOpen]);
 
+  const handleFilterToggle = () => {
+    if (window.location.pathname === '/shop') {
+      window.dispatchEvent(new CustomEvent('toggleShopFilters'));
+    } else {
+      window.location.href = '/shop?filter=true';
+    }
+  };
+
   return (
     <>
-      <motion.header
+      {!isAdmin && (
+        <>
+          <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -118,53 +211,27 @@ export default function Navbar() {
               />
             </Link>
 
-            {/* Desktop Nav - Times New Roman font */}
-            <nav className="hidden lg:flex items-center gap-1">
-              {currentNavLinks.map((link) => (
-                <div
-                  key={link.label}
-                  className="relative"
-                  onMouseEnter={() => (link as any).children && setDropdownOpen(link.label)}
-                  onMouseLeave={() => setDropdownOpen(null)}
-                >
-                  <Link
-                    href={link.href}
-                    className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors rounded-lg hover:bg-white/5"
-                    style={{ fontFamily: "'Times New Roman', Georgia, serif" }}
-                  >
-                    {link.label}
-                    {(link as any).children && <ChevronDown className="w-3.5 h-3.5" />}
-                  </Link>
-
-                  {/* Dropdown */}
-                  <AnimatePresence>
-                    {(link as any).children && dropdownOpen === link.label && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 8 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute top-full left-0 mt-1 w-48 rounded-xl glass-strong p-2"
-                      >
-                        {(link as any).children.map((child: any) => (
-                          <Link
-                            key={child.label}
-                            href={child.href}
-                            className="block px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                            style={{ fontFamily: "'Times New Roman', Georgia, serif" }}
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ))}
-            </nav>
+            {/* Center Space - Cleared for Minimalism */}
+            <div className="hidden lg:block flex-1" />
 
             {/* Right icons */}
             <div className="flex items-center gap-1 sm:gap-2">
+              <Link
+                href="/shop"
+                className="hidden lg:flex p-2 sm:p-2.5 text-white/70 hover:text-white transition-colors rounded-full hover:bg-white/5"
+                aria-label="Shop"
+              >
+                <Store className="w-5 h-5" />
+              </Link>
+
+              <button
+                onClick={handleFilterToggle}
+                className="hidden lg:flex p-2 sm:p-2.5 text-white/70 hover:text-white transition-colors rounded-full hover:bg-white/5"
+                aria-label="Filter"
+              >
+                <SlidersHorizontal className="w-5 h-5" />
+              </button>
+
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
                 className="p-2 sm:p-2.5 text-white/70 hover:text-white transition-colors rounded-full hover:bg-white/5"
@@ -270,6 +337,12 @@ export default function Navbar() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && searchQuery.trim().length >= 2) {
+                        window.location.href = `/shop?search=${encodeURIComponent(searchQuery.trim())}`;
+                        setSearchOpen(false);
+                      }
+                    }}
                     placeholder="Search for hoodies, shirts, pants..."
                     autoFocus
                     className="w-full rounded-full bg-white/5 border border-white/10 py-3 pl-12 pr-4 text-sm text-white placeholder:text-white/30 outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition-all"
@@ -286,30 +359,39 @@ export default function Navbar() {
                     {isSearching ? (
                       <div className="text-white/50 text-sm text-center py-4">Searching...</div>
                     ) : searchResults.length > 0 ? (
-                      searchResults.map((product) => {
-                        const img = product.images?.find((im: any) => im.isPrimary) || product.images?.[0];
-                        const imgSrc = img?.url || img?.imageUrl || '/images/hoodie.jpg';
-                        const { min, max } = getProductPriceRange(product);
-                        const discount = product.discount || 0;
-                        const minD = getDiscountedPrice(min, discount);
-                        const maxD = getDiscountedPrice(max, discount);
-                        return (
-                          <Link 
-                            key={product.id} 
-                            href={`/shop/${product.id}`} 
-                            onClick={() => setSearchOpen(false)} 
-                            className="flex items-center gap-4 p-2 rounded-xl hover:bg-white/5 transition-colors"
-                          >
-                            <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-white/5">
-                              <Image src={imgSrc} alt={product.name} fill className="object-cover" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-white line-clamp-1">{product.name}</p>
-                              <p className="text-xs text-accent font-bold mt-1">{minD === maxD ? `₹${minD.toLocaleString()}` : `₹${minD.toLocaleString()} – ₹${maxD.toLocaleString()}`}</p>
-                            </div>
-                          </Link>
-                        );
-                      })
+                      <>
+                        {searchResults.slice(0, 5).map((product) => {
+                          const img = product.images?.find((im: any) => im.isPrimary) || product.images?.[0];
+                          const imgSrc = img?.url || img?.imageUrl || '/images/hoodie.jpg';
+                          const { min, max } = getProductPriceRange(product);
+                          const discount = product.discount || 0;
+                          const minD = getDiscountedPrice(min, discount);
+                          const maxD = getDiscountedPrice(max, discount);
+                          return (
+                            <Link 
+                              key={product.id} 
+                              href={`/shop/${product.id}`} 
+                              onClick={() => setSearchOpen(false)} 
+                              className="flex items-center gap-4 p-2 rounded-xl hover:bg-white/5 transition-colors"
+                            >
+                              <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-white/5">
+                                <Image src={imgSrc} alt={product.name} fill className="object-cover" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-white line-clamp-1">{product.name}</p>
+                                <p className="text-xs text-accent font-bold mt-1">{minD === maxD ? `₹${minD.toLocaleString()}` : `₹${minD.toLocaleString()} – ₹${maxD.toLocaleString()}`}</p>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                        <Link 
+                          href={`/shop?search=${encodeURIComponent(searchQuery.trim())}`}
+                          onClick={() => setSearchOpen(false)}
+                          className="mt-2 py-3 text-center text-[10px] font-black text-accent uppercase tracking-widest hover:bg-accent/10 rounded-xl transition-all border border-accent/20"
+                        >
+                          View All {searchResults.length} Results
+                        </Link>
+                      </>
                     ) : (
                       <div className="text-white/50 text-sm text-center py-4">No products found</div>
                     )}
@@ -340,76 +422,60 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 left-0 z-50 h-full w-80 bg-surface border-r border-white/5 p-6 flex flex-col"
+              className="fixed top-0 left-0 z-50 h-full w-80 bg-surface border-r border-white/5 p-0 flex flex-col shadow-2xl"
             >
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center justify-between p-6 border-b border-white/5">
                 <Image
-                  src="/images/southzone_logo_final.jpg"
+                  src="/images/LOGO.png"
                   alt="SouthZone"
                   width={120}
                   height={36}
-                  className="h-8 w-auto rounded"
+                  className="h-7 w-auto rounded"
                 />
                 <button
                   onClick={() => setMobileOpen(false)}
-                  className="p-2 text-white/70 hover:text-white"
+                  className="p-2 text-white/70 hover:text-white bg-white/5 rounded-full"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <nav className="flex flex-col gap-1 flex-1 overflow-y-auto">
+              <nav className="flex flex-col gap-1 p-4 flex-1 overflow-y-auto scrollbar-hide">
                 {currentNavLinks.map((link) => (
-                  <div key={link.label}>
-                    <Link
-                      href={link.href}
-                      onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-2 px-4 py-3 text-base font-medium text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
-                      style={{ fontFamily: "'Times New Roman', Georgia, serif" }}
-                    >
-                      {link.label}
-                    </Link>
-                    {(link as any).children && (
-                      <div className="pl-6 border-l border-white/10 ml-6 pb-2">
-                        {(link as any).children.map((child: any) => (
-                          <Link
-                            key={child.label}
-                            href={child.href}
-                            onClick={() => setMobileOpen(false)}
-                            className="block px-4 py-2.5 text-sm text-white/50 hover:text-white transition-colors"
-                            style={{ fontFamily: "'Times New Roman', Georgia, serif" }}
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <MobileNavItem 
+                    key={link.label} 
+                    link={link} 
+                    setMobileOpen={setMobileOpen} 
+                  />
                 ))}
               </nav>
 
-              <div className="pt-6 border-t border-white/5 flex flex-col gap-2 shrink-0">
+              <div className="p-6 border-t border-white/5 bg-black/20 flex flex-col gap-3 shrink-0">
                 <Link
                   href="/wishlist"
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white rounded-xl hover:bg-white/5 transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white rounded-xl hover:bg-white/5 transition-all group"
                   style={{ fontFamily: "'Times New Roman', Georgia, serif" }}
                 >
-                  <Heart className="w-5 h-5" /> Wishlist
+                  <Heart className="w-5 h-5 text-red-500/70 group-hover:text-red-500" /> 
+                  <span className="flex-1">Wishlist</span>
                 </Link>
                 <Link
                   href={user ? (user.role === 'admin' ? '/admin' : '/profile') : '/auth/login'}
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white rounded-xl hover:bg-white/5 transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white rounded-xl hover:bg-white/5 transition-all"
                   style={{ fontFamily: "'Times New Roman', Georgia, serif" }}
                 >
-                  <User className="w-5 h-5" /> {user ? 'Profile' : 'Login'}
+                  <User className="w-5 h-5 text-accent/70" /> 
+                  <span className="flex-1">{user ? 'My Profile' : 'Sign In'}</span>
                 </Link>
               </div>
             </motion.aside>
           </>
         )}
-      </AnimatePresence>
+        </AnimatePresence>
+        </>
+      )}
     </>
   );
 }

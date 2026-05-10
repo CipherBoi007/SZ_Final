@@ -47,13 +47,32 @@ class PaymentService {
 
   async refundPayment(paymentId, amount) {
     try {
+      // ─── Simulation Logic ──────────────────────────────────────────
+      // If using a test key and a simulated payment ID, return success
+      const isTestKey = config.RAZORPAY.KEY_ID.startsWith('rzp_test_');
+      const isSimulatedId = paymentId.startsWith('pay_') && !paymentId.includes('sim_real'); // seeded IDs
+      
+      if (isTestKey && isSimulatedId) {
+        console.log(`[SIMULATION] Processing mock refund for Test ID: ${paymentId}`);
+        return {
+          id: `rfnd_sim_${Math.random().toString(36).substr(2, 9)}`,
+          entity: 'refund',
+          amount: Math.round(amount * 100),
+          currency: 'INR',
+          payment_id: paymentId,
+          status: 'processed',
+          created_at: Math.floor(Date.now() / 1000)
+        };
+      }
+      // ───────────────────────────────────────────────────────────────
+
       const refund = await razorpay.payments.refund(paymentId, {
         amount: amount ? Math.round(amount * 100) : undefined,
       });
       return refund;
     } catch (error) {
       console.error('Payment refund error:', error);
-      throw new Error('Failed to process refund');
+      throw new Error(error.description || 'Failed to process refund');
     }
   }
 }

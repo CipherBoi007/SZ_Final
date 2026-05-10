@@ -43,13 +43,21 @@ exports.deleteProfilePicture = catchAsync(async (req, res, next) => {
 
 // @desc    Get my orders
 exports.getMyOrders = catchAsync(async (req, res, next) => {
-  const orders = await Order.findAll({ where: { userId: req.user.id }, order: [['createdAt', 'DESC']] });
+  const orders = await Order.findAll({ 
+    where: { userId: req.user.id }, 
+    include: [{ model: OrderItem, as: 'orderItems' }],
+    order: [['createdAt', 'DESC']] 
+  });
   res.status(200).json({ status: 'success', data: orders });
 });
 
 // @desc    Get single order
 exports.getOrder = catchAsync(async (req, res, next) => {
-  const order = await Order.findOne({ where: { id: req.params.id, userId: req.user.id } });
+  const order = await Order.findOne({ 
+    where: { id: req.params.id, userId: req.user.id },
+    include: [{ model: OrderItem, as: 'orderItems' }]
+  });
+  if (!order) return next(new AppError('Order not found', 404));
   res.status(200).json({ status: 'success', data: order });
 });
 

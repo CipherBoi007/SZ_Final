@@ -18,6 +18,7 @@ const addressRoutes = require('./routes/addressRoutes');
 const whatsappRoutes = require('./routes/whatsappRoutes');
 const configRoutes = require('./routes/configRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const promotionRoutes = require('./routes/promotionRoutes');
 
 const errorHandler = require('./middleware/errorHandler');
 const AppError = require('./utils/AppError');
@@ -37,7 +38,7 @@ app.use(helmet({
 
 const allowedOrigins = [
   process.env.FRONTEND_URL,
-  'http://localhost:3000',
+  'http://localhost:3000','https://southzone-pied.vercel.app',
   /\.vercel\.app$/, // Allow all vercel preview deployments
 ];
 
@@ -88,6 +89,7 @@ app.use('/api/addresses', addressRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/promotions', promotionRoutes);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date() });

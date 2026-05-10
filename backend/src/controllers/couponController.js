@@ -40,11 +40,24 @@ exports.validateCoupon = catchAsync(async (req, res, next) => {
 
   const usedCount = await CouponUsage.count({ where: { couponId: coupon.id } });
   if (coupon.usageLimit && usedCount >= coupon.usageLimit) {
-    return next(new AppError('Coupon usage limit exceeded', 400));
+    return next(new AppError('Coupon usage limit reached', 400));
+  }
+
+  // Per-user usage check
+  const userUsedCount = await CouponUsage.count({ 
+    where: { 
+      couponId: coupon.id,
+      userId: req.user.id
+    } 
+  });
+
+  const limit = coupon.usageLimitPerUser || 1;
+  if (userUsedCount >= limit) {
+    return next(new AppError('You have already used this coupon', 400));
   }
 
   if (orderAmount && orderAmount < coupon.minOrderValue) {
-    return next(new AppError(`Minimum order value should be ${coupon.minOrderValue}`, 400));
+    return next(new AppError(`Minimum order value should be ₹${coupon.minOrderValue}`, 400));
   }
 
   res.status(200).json({ status: 'success', data: { isValid: true, coupon } });

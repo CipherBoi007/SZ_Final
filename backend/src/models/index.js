@@ -11,6 +11,7 @@ const Review = require('./Review');
 const Wishlist = require('./Wishlist');
 const Address = require('./Address');
 const ProductVariant = require('./ProductVariant');
+const Promotion = require('./Promotion');
 
 // User associations
 User.hasOne(Cart, { foreignKey: 'userId' });
@@ -84,4 +85,5 @@ module.exports = {
   Wishlist,
   Address,
   ProductVariant,
+  Promotion,
 };

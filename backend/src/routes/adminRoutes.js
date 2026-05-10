@@ -12,12 +12,16 @@ router.patch('/users/:id', adminController.updateUser);
 router.post('/users/:id/promote', adminController.promoteToAdmin);
 router.post('/users/:id/deactivate', adminController.deactivateUser);
 
+// Financial Ledger
+router.get('/transactions', adminController.getTransactions);
 
 
 // Orders management
 router.get('/orders', adminController.getAllOrders);
+router.get('/orders/:id', adminController.getOrder);
 router.patch('/orders/:id/status', adminController.updateOrderStatus);
 router.patch('/orders/:id/delivery-date', adminController.updateDeliveryDate);
+router.post('/orders/:id/refund', adminController.processRefund);
 
 // Categories management
 router.get('/categories', adminController.getAllCategories);

@@ -1,87 +1,101 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/5 bg-surface mt-auto">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12 lg:py-16 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8 lg:gap-12">
+    <footer className="border-t border-white/5 bg-surface mt-auto overflow-hidden relative">
+      {/* Newsletter Section */}
+      <div className="border-b border-white/5">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+            <div className="text-center lg:text-left">
+              <h3 className="font-serif text-2xl font-bold text-white mb-2">Join the SouthZone Club</h3>
+              <p className="text-sm text-white/40">Subscribe for early access to drops and exclusive offers.</p>
+            </div>
+            <div className="w-full max-w-md flex items-center gap-2">
+              <input 
+                type="email" 
+                placeholder="Enter your email" 
+                className="flex-1 bg-white/5 border border-white/10 rounded-full px-6 py-3 text-sm text-white outline-none focus:border-accent/50 transition-all"
+              />
+              <button className="bg-white text-black px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all">
+                Join
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-8 gap-y-12">
           
-          {/* Info Section - No Logo */}
-          <div className="col-span-2 md:col-span-2 lg:col-span-1">
-            <p className="text-sm text-white/50 leading-relaxed mb-6">
-              Southzone delivers premium streetwear crafted for the bold. 
-              Elevate your daily hustle with high-quality fits designed to stand out.
+          {/* Brand Info */}
+          <div className="col-span-2 lg:col-span-2">
+            <Image
+              src="/images/LOGO.png"
+              alt="SouthZone"
+              width={150}
+              height={45}
+              className="h-8 w-auto mb-6 brightness-125"
+            />
+            <p className="text-sm text-white/40 leading-relaxed max-w-sm mb-8">
+              SouthZone is more than a brand; it's a movement. We blend traditional craftsmanship with modern streetwear to deliver fits that define a generation. Designed for the bold, made in India.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="p-2 glass rounded-full text-white/50 hover:text-white transition-colors">
-                <span className="sr-only">Instagram</span>
-                <Instagram className="h-5 w-5" />
-              </a>
-              <a href="#" className="p-2 glass rounded-full text-white/50 hover:text-white transition-colors">
-                <span className="sr-only">Twitter</span>
-                <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" className="p-2 glass rounded-full text-white/50 hover:text-white transition-colors">
-                <span className="sr-only">Facebook</span>
-                <Facebook className="h-5 w-5" />
-              </a>
-            </div>
-            <div className="mt-6 flex flex-col gap-3 text-sm text-white/40">
-              <a href="mailto:hello@southzone.in" className="flex items-center gap-2 hover:text-white/70 transition-colors">
-                <Mail className="w-4 h-4" /> hello@southzone.in
-              </a>
-              <a href="tel:+919876543210" className="flex items-center gap-2 hover:text-white/70 transition-colors">
-                <Phone className="w-4 h-4" /> +91 98765 43210
-              </a>
-              <span className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" /> Chennai, India
-              </span>
+              {[Instagram, Twitter, Facebook].map((Icon, i) => (
+                <a key={i} href="#" className="w-10 h-10 flex items-center justify-center glass rounded-full text-white/50 hover:text-white hover:bg-accent transition-all duration-300">
+                  <Icon className="h-5 w-5" />
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* Shop Links */}
+          {/* Shop */}
           <div>
-            <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-6">Shop</h3>
+            <h3 className="text-sm font-bold text-white tracking-[0.2em] uppercase mb-6">Collections</h3>
             <ul className="space-y-4">
-              <li><Link href="/shop?category=hoodies" className="text-sm text-white/50 hover:text-accent transition-colors">Hoodies</Link></li>
-              <li><Link href="/shop?category=shirts" className="text-sm text-white/50 hover:text-accent transition-colors">Shirts</Link></li>
-              <li><Link href="/shop?category=pants" className="text-sm text-white/50 hover:text-accent transition-colors">Pants</Link></li>
-              <li><Link href="/shop?category=traditional" className="text-sm text-white/50 hover:text-accent transition-colors">Traditional</Link></li>
+              {['Formals', 'Casuals', 'Traditional', 'Sports'].map(item => (
+                <li key={item}><Link href={`/shop?category=${item}`} className="text-sm text-white/40 hover:text-accent transition-colors">{item}</Link></li>
+              ))}
             </ul>
           </div>
 
-          {/* Support Links */}
+          {/* Support */}
           <div>
-            <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-6">Support</h3>
+            <h3 className="text-sm font-bold text-white tracking-[0.2em] uppercase mb-6">Support</h3>
             <ul className="space-y-4">
-              <li><Link href="/track" className="text-sm text-white/50 hover:text-accent transition-colors">Track Order</Link></li>
-              <li><Link href="/returns" className="text-sm text-white/50 hover:text-accent transition-colors">Returns & Exchanges</Link></li>
-              <li><Link href="/faq" className="text-sm text-white/50 hover:text-accent transition-colors">FAQ</Link></li>
-              <li><Link href="/contact" className="text-sm text-white/50 hover:text-accent transition-colors">Contact Us</Link></li>
+              {['Track Order', 'Returns', 'Size Guide', 'Contact Us'].map(item => (
+                <li key={item}><Link href="#" className="text-sm text-white/40 hover:text-accent transition-colors">{item}</Link></li>
+              ))}
             </ul>
           </div>
 
-          {/* Company Links */}
+          {/* Legal */}
           <div>
-            <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-6">Company</h3>
+            <h3 className="text-sm font-bold text-white tracking-[0.2em] uppercase mb-6">Company</h3>
             <ul className="space-y-4">
-              <li><Link href="/about" className="text-sm text-white/50 hover:text-accent transition-colors">About Us</Link></li>
-              <li><Link href="/terms" className="text-sm text-white/50 hover:text-accent transition-colors">Terms of Service</Link></li>
-              <li><Link href="/privacy" className="text-sm text-white/50 hover:text-accent transition-colors">Privacy Policy</Link></li>
+              {['About Us', 'Terms of Service', 'Privacy Policy', 'Cookie Policy'].map(item => (
+                <li key={item}><Link href="#" className="text-sm text-white/40 hover:text-accent transition-colors">{item}</Link></li>
+              ))}
             </ul>
           </div>
         </div>
         
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-white/40">
-            &copy; {new Date().getFullYear()} Southzone. All rights reserved.
-          </p>
-          <div className="flex items-center gap-4 text-xs text-white/40">
-            <span>Designed for the Streets</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            <span>Always Bold</span>
+        <div className="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex flex-col md:flex-row items-center gap-4 text-xs text-white/30 uppercase tracking-widest font-medium text-center md:text-left">
+            <p>&copy; {new Date().getFullYear()} SouthZone Wear. All rights reserved.</p>
+            <span className="hidden md:block w-1 h-1 rounded-full bg-white/20" />
+            <p>Designed and Manufactured in India</p>
+          </div>
+          
+          {/* Simulated Payment Icons */}
+          <div className="flex items-center gap-3 opacity-30 grayscale hover:grayscale-0 transition-all duration-500">
+             <div className="px-2 py-1 border border-white/20 rounded text-[10px] text-white font-bold">VISA</div>
+             <div className="px-2 py-1 border border-white/20 rounded text-[10px] text-white font-bold">MASTER</div>
+             <div className="px-2 py-1 border border-white/20 rounded text-[10px] text-white font-bold">UPI</div>
+             <div className="px-2 py-1 border border-white/20 rounded text-[10px] text-white font-bold">G-PAY</div>
           </div>
         </div>
       </div>

@@ -52,49 +52,83 @@ export default function AdminCustomers() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white mb-8">Customers</h1>
-      <div className="relative mb-6">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or email..."
-          className="w-full sm:w-80 rounded-xl bg-white/5 border border-white/10 py-2.5 pl-11 pr-4 text-sm text-white placeholder:text-white/30 outline-none focus:border-accent/50 transition-colors" />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-8">
+        <div>
+          <h1 className="text-4xl font-serif font-black text-white uppercase tracking-tight mb-2">Member Registry</h1>
+          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em]">Global Elite Member Audit</p>
+        </div>
+      </div>
+
+      <div className="relative mb-8 group max-w-xl">
+        <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-accent transition-colors" />
+        <input 
+          value={search} 
+          onChange={(e) => setSearch(e.target.value)} 
+          placeholder="Search Members by Name or Email..."
+          className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 pl-14 pr-6 text-sm text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner" 
+        />
       </div>
 
       {loading ? (
         <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" /></div>
       ) : (
-        <div className="rounded-2xl glass-strong overflow-hidden">
-          <table className="w-full text-sm">
-            <thead><tr className="text-white/30 border-b border-white/5">
-              <th className="text-left p-4 font-medium">Customer</th>
-              <th className="text-left p-4 font-medium hidden md:table-cell">Email</th>
-              <th className="text-left p-4 font-medium hidden sm:table-cell">Role</th>
-              <th className="text-left p-4 font-medium hidden lg:table-cell">Joined</th>
-              <th className="text-right p-4 font-medium">Actions</th>
-            </tr></thead>
-            <tbody>
-              {filtered.map((user) => (
-                <tr key={user.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent text-xs font-bold shrink-0">{user.name?.charAt(0)?.toUpperCase() || '?'}</div>
-                      <div><p className="text-white/80">{user.name}</p>{user.isActive === false && <span className="text-[14px] font-medium text-red-400">Deactivated</span>}</div>
-                    </div>
-                  </td>
-                  <td className="p-4 text-white/40 hidden md:table-cell">{user.email}</td>
-                  <td className="p-4 hidden sm:table-cell">
-                    <span className={`px-3 py-1.5 rounded-full text-[14px] font-bold capitalize ${user.role === 'admin' ? 'bg-accent/10 text-accent' : 'bg-white/5 text-white/40'}`}>{user.role}</span>
-                  </td>
-                  <td className="p-4 text-white/30 hidden lg:table-cell">{new Date(user.createdAt).toLocaleDateString()}</td>
-                  <td className="p-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      {user.role !== 'admin' && <button onClick={() => handlePromote(user.id.toString())} className="p-2 rounded-lg glass text-white/30 hover:text-accent transition-colors" title="Promote"><Shield className="w-3.5 h-3.5" /></button>}
-                      {user.isActive !== false && <button onClick={() => handleDeactivate(user.id.toString())} className="p-2 rounded-lg glass text-white/30 hover:text-red-400 transition-colors" title="Deactivate"><UserX className="w-3.5 h-3.5" /></button>}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="space-y-4">
+          <div className="md:hidden space-y-3">
+            {filtered.map((user) => (
+              <div key={user.id} className="p-4 rounded-2xl glass-strong border border-white/5 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent text-[10px] font-black shrink-0 border border-accent/20">
+                    {user.name?.charAt(0)?.toUpperCase() || '?'}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-black text-white uppercase tracking-tight truncate">{user.name}</p>
+                    <p className="text-[9px] text-white/20 font-black uppercase mt-0.5 tracking-widest truncate">{user.email}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {user.isActive !== false && <button onClick={() => handleDeactivate(user.id.toString())} className="p-3 rounded-xl glass border border-white/5 text-white/40"><UserX className="w-4 h-4" /></button>}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden md:block rounded-[32px] glass-strong border border-white/5 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead><tr className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] border-b border-white/5">
+                <th className="text-left p-8">Elite Member</th>
+                <th className="text-left p-8">Communication Hook</th>
+                <th className="text-left p-8">Authority Status</th>
+                <th className="text-left p-8">Joined</th>
+                <th className="text-right p-8">Actions</th>
+              </tr></thead>
+              <tbody>
+                {filtered.map((user) => (
+                  <tr key={user.id} className="border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group">
+                    <td className="p-8">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent text-xs font-black border border-accent/20">{user.name?.charAt(0)?.toUpperCase() || '?'}</div>
+                        <div>
+                          <p className="text-white font-black uppercase tracking-tight">{user.name}</p>
+                          {user.isActive === false && <span className="text-[9px] font-black uppercase tracking-widest text-red-400">Suspended Registry</span>}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-8 text-white/40 font-mono text-[11px]">{user.email}</td>
+                    <td className="p-8">
+                      <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${user.role === 'admin' ? 'bg-accent/10 text-accent' : 'bg-white/5 text-white/20'}`}>{user.role}</span>
+                    </td>
+                    <td className="p-8 text-white/20 font-black uppercase tracking-widest text-[9px]">{new Date(user.createdAt).toLocaleDateString()}</td>
+                    <td className="p-8 text-right">
+                      <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all">
+                        {user.role !== 'admin' && <button onClick={() => handlePromote(user.id.toString())} className="p-4 rounded-2xl glass border border-white/5 text-white/40 hover:text-accent transition-all"><Shield className="w-4 h-4" /></button>}
+                        {user.isActive !== false && <button onClick={() => handleDeactivate(user.id.toString())} className="p-4 rounded-2xl glass border border-white/5 text-white/40 hover:text-red-400 transition-all"><UserX className="w-4 h-4" /></button>}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           {filtered.length === 0 && <div className="p-8 text-center text-white/20"><Users className="w-8 h-8 mx-auto mb-2" /><p>No customers found</p></div>}
         </div>
       )}

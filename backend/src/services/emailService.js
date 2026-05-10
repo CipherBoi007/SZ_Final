@@ -64,7 +64,7 @@ class EmailService {
     }
   }
 
-  async sendOrderConfirmation(email, order, name) {
+  async sendOrderConfirmationEmail(email, order, name) {
     const subject = `Order Confirmation - ${order.orderNumber}`;
     const html = `
       <h1>Thank you for your order${name ? `, ${name}` : ''}!</h1>

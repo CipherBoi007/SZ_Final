@@ -20,6 +20,7 @@ export default function AdminCategories() {
     name: '',
     type: 'men',
     description: '',
+    image: '',
   });
 
   useEffect(() => {
@@ -45,10 +46,11 @@ export default function AdminCategories() {
         name: category.name || '',
         type: category.type || 'men',
         description: category.description || '',
+        image: category.image || '',
       });
     } else {
       setEditId(null);
-      setFormData({ name: '', type: 'men', description: '' });
+      setFormData({ name: '', type: 'men', description: '', image: '' });
     }
     setIsModalOpen(true);
   };
@@ -96,22 +98,36 @@ export default function AdminCategories() {
       {loading ? (
         <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" /></div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {categories.map((cat) => (
-            <div key={cat.id} className="p-6 rounded-2xl glass-strong border border-white/5 relative group">
-              <span className="inline-block px-3 py-1 rounded-md text-[10px] font-bold tracking-wider bg-white/10 text-white/70 uppercase mb-4">
-                {cat.type}
-              </span>
-              <h3 className="text-xl font-bold text-white mb-2">{cat.name}</h3>
-              {cat.description && <p className="text-sm text-white/50 mb-6 line-clamp-2">{cat.description}</p>}
+            <div key={cat.id} className="rounded-2xl glass-strong border border-white/5 overflow-hidden group">
+              <div className="relative h-28 sm:h-40 bg-white/5 overflow-hidden">
+                {cat.image ? (
+                  <img src={cat.image} alt={cat.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Library className="w-10 h-10 text-white/5" />
+                  </div>
+                )}
+                <div className="absolute top-4 left-4">
+                  <span className="inline-block px-3 py-1 rounded-md text-[10px] font-black tracking-wider bg-black/60 backdrop-blur-md text-white uppercase border border-white/10">
+                    {cat.type}
+                  </span>
+                </div>
+              </div>
               
-              <div className="pt-4 border-t border-white/5 flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => handleOpenModal(cat)} className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors">
-                  <PenLine className="w-4 h-4" />
-                </button>
-                <button onClick={() => handleDelete(cat.id)} className="p-2 rounded-lg text-white/50 hover:text-red-400 hover:bg-red-400/10 transition-colors">
-                  <Trash2 className="w-4 h-4" />
-                </button>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-white mb-2">{cat.name}</h3>
+                {cat.description && <p className="text-sm text-white/50 mb-6 line-clamp-2">{cat.description}</p>}
+                
+                <div className="pt-4 border-t border-white/5 flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => handleOpenModal(cat)} className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors">
+                    <PenLine className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => handleDelete(cat.id)} className="p-2 rounded-lg text-white/50 hover:text-red-400 hover:bg-red-400/10 transition-colors">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -149,6 +165,11 @@ export default function AdminCategories() {
                   <option value="women">Women</option>
                   <option value="kids">Kids</option>
                 </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase text-white/50">Image URL</label>
+                <input value={formData.image} onChange={(e) => setFormData({ ...formData, image: e.target.value })} placeholder="https://image-url.com/hero.jpg" className="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:border-accent/50 outline-none" />
               </div>
 
               <div className="space-y-2">

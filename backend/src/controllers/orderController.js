@@ -22,20 +22,19 @@ exports.createOrder = catchAsync(async (req, res, next) => {
     razorpay_signature
   } = req.body;
 
-  // If online payment, verify first
-  if (paymentMethod === 'razorpay') {
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-      return next(new AppError('Payment details missing', 400));
-    }
-    const sign = razorpay_order_id + '|' + razorpay_payment_id;
-    const expectedSign = crypto
-      .createHmac('sha256', config.RAZORPAY.KEY_SECRET)
-      .update(sign.toString())
-      .digest('hex');
+  // All orders are now prepaid via Razorpay
+  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+    return next(new AppError('Payment details missing. SouthZone strictly accepts prepaid orders only.', 400));
+  }
+  
+  const sign = razorpay_order_id + '|' + razorpay_payment_id;
+  const expectedSign = crypto
+    .createHmac('sha256', config.RAZORPAY.KEY_SECRET)
+    .update(sign.toString())
+    .digest('hex');
 
-    if (razorpay_signature !== expectedSign) {
-      return next(new AppError('Invalid payment signature', 400));
-    }
+  if (razorpay_signature !== expectedSign) {
+    return next(new AppError('Invalid payment signature. Security alert triggered.', 400));
   }
 
   const transaction = await sequelize.transaction();
@@ -101,30 +100,44 @@ exports.createOrder = catchAsync(async (req, res, next) => {
     }
 
     const shippingAddr = await Address.findByPk(shippingAddressId, { transaction });
-    const isPaid = paymentMethod === 'razorpay';
+    if (!shippingAddr) throw new Error('Shipping address not found. Please select a valid address.');
+    
+    // Calculate Estimated Delivery (Order Date + 7 Days)
+    const estimatedDelivery = new Date();
+    estimatedDelivery.setDate(estimatedDelivery.getDate() + 7);
+
     const order = await Order.create({
       orderNumber: generateOrderNumber(),
       userId: req.user.id,
       totalAmount,
       discountAmount,
+      couponId: appliedCoupon ? appliedCoupon.id : null,
       couponCode: appliedCoupon ? appliedCoupon.code : null,
       finalAmount: Math.max(0, totalAmount - discountAmount),
-      paymentMethod: paymentMethod || 'cod',
-      status: isPaid ? 'confirmed' : 'pending',
-      paymentStatus: isPaid ? 'completed' : 'pending',
-      paymentId: razorpay_payment_id || null,
+      paymentMethod: 'razorpay',
+      status: 'pending',
+      paymentStatus: 'completed',
+      paymentId: razorpay_payment_id,
+      shippingAddressId,
+      billingAddressId: shippingAddressId, // Usually same for boutique
       shippingAddressSnapshot: shippingAddr.toJSON(),
       billingAddressSnapshot: shippingAddr.toJSON(),
       phone: shippingAddr.phone,
       email: req.user.email,
+      estimatedDelivery,
     }, { transaction });
 
     await OrderItem.bulkCreate(orderItemsData.map(item => ({ ...item, orderId: order.id })), { transaction });
     if (!isDirectBuy) await Cart.destroy({ where: { userId: req.user.id }, transaction });
     
-    // Increment coupon usage if applied
     if (appliedCoupon) {
       await appliedCoupon.increment('usedCount', { transaction });
+      await CouponUsage.create({
+        couponId: appliedCoupon.id,
+        userId: req.user.id,
+        orderId: order.id,
+        discountApplied: discountAmount
+      }, { transaction });
     }
 
     await transaction.commit();
@@ -135,7 +148,6 @@ exports.createOrder = catchAsync(async (req, res, next) => {
       const phone = order.phone || req.user.phone;
       
       if (phone) {
-        // 1. Send Order Confirmation
         await whatsappService.sendOrderConfirmation(
           phone, 
           order.orderNumber, 
@@ -143,8 +155,7 @@ exports.createOrder = catchAsync(async (req, res, next) => {
           orderWithItems.orderItems.length
         );
 
-        // 2. If paid online, send Payment Confirmation
-        if (isPaid && razorpay_payment_id) {
+        if (razorpay_payment_id) {
           await whatsappService.sendPaymentConfirmation(
             phone,
             order.orderNumber,
@@ -154,7 +165,6 @@ exports.createOrder = catchAsync(async (req, res, next) => {
         }
       }
       
-      // Email Notification
       await emailService.sendOrderConfirmationEmail(req.user.email, order);
     } catch (notifErr) {
       console.error('Notification Error (Non-blocking):', notifErr.message);

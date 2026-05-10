@@ -169,8 +169,13 @@ exports.getFeaturedProducts = catchAsync(async (req, res, next) => {
 
 // @desc    Get new arrivals
 exports.getNewArrivals = catchAsync(async (req, res, next) => {
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
   const products = await Product.findAll({
-    where: { isNew: true },
+    where: { 
+      createdAt: { [Op.gte]: threeMonthsAgo } 
+    },
     include: [
       { model: ProductImage, as: 'images', separate: true, order: [['order', 'ASC']] },
       { model: ProductVariant, as: 'variants', attributes: ['id', 'size', 'color', 'price', 'stock'] },
@@ -183,13 +188,56 @@ exports.getNewArrivals = catchAsync(async (req, res, next) => {
 
 // @desc    Get trending products
 exports.getTrendingProducts = catchAsync(async (req, res, next) => {
-  const products = await Product.findAll({
-    where: { isTrending: true },
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+  // Use subquery or aggregate to find most ordered products in last 3 months
+  const trendingProducts = await Product.findAll({
+    attributes: {
+      include: [
+        [
+          sequelize.literal(`(
+            SELECT SUM("OrderItem"."quantity")
+            FROM "OrderItems" AS "OrderItem"
+            INNER JOIN "ProductVariants" AS "Variant" ON "OrderItem"."variantId" = "Variant"."id"
+            WHERE "Variant"."productId" = "Product"."id"
+            AND "OrderItem"."createdAt" >= '${threeMonthsAgo.toISOString()}'
+          )`),
+          'orderCount'
+        ]
+      ]
+    },
     include: [
       { model: ProductImage, as: 'images', separate: true, order: [['order', 'ASC']] },
       { model: ProductVariant, as: 'variants', attributes: ['id', 'size', 'color', 'price', 'stock'] },
     ],
-    limit: 10
+    order: [[sequelize.literal('"orderCount"'), 'DESC']],
+    limit: 10,
+    // Ensure we only show items that have actually been ordered
+    where: sequelize.literal(`(
+      SELECT SUM("OrderItem"."quantity")
+      FROM "OrderItems" AS "OrderItem"
+      INNER JOIN "ProductVariants" AS "Variant" ON "OrderItem"."variantId" = "Variant"."id"
+      WHERE "Variant"."productId" = "Product"."id"
+      AND "OrderItem"."createdAt" >= '${threeMonthsAgo.toISOString()}'
+    ) > 0`)
+  });
+
+  res.status(200).json({ status: 'success', data: trendingProducts });
+});
+
+// @desc    Get top rated products (rating > 4.3)
+exports.getTopRatedProducts = catchAsync(async (req, res, next) => {
+  const products = await Product.findAll({
+    where: { 
+      rating: { [Op.gte]: 4.3 } 
+    },
+    include: [
+      { model: ProductImage, as: 'images', separate: true, order: [['order', 'ASC']] },
+      { model: ProductVariant, as: 'variants', attributes: ['id', 'size', 'color', 'price', 'stock'] },
+    ],
+    limit: 10,
+    order: [['rating', 'DESC']]
   });
   res.status(200).json({ status: 'success', data: products });
 });
@@ -249,6 +297,26 @@ exports.addReview = catchAsync(async (req, res, next) => {
     comment
   });
   res.status(201).json({ status: 'success', data: review });
+});
+
+// @desc    Get all reviews (Admin)
+exports.getAllReviews = catchAsync(async (req, res, next) => {
+  const reviews = await Review.findAll({
+    include: [
+      { model: User, attributes: ['id', 'name', 'email'] },
+      { model: Product, attributes: ['id', 'name'] }
+    ],
+    order: [['createdAt', 'DESC']]
+  });
+  res.status(200).json({ status: 'success', results: reviews.length, data: reviews });
+});
+
+// @desc    Delete a review (Admin)
+exports.deleteReview = catchAsync(async (req, res, next) => {
+  const review = await Review.findByPk(req.params.id);
+  if (!review) return next(new AppError('Review not found', 404));
+  await review.destroy();
+  res.status(204).json({ status: 'success', data: null });
 });
 
 // @desc    Delete product image

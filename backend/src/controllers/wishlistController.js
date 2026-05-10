@@ -1,4 +1,5 @@
-const { Wishlist, Product, ProductImage, Cart, ProductVariant } = require('../models');
+const { Wishlist, Product, ProductImage, Cart, ProductVariant, sequelize } = require('../models');
+const { Op } = require('sequelize');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 
@@ -24,10 +25,18 @@ exports.addToWishlist = catchAsync(async (req, res, next) => {
 });
 
 exports.removeFromWishlist = catchAsync(async (req, res, next) => {
-  const item = await Wishlist.findOne({ where: { [Op.or]: [{ id: req.params.id }, { productId: req.params.id }, { productId: req.params.productId }], userId: req.user.id } });
-  // Fallback for simple ID delete
   const idToDelete = req.params.id || req.params.productId;
-  await Wishlist.destroy({ where: { [Op.or]: [{ id: idToDelete }, { productId: idToDelete }], userId: req.user.id } });
+  
+  await Wishlist.destroy({ 
+    where: { 
+      [Op.or]: [
+        { id: idToDelete }, 
+        { productId: idToDelete }
+      ], 
+      userId: req.user.id 
+    } 
+  });
+  
   res.status(200).json({ status: 'success', message: 'Removed' });
 });
 

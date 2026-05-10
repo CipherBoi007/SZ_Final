@@ -28,7 +28,6 @@ function CheckoutContent() {
   
   const [addresses, setAddresses] = useState<any[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<string>('');
-  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'razorpay'>('razorpay');
   const [placing, setPlacing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [couponCode, setCouponCode] = useState('');
@@ -190,7 +189,7 @@ function CheckoutContent() {
     try {
       const orderData: any = {
         shippingAddressId: selectedAddress,
-        paymentMethod,
+        paymentMethod: 'razorpay',
         couponCode: appliedCoupon?.code,
       };
 
@@ -202,77 +201,69 @@ function CheckoutContent() {
         }];
       }
 
-      if (paymentMethod === 'razorpay') {
-        const res = await loadRazorpayScript();
-        if (!res) {
-          toast.error('Razorpay SDK failed to load. Are you online?');
-          setPlacing(false);
-          return;
-        }
-
-        // 1. Create Razorpay Order
-        const { data: rpOrderData } = await paymentAPI.createOrder({ 
-          amount: grandTotal,
-          receipt: `order_rcpt_${Date.now()}`
-        });
-
-        const options = {
-          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_ShPCY9vwVFgWgq',
-          amount: rpOrderData.data.amount,
-          currency: rpOrderData.data.currency,
-          name: 'SouthZone',
-          description: 'Payment for your order',
-          image: '/images/southzone_logo_final.jpg',
-          order_id: rpOrderData.data.orderId,
-          handler: async function (response: any) {
-            try {
-              // 2. Verification and Order Creation
-              const finalOrderData = {
-                ...orderData,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              };
-
-              const { data: dbOrder } = await orderAPI.create(finalOrderData);
-              
-              if (!isDirectBuy) await clearCart();
-              
-              toast.success('Payment successful and order placed!');
-              router.push(`/checkout/success?order=${dbOrder.data?.id || ''}`);
-            } catch (err: any) {
-              console.error('Final order creation error:', err);
-              toast.error('Payment verified but order creation failed. Please contact support.');
-            }
-          },
-          prefill: {
-            name: (addresses.find(a => a.id.toString() === selectedAddress))?.name || '',
-            email: (useAuthStore.getState().user as any)?.email || '',
-            contact: (addresses.find(a => a.id.toString() === selectedAddress))?.phone || '',
-          },
-          theme: {
-            color: '#FF385C',
-          },
-        };
-
-        const rzp1 = new window.Razorpay(options);
-        rzp1.on('payment.failed', function (response: any) {
-          toast.error(response.error.description || 'Payment failed');
-          setPlacing(false);
-        });
-        rzp1.open();
-      } else {
-        // COD Flow
-        const { data } = await orderAPI.create(orderData);
-        if (!isDirectBuy) await clearCart();
-        toast.success('Order placed successfully!');
-        router.push(`/checkout/success?order=${data.data?.id || ''}`);
+      const res = await loadRazorpayScript();
+      if (!res) {
+        toast.error('Razorpay SDK failed to load. Are you online?');
+        setPlacing(false);
+        return;
       }
+
+      // 1. Create Razorpay Order
+      const { data: rpOrderData } = await paymentAPI.createOrder({ 
+        amount: grandTotal,
+        receipt: `order_rcpt_${Date.now()}`
+      });
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_ShPCY9vwVFgWgq',
+        amount: rpOrderData.data.amount,
+        currency: rpOrderData.data.currency,
+        name: 'SouthZone',
+        description: 'Payment for your order',
+        image: '/images/southzone_logo_final.jpg',
+        order_id: rpOrderData.data.orderId,
+        handler: async function (response: any) {
+          try {
+            // 2. Verification and Order Creation
+            const finalOrderData = {
+              ...orderData,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            };
+
+            const { data: dbOrder } = await orderAPI.create(finalOrderData);
+            
+            if (!isDirectBuy) await clearCart();
+            
+            toast.success('Payment successful and order placed!');
+            router.push(`/checkout/success?order=${dbOrder.data?.id || ''}`);
+          } catch (err: any) {
+            console.error('Final order creation error:', err);
+            toast.error('Payment verified but order creation failed. Please contact support.');
+          }
+        },
+        prefill: {
+          name: (addresses.find(a => a.id.toString() === selectedAddress))?.name || '',
+          email: (useAuthStore.getState().user as any)?.email || '',
+          contact: (addresses.find(a => a.id.toString() === selectedAddress))?.phone || '',
+        },
+        theme: {
+          color: '#FF385C',
+        },
+      };
+
+      const rzp1 = new window.Razorpay(options);
+      rzp1.on('payment.failed', function (response: any) {
+        toast.error(response.error.description || 'Payment failed');
+        setPlacing(false);
+      });
+      rzp1.open();
     } catch (err: any) {
       console.error('Order error:', err.response?.data || err);
       toast.error(err.response?.data?.message || 'Failed to initiate order');
     } finally {
-      if (paymentMethod !== 'razorpay') setPlacing(false);
+      // In prepaid only, we don't setPlacing(false) here because handle logic is in the Razorpay handler
     }
   };
 
@@ -342,56 +333,6 @@ function CheckoutContent() {
                   ))}
                 </div>
               )}
-            </motion.div>
-
-            {/* Payment Method */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="p-6 rounded-2xl glass-strong">
-              <h2 className="text-base font-bold text-white flex items-center gap-2 mb-4">
-                <CreditCard className="w-4 h-4 text-accent" /> Payment Method
-              </h2>
-              <div className="space-y-3">
-                {/* Cash on Delivery */}
-                <label className={`flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all ${
-                  paymentMethod === 'cod' 
-                    ? 'bg-accent/10 border border-accent/30' 
-                    : 'bg-white/5 border border-white/5 hover:border-white/10'
-                }`}>
-                  <input 
-                    type="radio" 
-                    name="payment" 
-                    value="cod" 
-                    checked={paymentMethod === 'cod'} 
-                    onChange={() => setPaymentMethod('cod')}
-                    className="w-4 h-4 text-accent focus:ring-accent/20 bg-white/5 border-white/20"
-                  />
-                  <Wallet className="w-5 h-5 text-accent" />
-                  <div>
-                    <span className="text-sm font-medium text-white">Cash on Delivery</span>
-                    <p className="text-xs text-white/30">Pay when you receive your order</p>
-                  </div>
-                </label>
-
-                {/* Online Payment */}
-                <label className={`flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all ${
-                  paymentMethod === 'razorpay' 
-                    ? 'bg-accent/10 border border-accent/30' 
-                    : 'bg-white/5 border border-white/5 hover:border-white/10'
-                }`}>
-                  <input 
-                    type="radio" 
-                    name="payment" 
-                    value="razorpay" 
-                    checked={paymentMethod === 'razorpay'} 
-                    onChange={() => setPaymentMethod('razorpay')}
-                    className="w-4 h-4 text-accent focus:ring-accent/20 bg-white/5 border-white/20"
-                  />
-                  <CreditCard className="w-5 h-5 text-accent" />
-                  <div>
-                    <span className="text-sm font-medium text-white">Online Payment</span>
-                    <p className="text-xs text-white/30">UPI, Cards, Netbanking — Razorpay Secure</p>
-                  </div>
-                </label>
-              </div>
             </motion.div>
 
             {/* Order Items */}
@@ -491,7 +432,7 @@ function CheckoutContent() {
                 disabled={placing}
                 className="mt-6 w-full py-4 rounded-xl bg-accent hover:bg-accent-hover text-white font-semibold transition-all glow-red-hover disabled:opacity-50"
               >
-                {placing ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto" /> : `Place Order (${paymentMethod === 'cod' ? 'COD' : 'Pay Online'})`}
+                {placing ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto" /> : 'Secure Order & Pay Online'}
               </button>
               
               <div className="mt-4 flex items-center justify-center gap-1 text-[10px] text-white/20">

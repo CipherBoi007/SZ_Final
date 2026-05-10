@@ -48,7 +48,7 @@ const Order = sequelize.define('Order', {
     defaultValue: 'pending',
   },
   paymentMethod: {
-    type: DataTypes.ENUM('razorpay', 'cod'),
+    type: DataTypes.ENUM('razorpay'),
     allowNull: false,
   },
   paymentId: {

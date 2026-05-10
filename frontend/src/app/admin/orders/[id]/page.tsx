@@ -30,7 +30,7 @@ export default function AdminOrderDetail() {
   useEffect(() => {
     async function fetch() {
       try {
-        const { data } = await orderAPI.getById(id as string);
+        const { data } = await adminAPI.getOrder(id as string);
         setOrder(data.data);
         const dDate = data.data?.deliveryDate || data.data?.estimatedDelivery;
         if (dDate) setDeliveryDate(dDate.split('T')[0]);

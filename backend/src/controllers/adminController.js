@@ -3,6 +3,7 @@ const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 const { Op } = require('sequelize');
 const whatsappService = require('../services/whatsappService');
+const paymentService = require('../services/paymentService');
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.findAll({
@@ -103,7 +104,6 @@ exports.deactivateUser = catchAsync(async (req, res, next) => {
 exports.getDashboardStats = catchAsync(async (req, res, next) => {
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  const startOfYear = new Date(today.getFullYear(), 0, 1);
 
   const [
     totalUsers,
@@ -111,6 +111,7 @@ exports.getDashboardStats = catchAsync(async (req, res, next) => {
     totalProducts,
     totalOrders,
     ordersThisMonth,
+    overallRevenue,
     revenueThisMonth,
     recentOrders,
   ] = await Promise.all([
@@ -121,12 +122,17 @@ exports.getDashboardStats = catchAsync(async (req, res, next) => {
     Order.count({ where: { createdAt: { [Op.gte]: startOfMonth } } }),
     Order.sum('finalAmount', {
       where: {
+        paymentStatus: 'completed',
+      },
+    }),
+    Order.sum('finalAmount', {
+      where: {
         createdAt: { [Op.gte]: startOfMonth },
         paymentStatus: 'completed',
       },
     }),
     Order.findAll({
-      limit: 10,
+      limit: 5, // Tightened to 5 as requested
       order: [['createdAt', 'DESC']],
       include: [
         {
@@ -151,6 +157,7 @@ exports.getDashboardStats = catchAsync(async (req, res, next) => {
         thisMonth: ordersThisMonth,
       },
       revenue: {
+        overall: overallRevenue || 0,
         thisMonth: revenueThisMonth || 0,
       },
       recentOrders,
@@ -158,17 +165,86 @@ exports.getDashboardStats = catchAsync(async (req, res, next) => {
   });
 });
 
+// ─── Financial Ledger ────────────────────────────────
+exports.getTransactions = catchAsync(async (req, res) => {
+  const orders = await Order.findAll({
+    where: { paymentStatus: { [Op.in]: ['completed', 'refunded'] } },
+    order: [['createdAt', 'ASC']], // Ascending for running total logic
+    include: [{ model: User, as: 'user', attributes: ['id', 'name'] }]
+  });
 
+  let runningTotal = 0;
+  const transactions = orders.map(order => {
+    const isRefunded = order.status === 'refunded' || order.paymentStatus === 'refunded';
+    const amount = Number(order.finalAmount || order.totalAmount);
+    
+    // Logic: Credit if paid, Debit if refunded
+    const credit = isRefunded ? 0 : amount;
+    const debit = isRefunded ? amount : 0;
+    
+    runningTotal += (credit - debit);
+
+    return {
+      id: order.id,
+      orderNumber: order.orderNumber,
+      date: order.createdAt,
+      user: order.user,
+      credit,
+      debit,
+      runningTotal,
+      status: order.status
+    };
+  }).reverse(); // Reverse back to show most recent at top
+
+  res.status(200).json({
+    status: 'success',
+    results: transactions.length,
+    data: transactions
+  });
+});
 
 // ─── Admin Orders ────────────────────────────────────
 exports.getAllOrders = catchAsync(async (req, res) => {
-  const orders = await Order.findAll({
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = (page - 1) * limit;
+
+  const { count, rows } = await Order.findAndCountAll({
+    limit,
+    offset,
     order: [['createdAt', 'DESC']],
     include: [
       { model: User, as: 'user', attributes: ['id', 'name', 'email'] },
     ],
   });
-  res.status(200).json({ status: 'success', results: orders.length, data: orders });
+
+  res.status(200).json({ 
+    status: 'success', 
+    total: count,
+    page,
+    pages: Math.ceil(count / limit),
+    data: rows 
+  });
+});
+
+exports.getOrder = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const order = await Order.findByPk(id, {
+    include: [
+      { model: User, as: 'user', attributes: ['id', 'name', 'email', 'phone'] },
+      { 
+        model: require('../models').OrderItem, 
+        as: 'orderItems',
+      }
+    ]
+  });
+
+  if (!order) return next(new AppError('Order not found', 404));
+
+  res.status(200).json({
+    status: 'success',
+    data: order,
+  });
 });
 
 exports.updateOrderStatus = catchAsync(async (req, res, next) => {
@@ -254,4 +330,36 @@ exports.deleteCategory = catchAsync(async (req, res, next) => {
   if (!category) return next(new AppError('Category not found', 404));
   await category.destroy();
   res.status(204).json({ status: 'success', data: null });
+});
+
+// ─── Admin Refunds ───────────────────────────────────
+// @desc    Process refund for cancelled order
+exports.processRefund = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const order = await Order.findByPk(id);
+
+  if (!order) return next(new AppError('Order not found', 404));
+  if (order.paymentStatus !== 'completed') return next(new AppError('No successful payment found to refund', 400));
+  if (order.status !== 'cancelled' && order.status !== 'refunded') {
+    return next(new AppError('Only cancelled orders can be refunded', 400));
+  }
+
+  try {
+    const refund = await paymentService.refundPayment(order.paymentId, order.finalAmount);
+    
+    await order.update({
+      status: 'refunded',
+      paymentStatus: 'refunded',
+      refundId: refund.id,
+      refundedAt: new Date(),
+    });
+
+    res.status(200).json({ 
+      status: 'success', 
+      message: 'Refund processed successfully via Razorpay',
+      data: { refundId: refund.id } 
+    });
+  } catch (error) {
+    return next(new AppError(`Razorpay Refund Failed: ${error.message}`, 500));
+  }
 });

@@ -26,7 +26,10 @@ class APIFeatures {
     const conditions = {};
 
     for (const [key, value] of Object.entries(queryObj)) {
-      if (typeof value === 'object' && value !== null) {
+      if (Array.isArray(value)) {
+        // Handle array parameters (e.g., ?categoryId=1&categoryId=2) for IN queries
+        conditions[key] = value;
+      } else if (typeof value === 'object' && value !== null) {
         // Handle advanced filters like { gte: 100, lte: 500 }
         const opMap = {
           gte: Op.gte,

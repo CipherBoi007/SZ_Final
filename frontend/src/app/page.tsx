@@ -99,33 +99,33 @@ function HeroSection({ config }: { config: any }) {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="flex flex-col items-center w-full"
           >
-            <div className="relative w-64 h-[24rem] sm:w-[22rem] sm:h-[30rem] lg:w-[24rem] lg:h-[34rem] mb-8 overflow-hidden shadow-2xl">
+            <div className="relative w-full aspect-[4/5] sm:w-[22rem] sm:h-[30rem] lg:w-[24rem] lg:h-[34rem] mb-8 overflow-hidden shadow-2xl">
               <Image
                 src={slides[current].image}
                 alt={slides[current].title}
                 fill
-                sizes="(max-width: 640px) 16rem, (max-width: 1024px) 22rem, 24rem"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 22rem, 24rem"
                 className="object-cover object-center"
                 priority={current === 0}
                 quality={90}
               />
             </div>
             
-            <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-[0.15em] sm:tracking-[0.2em] whitespace-pre-line uppercase text-white mb-2 text-center">
+            <h1 className="font-serif text-3xl sm:text-3xl lg:text-4xl font-semibold tracking-[0.1em] sm:tracking-[0.2em] whitespace-pre-line uppercase text-white mb-2 text-center px-4">
               {slides[current].title}
             </h1>
-            <p className="text-white/40 text-[10px] sm:text-xs tracking-[0.3em] uppercase mb-8 text-center">
+            <p className="text-white/40 text-[10px] sm:text-xs tracking-[0.3em] uppercase mb-10 text-center">
               {slides[current].subtitle}
             </p>
-            <div className="flex items-center justify-center gap-3 mb-8">
+            <div className="flex items-center justify-center gap-3 mb-10">
               {slides.map((_: any, i: number) => (
                 <button
                   key={i}
                   onClick={() => goTo(i)}
                   className={`transition-all duration-300 rounded-full ${
                     i === current
-                      ? 'w-2.5 h-2.5 bg-white scale-110'
-                      : 'w-1.5 h-1.5 bg-white/40 hover:bg-white/70'
+                      ? 'w-6 h-1 bg-white scale-110'
+                      : 'w-1.5 h-1 bg-white/20 hover:bg-white/70'
                   }`}
                   aria-label={`Go to slide ${i + 1}`}
                 />
@@ -134,7 +134,7 @@ function HeroSection({ config }: { config: any }) {
             
             <Link
               href={slides[current].ctaLink || '/shop'}
-              className="font-serif bg-white text-black px-10 py-3 text-xs sm:text-sm font-bold tracking-[0.1em] sm:tracking-[0.2em] uppercase hover:bg-gray-200 transition-colors"
+              className="font-serif bg-white text-black px-12 py-4 text-xs sm:text-sm font-black tracking-[0.2em] uppercase hover:bg-accent hover:text-white transition-all shadow-2xl"
             >
               {slides[current].cta}
             </Link>
@@ -144,17 +144,17 @@ function HeroSection({ config }: { config: any }) {
 
       <button
         onClick={goPrev}
-        className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-3 rounded-full text-white/30 hover:text-white transition-colors"
+        className="hidden sm:flex absolute left-6 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full text-white/30 hover:text-white transition-colors"
         aria-label="Previous slide"
       >
-        <ChevronLeftIcon className="w-6 h-6 sm:w-8 sm:h-8" />
+        <ChevronLeftIcon className="w-8 h-8" />
       </button>
       <button
         onClick={goNext}
-        className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-3 rounded-full text-white/30 hover:text-white transition-colors"
+        className="hidden sm:flex absolute right-6 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full text-white/30 hover:text-white transition-colors"
         aria-label="Next slide"
       >
-        <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
+        <ChevronRight className="w-8 h-8" />
       </button>
     </section>
   );
@@ -162,36 +162,39 @@ function HeroSection({ config }: { config: any }) {
 
 /* ─── Categories ───────────────────────────────────────── */
 function CategoriesSection({ sectionConfig, categories }: { sectionConfig: any; categories: any[] }) {
-  const cats = categories.length > 0 ? categories : [
-    { id: '1', name: 'Hoodies', image: '/images/hero1.jpg', slug: 'hoodies' },
-    { id: '2', name: 'Shirts', image: '/images/hero2.jpg', slug: 'shirts' },
-    { id: '3', name: 'Pants', image: '/images/hero3.jpg', slug: 'pants' },
-    { id: '4', name: 'Traditional', image: '/images/hero4.jpg', slug: 'traditional' },
-  ];
-  const gradients = ['from-red-500/20', 'from-orange-500/20', 'from-blue-500/20', 'from-yellow-500/20'];
-
+  const order = ['Formals', 'Casuals', 'Traditional', 'Sports'];
+  const cats = order.map(name => categories.find(c => c.name === name)).filter(Boolean);
+  
   return (
-    <section className="relative py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6 }} className="text-center mb-16">
-        <span className="font-serif text-accent text-xs font-semibold tracking-[0.2em] uppercase">Browse</span>
-        <h2 className="font-serif mt-3 text-3xl sm:text-4xl font-bold gradient-text">{sectionConfig?.title || 'Shop by Category'}</h2>
-        <p className="mt-3 text-white/40 max-w-md mx-auto">{sectionConfig?.subtitle || 'Explore our curated collections crafted for the modern youth'}</p>
+    <section className="relative py-16 md:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6 }} className="flex items-end justify-between mb-8 md:mb-12">
+        <div>
+          <span className="font-serif text-accent text-xs font-semibold tracking-[0.2em] uppercase">Browse</span>
+          <h2 className="font-serif mt-3 text-3xl sm:text-4xl font-bold gradient-text">{sectionConfig?.title || 'Shop by Category'}</h2>
+        </div>
+        <Link href="/categories" className="hidden sm:flex text-sm font-semibold text-white/50 hover:text-accent transition-all items-center gap-1 group">
+          View all categories <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        </Link>
       </motion.div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         {cats.slice(0, 4).map((cat: any, i: number) => (
           <motion.div key={cat.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }}>
-            <Link href={`/shop?category=${cat.id}`} className="group block relative aspect-[3/4] rounded-2xl overflow-hidden glass glass-hover">
+            <Link href={`/shop?category=${cat.id}`} className="group block relative aspect-[4/5] sm:aspect-[3/4] rounded-2xl overflow-hidden glass glass-hover">
               <Image 
-                src={cat.image || `/images/hoodie.jpg`} 
+                src={cat.image || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=800'} 
                 alt={cat.name} 
                 fill 
-                sizes="(max-width: 768px) 50vw, 25vw"
+                sizes="(max-width: 768px) 50vw, 20vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-110" 
               />
-              <div className={`absolute inset-0 bg-gradient-to-t ${gradients[i % gradients.length]} via-transparent to-black/60 group-hover:to-black/70 transition-all duration-500`} />
-              <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6">
-                <h3 className="font-serif text-lg sm:text-xl font-semibold text-white">{cat.name}</h3>
-                <span className="mt-1 flex items-center gap-1 text-xs text-white/60 group-hover:text-accent transition-colors">Shop Now <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" /></span>
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500" />
+              
+              <div className="absolute inset-0 p-4 sm:p-6 flex flex-col justify-end text-left">
+                <h3 className="font-serif text-lg sm:text-4xl font-black text-white group-hover:text-accent transition-colors leading-tight uppercase tracking-tighter">{cat.name}</h3>
+                <div className="mt-1 flex items-center gap-1 text-[9px] sm:text-xs font-bold text-accent uppercase tracking-[0.3em] opacity-90 group-hover:opacity-100 transition-all">
+                  Discover <ChevronRight className="w-3 h-3" />
+                </div>
               </div>
             </Link>
           </motion.div>
@@ -201,28 +204,37 @@ function CategoriesSection({ sectionConfig, categories }: { sectionConfig: any; 
   );
 }
 
-/* ─── Featured Products ────────────────────────────────── */
-function FeaturedSection({ sectionConfig, products }: { sectionConfig: any; products: any[] }) {
+/* ─── Generic Product Grid Section ────────────────────── */
+function ProductGridSection({ title, subtitle, products, viewAllLink }: { 
+  title: string; 
+  subtitle: string; 
+  products: any[]; 
+  viewAllLink: string;
+}) {
+  if (products.length === 0) return null;
+
   return (
-    <section className="relative py-24 bg-surface">
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
-      <div className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6 }} className="flex items-end justify-between mb-12">
+    <section className="relative py-12 md:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div className="flex flex-col gap-8 md:gap-12">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6 }} className="flex items-end justify-between">
           <div>
-            <span className="font-serif text-accent text-xs font-semibold tracking-[0.2em] uppercase">Curated</span>
-            <h2 className="font-serif mt-3 text-3xl sm:text-4xl font-bold gradient-text">{sectionConfig?.title || 'Featured Drops'}</h2>
+            <span className="font-serif text-accent text-xs font-semibold tracking-[0.2em] uppercase">{subtitle}</span>
+            <h2 className="font-serif mt-3 text-3xl sm:text-4xl font-bold gradient-text">{title}</h2>
           </div>
-          <Link href="/shop" className="hidden sm:flex items-center gap-1 text-sm text-white/50 hover:text-accent transition-colors">View All <ArrowRight className="w-4 h-4" /></Link>
+          <Link href={viewAllLink} className="hidden sm:flex items-center gap-1 text-sm font-semibold text-white/50 hover:text-accent transition-all group">
+            Show more <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </motion.div>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {products.slice(0, sectionConfig?.config?.limit || 6).map((product: any, i: number) => {
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {products.slice(0, 4).map((product: any, i: number) => {
             const primaryImage = product.images?.find((img: any) => img.isPrimary) || product.images?.[0];
-            const imgSrc = primaryImage?.url || primaryImage?.imageUrl || '/images/hero2.jpg';
+            const imgSrc = primaryImage?.url || 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800';
             const { min, max } = getProductPriceRange(product);
             const discount = product.discount || 0;
-            const minDiscounted = getDiscountedPrice(min, discount);
-            const maxDiscounted = getDiscountedPrice(max, discount);
+            const minD = getDiscountedPrice(min, discount);
             const hasDiscount = discount > 0;
+
             return (
               <motion.div key={product.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.08 }}>
                 <div className="relative group rounded-2xl overflow-hidden glass glass-hover transition-all duration-300">
@@ -236,30 +248,25 @@ function FeaturedSection({ sectionConfig, products }: { sectionConfig: any; prod
                         className="object-cover transition-transform duration-700 group-hover:scale-105" 
                       />
                     </Link>
-                    
                     <WishlistButton productId={product.id} />
-                    
-                    {product.isFeatured && !hasDiscount && <span className="font-serif absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/10 text-white backdrop-blur-sm">Featured</span>}
                     {hasDiscount && <span className="font-serif absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-accent text-white glow-red">{discount}% Off</span>}
-                    <Link href={`/shop/${product.id}`} className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
-                      <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-6 py-2.5 rounded-full bg-white text-black text-sm font-semibold">Quick View</span>
-                    </Link>
                   </div>
-                  <Link href={`/shop/${product.id}`} className="block p-4">
-                    <h3 className="font-serif text-sm font-medium text-white/80 group-hover:text-white transition-colors line-clamp-1">{product.name}</h3>
-                    <div className="mt-2 flex items-center gap-2 flex-wrap">
-                      {minDiscounted === maxDiscounted ? (
-                        <span className="text-sm font-bold text-white">₹{minDiscounted.toLocaleString()}</span>
-                      ) : (
-                        <span className="text-sm font-bold text-white">₹{minDiscounted.toLocaleString()} – ₹{maxDiscounted.toLocaleString()}</span>
-                      )}
-                      {hasDiscount && min === max && <span className="text-xs text-white/30 line-through">₹{min.toLocaleString()}</span>}
-                    </div>
-                    <div className="mt-2 flex items-center gap-1">
-                      {[...Array(5)].map((_, j) => (
-                        <Star key={j} className={`w-3 h-3 ${j < Math.floor(product.rating || 0) ? 'fill-accent text-accent' : 'text-white/10'}`} />
-                      ))}
-                      <span className="ml-1 text-[10px] text-white/30">{product.rating || '0'}</span>
+                  <Link href={`/shop/${product.id}`} className="block p-4 bg-white/[0.02] backdrop-blur-md">
+                    <h3 className="font-serif text-sm font-semibold text-white/90 group-hover:text-white transition-colors line-clamp-1">{product.name}</h3>
+                    <div className="mt-2 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-white font-serif">₹{minD.toLocaleString()}</span>
+                        {hasDiscount && <span className="text-[10px] text-white/30 line-through">₹{min.toLocaleString()}</span>}
+                      </div>
+                      <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                        (product.rating || 4.5) >= 4 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                        (product.rating || 4.5) >= 3 ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
+                        (product.rating || 4.5) >= 2 ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' :
+                        'bg-red-500/10 text-red-400 border border-red-500/20'
+                      }`}>
+                        <Star className="w-2.5 h-2.5 fill-current" />
+                        <span>{product.rating || '4.5'}</span>
+                      </div>
                     </div>
                   </Link>
                 </div>
@@ -268,37 +275,35 @@ function FeaturedSection({ sectionConfig, products }: { sectionConfig: any; prod
           })}
         </div>
         <div className="mt-8 text-center sm:hidden">
-          <Link href="/shop" className="inline-flex items-center gap-1 text-sm text-white/50 hover:text-accent transition-colors">View All Products <ArrowRight className="w-4 h-4" /></Link>
+          <Link href={viewAllLink} className="inline-flex items-center gap-1 text-sm text-white/50 hover:text-accent transition-colors">View All {title} <ArrowRight className="w-4 h-4" /></Link>
         </div>
       </div>
     </section>
   );
 }
 
-/* ─── Offer Banners ────────────────────────────────────── */
-function OffersSection({ sectionConfig }: { sectionConfig: any }) {
-  const banners = sectionConfig?.config?.banners || [
-    { image: '/images/pongal-offer.jpg', title: 'Pongal Special', subtitle: 'Up to 40% off on traditional wear', link: '/shop?sale=true' },
-    { image: '/images/summer-offer.jpg', title: 'Summer Sale', subtitle: 'Fresh styles at unbeatable prices', link: '/shop?sale=true' },
-  ];
+/* ─── Dynamic Offer Banners ────────────────────────────── */
+function OffersSection({ promotions }: { promotions: any[] }) {
+  if (promotions.length === 0) return null;
+
   return (
-    <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6 }} className="text-center mb-12">
+    <section className="py-12 md:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6 }} className="text-center mb-8 md:mb-12">
         <span className="font-serif text-accent text-xs font-semibold tracking-[0.2em] uppercase">Limited Time</span>
-        <h2 className="font-serif mt-3 text-3xl sm:text-4xl font-bold gradient-text">{sectionConfig?.title || 'Special Offers'}</h2>
+        <h2 className="font-serif mt-3 text-3xl sm:text-4xl font-bold gradient-text">Special Offers</h2>
       </motion.div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {banners.map((offer: any, i: number) => (
-          <motion.div key={offer.title} initial={{ opacity: 0, x: i === 0 ? -30 : 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.15 }}>
-            <Link href={offer.link || '/shop'} className="group block relative rounded-2xl overflow-hidden h-64 sm:h-80 glass glass-hover">
+      <div className={`grid grid-cols-1 ${promotions.length > 1 ? 'md:grid-cols-2' : ''} gap-4 md:gap-6`}>
+        {promotions.map((offer: any, i: number) => (
+          <motion.div key={offer.id} initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.15 }}>
+            <Link href={offer.targetLink || '/shop'} className="group block relative rounded-2xl overflow-hidden h-40 sm:h-80 glass glass-hover">
               <Image 
-                src={offer.image} 
+                src={offer.bannerImage} 
                 alt={offer.title} 
                 fill 
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-105" 
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent" />
               <div className="relative z-10 flex flex-col justify-center h-full p-6 sm:p-10">
                 <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">{offer.title}</h3>
                 <p className="mt-2 text-sm text-white/60">{offer.subtitle}</p>
@@ -346,59 +351,43 @@ function LookbookSection({ sectionConfig }: { sectionConfig: any }) {
 const sectionComponents: Record<string, React.ComponentType<any>> = {
   hero: HeroSection,
   categories: CategoriesSection,
-  featured: FeaturedSection,
   offers: OffersSection,
   lookbook: LookbookSection,
-  // perks: PerksSection,  // REMOVED
 };
 
 /* ─── Page ─────────────────────────────────────────────── */
 export default function Home() {
-  const [sections, setSections] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
+  const [featured, setFeatured] = useState<any[]>([]);
+  const [newArrivals, setNewArrivals] = useState<any[]>([]);
+  const [trending, setTrending] = useState<any[]>([]);
+  const [topRated, setTopRated] = useState<any[]>([]);
+  const [promotions, setPromotions] = useState<any[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [productsRes, categoriesRes] = await Promise.allSettled([
+        const [featRes, newRes, trendRes, topRes, catRes, promoRes] = await Promise.allSettled([
           productAPI.getFeatured(),
+          productAPI.getNewArrivals(),
+          productAPI.getTrending(),
+          productAPI.getTopRated(),
           configAPI.getCategories(),
+          configAPI.getPromotions(),
         ]);
-        if (productsRes.status === 'fulfilled') {
-          setProducts(productsRes.value.data?.data || []);
-        }
-        if (categoriesRes.status === 'fulfilled') {
-          setCategories(categoriesRes.value.data?.data || []);
-        }
-      } catch { /* ignore — fallback defaults will render */ }
+        
+        if (featRes.status === 'fulfilled') setFeatured(featRes.value.data?.data || []);
+        if (newRes.status === 'fulfilled') setNewArrivals(newRes.value.data?.data || []);
+        if (trendRes.status === 'fulfilled') setTrending(trendRes.value.data?.data || []);
+        if (topRes.status === 'fulfilled') setTopRated(topRes.value.data?.data || []);
+        if (catRes.status === 'fulfilled') setCategories(catRes.value.data?.data || []);
+        if (promoRes.status === 'fulfilled') setPromotions(promoRes.value.data?.data || []);
+      } catch { /* ignore */ }
       setLoaded(true);
     }
     fetchData();
   }, []);
-
-  const visibleSections = useMemo(() => {
-    const allSections = [
-      { key: 'hero', order: 1, visible: true, config: {} },
-      { key: 'categories', order: 2, visible: true },
-      { key: 'featured', order: 3, visible: true },
-      { key: 'offers', order: 4, visible: true },
-      { key: 'lookbook', order: 5, visible: true },
-    ];
-    
-    if (sections && sections.length > 0) {
-      for (const apiSection of sections) {
-        if (apiSection.key === 'perks') continue;
-        const index = allSections.findIndex(s => s.key === apiSection.key);
-        if (index !== -1 && apiSection.visible !== false) {
-          allSections[index] = { ...allSections[index], ...apiSection };
-        }
-      }
-    }
-    
-    return allSections;
-  }, [sections]);
 
   if (!loaded) {
     return (
@@ -410,17 +399,39 @@ export default function Home() {
 
   return (
     <div className="pt-16 lg:pt-20">
-      {visibleSections.map((section) => {
-        const Component = sectionComponents[section.key];
-        if (!Component) return null;
+      <HeroSection config={{}} />
+      <CategoriesSection sectionConfig={{ title: 'Shop by Category' }} categories={categories} />
+      
+      <ProductGridSection 
+        title="New Arrivals" 
+        subtitle="The Fresh List" 
+        products={newArrivals} 
+        viewAllLink="/new-arrivals" 
+      />
 
-        const props: any = { sectionConfig: section };
-        if (section.key === 'hero') props.config = section.config;
-        if (section.key === 'categories') props.categories = categories;
-        if (section.key === 'featured') props.products = products;
+      <ProductGridSection 
+        title="Featured Drops" 
+        subtitle="Premium Selection" 
+        products={featured} 
+        viewAllLink="/featured" 
+      />
 
-        return <Component key={section.key} {...props} />;
-      })}
+      <ProductGridSection 
+        title="Trending Now" 
+        subtitle="Most Wanted" 
+        products={trending} 
+        viewAllLink="/trending" 
+      />
+
+      <ProductGridSection 
+        title="High Rated" 
+        subtitle="Customer Favorites" 
+        products={topRated} 
+        viewAllLink="/high-rated" 
+      />
+
+      <OffersSection promotions={promotions} />
+      <LookbookSection sectionConfig={{ title: 'Style Inspiration' }} />
     </div>
   );
 }

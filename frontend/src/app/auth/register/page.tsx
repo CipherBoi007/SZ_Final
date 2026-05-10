@@ -104,6 +104,23 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Domain Validation
+    const blockedDomains = [
+      '10minutemail.com', 'guerrillamail.com', 'mailinator.com', 
+      'dispostable.com', 'temp-mail.org', 'burnablemail.com', 
+      'trashmail.com', 'yopmail.com', 'southzone.com'
+    ];
+    const domain = email.split('@')[1]?.toLowerCase();
+    
+    if (blockedDomains.includes(domain)) {
+      if (domain === 'southzone.com') {
+        toast.error('This domain is reserved for internal SouthZone authority only.');
+      } else {
+        toast.error('No temporary email supported. Please use a professional domain.');
+      }
+      return;
+    }
+
     // Validate password strength
     if (passwordStrength.score < 3) {
       toast.error('Please use a stronger password (at least 8 characters with uppercase, lowercase, number)');
