@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -44,7 +44,7 @@ const SectionHeader = ({ title, desc, action }: any) => (
 
 /* ─── Main Page ─────────────────────────────────────────── */
 
-export default function ProfilePage() {
+function ProfileContent() {
   const { token, user, logout, setAuth } = useAuthStore();
   const { items: wishlistItems, fetchWishlist } = useWishlistStore();
   const router = useRouter();
@@ -76,6 +76,7 @@ export default function ProfilePage() {
 
   const [showAddAddress, setShowAddAddress] = useState(false);
   const [addrForm, setAddrForm] = useState({ name: '', phone: '', addressLine1: '', city: '', state: '', pincode: '', type: 'home', landmark: '' });
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const tabs = [
     { id: 'overview', label: 'Member Identity', icon: Settings },
@@ -113,36 +114,7 @@ export default function ProfilePage() {
     loadDashboard();
   }, [token, router]);
 
-  const [editingId, setEditingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!token) { router.push('/auth/login'); return; }
-    
-    const loadDashboard = async () => {
-      try {
-        const [profRes, orderRes, addrRes] = await Promise.all([
-          userAPI.getProfile(),
-          userAPI.getMyOrders(),
-          addressAPI.getAll()
-        ]);
-        
-        const u = profRes.data?.data?.user || profRes.data?.data || profRes.data?.user;
-        setProfile(u);
-        setName(u?.name || '');
-        setEmail(u?.email || '');
-        setPhone(u?.phone || '');
-        
-        setOrders(orderRes.data?.data || []);
-        setAddresses(addrRes.data?.data || []);
-        fetchWishlist();
-      } catch (err) {
-        console.error('Dashboard Load Error:', err);
-      }
-      setLoading(false);
-    };
-    
-    loadDashboard();
-  }, [token, router]);
 
   const handleAddAddress = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,7 +131,7 @@ export default function ProfilePage() {
       setAddresses(data.data || []);
       setShowAddAddress(false);
       setEditingId(null);
-      setAddrForm({ name: '', phone: '', addressLine1: '', city: '', state: '', pincode: '', type: 'home' });
+      setAddrForm({ name: '', phone: '', addressLine1: '', city: '', state: '', pincode: '', type: 'home', landmark: '' });
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to sync hub');
     } finally { setSaving(false); }
@@ -174,7 +146,8 @@ export default function ProfilePage() {
       city: addr.city || '',
       state: addr.state || '',
       pincode: addr.pincode || addr.zipCode || '',
-      type: addr.type?.toLowerCase() || 'home'
+      type: addr.type?.toLowerCase() || 'home',
+      landmark: addr.landmark || ''
     });
     setShowAddAddress(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -583,5 +556,18 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-black">
+        <div className="w-12 h-12 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+        <p className="text-[10px] text-white/20 uppercase tracking-[0.6em]">Authorizing Access</p>
+      </div>
+    }>
+      <ProfileContent />
+    </Suspense>
   );
 }
