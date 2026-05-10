@@ -179,7 +179,7 @@ export default function AdminProducts() {
       <AddProductModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        onSuccess={fetchProducts} 
+        onSuccess={() => fetchProducts(page)} 
         initialData={editProduct}
       />
     </div>
