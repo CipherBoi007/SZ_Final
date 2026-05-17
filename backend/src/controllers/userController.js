@@ -64,7 +64,15 @@ exports.getOrder = catchAsync(async (req, res, next) => {
 // @desc    Cancel order
 exports.cancelOrder = catchAsync(async (req, res, next) => {
   const order = await Order.findOne({ where: { id: req.params.id, userId: req.user.id } });
-  await order.update({ status: 'cancelled' });
+  if (!order) return next(new AppError('Order not found', 404));
+
+  // Only allow cancellation of pending/confirmed orders
+  const cancellableStatuses = ['pending', 'confirmed', 'processing'];
+  if (!cancellableStatuses.includes(order.status)) {
+    return next(new AppError(`Order cannot be cancelled. Current status: ${order.status}`, 400));
+  }
+
+  await order.update({ status: 'cancelled', cancellationReason: req.body.reason || 'Cancelled by customer' });
   res.status(200).json({ status: 'success', data: order });
 });
 

@@ -1,5 +1,6 @@
 /* Import Google Fonts - MUST be at the very top */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+/* A1: Reduced font weight variants to cut network payload on mobile */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap');
 
 @import "tailwindcss";
 
@@ -54,6 +55,8 @@ body {
   color: var(--foreground);
   font-family: 'Times New Roman', 'Inter', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
+  /* A1: Enable smooth scrolling and optimize touch */
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ========== FONT CLASSES ========== */
@@ -106,6 +109,18 @@ button,
   border-color: rgba(255, 255, 255, 0.15);
 }
 
+/* A1: Reduce heavy blur effects on mobile for GPU performance */
+@media (max-width: 768px) {
+  .glass {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .glass-strong {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
 /* Glow effects */
 .glow-red {
   box-shadow: 0 0 20px rgba(220, 20, 60, 0.3), 0 0 60px rgba(220, 20, 60, 0.1);
@@ -118,6 +133,22 @@ button,
 }
 .glow-text-red {
   text-shadow: 0 0 20px rgba(220, 20, 60, 0.5), 0 0 40px rgba(220, 20, 60, 0.2);
+}
+
+/* A1: Disable expensive glow/shadow effects on mobile */
+@media (max-width: 768px) {
+  .glow-red {
+    box-shadow: 0 0 10px rgba(220, 20, 60, 0.2);
+  }
+  .glow-white {
+    box-shadow: none;
+  }
+  .glow-red-hover:hover {
+    box-shadow: 0 0 10px rgba(220, 20, 60, 0.2);
+  }
+  .glow-text-red {
+    text-shadow: none;
+  }
 }
 
 /* Gradient text */
@@ -142,6 +173,13 @@ button,
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
   pointer-events: none;
   z-index: 0;
+}
+
+/* A1: Disable noise overlay on mobile — it's an expensive SVG filter */
+@media (max-width: 768px) {
+  .noise::before {
+    display: none;
+  }
 }
 
 /* Smooth page transitions */
@@ -175,3 +213,43 @@ button,
 /* Hide scrollbar */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ─── A1: Mobile Performance Optimizations ─────────────── */
+
+/* GPU-accelerate commonly animated elements */
+@media (max-width: 768px) {
+  /* Promote animated elements to their own compositing layer */
+  [class*="animate-"], 
+  .shimmer,
+  img {
+    will-change: auto;
+    transform: translateZ(0);
+  }
+
+  /* Use content-visibility to skip rendering off-screen sections */
+  section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 500px;
+  }
+
+  /* Reduce transition durations on mobile for snappier feel */
+  * {
+    transition-duration: 0.15s !important;
+  }
+  
+  /* But keep critical animations normal */
+  .animate-spin {
+    transition-duration: unset !important;
+    animation-duration: 1s !important;
+  }
+
+  /* Optimize touch targets */
+  button, a, input, select, textarea {
+    touch-action: manipulation;
+  }
+
+  /* Reduce image quality hints for faster paint */
+  img {
+    image-rendering: auto;
+  }
+}

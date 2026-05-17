@@ -73,7 +73,7 @@ function HeroSection({ config }: { config: any }) {
           initial="enter"
           animate="center"
           exit="exit"
-          transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
           className="absolute inset-0"
         >
           <Image
@@ -81,7 +81,7 @@ function HeroSection({ config }: { config: any }) {
             alt="background blur"
             fill
             sizes="100vw"
-            className="object-cover object-center blur-2xl opacity-40 scale-110"
+            className="object-cover object-center blur-xl sm:blur-2xl opacity-40 scale-110"
             priority={current === 0}
             quality={10}
           />
@@ -106,7 +106,7 @@ function HeroSection({ config }: { config: any }) {
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 22rem, 24rem"
                 className="object-cover object-center"
-                priority={current === 0}
+                priority={current <= 1}
                 quality={90}
               />
             </div>

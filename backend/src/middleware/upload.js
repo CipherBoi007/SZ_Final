@@ -2,11 +2,18 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const AppError = require('../utils/AppError');
+const config = require('../config/env');
 
-// Ensure uploads directory exists
+const isProduction = config.NODE_ENV === 'production';
+
+// M3: In production, use memoryStorage to avoid relying on ephemeral disk
+// Files will be streamed directly to Cloudinary/S3 from buffer
 const uploadDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+if (!isProduction) {
+  // Ensure uploads directory exists (dev only)
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
 }
 
 // Configure storage

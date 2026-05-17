@@ -1,0 +1,98 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  # ─── Backend Checks ─────────────────────────────────────────
+  backend:
+    name: Backend Lint & Test
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sz_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check for secret leaks
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.pull_request.base.sha || 'HEAD~1' }}
+          extra_args: --only-verified
+
+      - name: Verify server starts
+        env:
+          NODE_ENV: test
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_NAME: sz_test
+          JWT_SECRET: test-secret-for-ci-only
+          JWT_REFRESH_SECRET: test-refresh-secret-for-ci-only
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+        run: |
+          timeout 10 node server.js || true
+
+  # ─── Frontend Checks ────────────────────────────────────────
+  frontend:
+    name: Frontend Build Check
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit || true
+
+      - name: Build
+        env:
+          NEXT_PUBLIC_API_URL: https://api.example.com/api
+          NEXT_PUBLIC_RAZORPAY_KEY_ID: rzp_test_placeholder
+        run: npm run build

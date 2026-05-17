@@ -50,8 +50,14 @@ exports.updateUser = catchAsync(async (req, res, next) => {
     return next(new AppError('User not found', 404));
   }
 
-  // Prevent role update through this endpoint for security
-  const { role, ...updateData } = req.body;
+  // H8: Whitelist allowed fields to prevent mass assignment attacks
+  const allowedFields = ['name', 'email', 'phone', 'isActive'];
+  const updateData = {};
+  for (const field of allowedFields) {
+    if (req.body[field] !== undefined) {
+      updateData[field] = req.body[field];
+    }
+  }
 
   await user.update(updateData);
 

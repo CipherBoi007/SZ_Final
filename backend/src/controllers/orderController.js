@@ -1,4 +1,4 @@
-const { Order, OrderItem, Cart, Product, Coupon, User, Address, ProductImage, ProductVariant } = require('../models');
+const { Order, OrderItem, Cart, Product, Coupon, CouponUsage, User, Address, ProductImage, ProductVariant } = require('../models');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 const { generateOrderNumber, calculateDiscount } = require('../utils/helpers');
@@ -199,10 +199,43 @@ exports.getOrder = catchAsync(async (req, res, next) => {
 
 // @desc    Cancel order
 exports.cancelOrder = catchAsync(async (req, res, next) => {
-  const order = await Order.findOne({ where: { id: req.params.id, userId: req.user.id } });
+  const order = await Order.findOne({
+    where: { id: req.params.id, userId: req.user.id },
+    include: [{ model: OrderItem, as: 'orderItems' }],
+  });
   if (!order) return next(new AppError('Order not found', 404));
-  await order.update({ status: 'cancelled' });
-  res.status(200).json({ status: 'success', data: order });
+
+  // Business rule: Only pending/confirmed orders can be cancelled
+  const cancellableStatuses = ['pending', 'confirmed', 'processing'];
+  if (!cancellableStatuses.includes(order.status)) {
+    return next(new AppError(`Order cannot be cancelled. Current status: ${order.status}`, 400));
+  }
+
+  const transaction = await sequelize.transaction();
+  try {
+    // Restore stock for each order item
+    if (order.orderItems && order.orderItems.length > 0) {
+      for (const item of order.orderItems) {
+        await ProductVariant.increment('stock', {
+          by: item.quantity,
+          where: { id: item.variantId },
+          transaction,
+        });
+      }
+    }
+
+    await order.update({
+      status: 'cancelled',
+      cancelledAt: new Date(),
+      cancellationReason: req.body.reason || 'Cancelled by customer',
+    }, { transaction });
+
+    await transaction.commit();
+    res.status(200).json({ status: 'success', data: order });
+  } catch (error) {
+    if (transaction && !transaction.finished) await transaction.rollback();
+    return next(new AppError('Failed to cancel order', 500));
+  }
 });
 
 // @desc    Track order
@@ -213,12 +246,12 @@ exports.trackOrder = catchAsync(async (req, res, next) => {
 
 // @desc    Request return
 exports.requestReturn = catchAsync(async (req, res, next) => {
-  res.status(200).json({ status: 'success', message: 'Return requested' });
+  return next(new AppError('Return functionality is not yet available. Please contact support.', 501));
 });
 
 // @desc    Reorder
 exports.reorder = catchAsync(async (req, res, next) => {
-  res.status(200).json({ status: 'success', message: 'Reorder successful' });
+  return next(new AppError('Reorder functionality is not yet available.', 501));
 });
 
 // @desc    Get invoice
@@ -229,5 +262,5 @@ exports.getInvoice = catchAsync(async (req, res, next) => {
 
 // @desc    Verify payment
 exports.verifyPayment = catchAsync(async (req, res, next) => {
-  res.status(200).json({ status: 'success', message: 'Payment verified' });
+  return next(new AppError('Use /api/payment/verify-payment for payment verification.', 501));
 });

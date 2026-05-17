@@ -22,32 +22,47 @@ exports.getAllProducts = catchAsync(async (req, res, next) => {
     delete queryOptions.where.price;
   }
 
-  const products = await Product.findAll({
-    where: queryOptions.where,
-    attributes: ['id', 'name', 'brand', 'description', 'rating', 'numReviews', 'isFeatured', 'isNew', 'isTrending', 'material', 'categoryId', 'discount', 'createdAt'],
-    include: [
-      {
-        model: ProductVariant,
-        as: 'variants',
-        attributes: ['id', 'size', 'color', 'price', 'stock'],
-        where: Object.keys(priceFilter).length > 0 ? priceFilter : undefined,
-        required: Object.keys(priceFilter).length > 0,
-      },
-      {
-        model: ProductImage,
-        as: 'images',
-        attributes: ['id', 'url', 'isPrimary', 'order', 'variantId'],
-        separate: true,
-        order: [['order', 'ASC']],
-      },
-      { model: Category, attributes: ['id', 'name'] },
-    ],
-    order: queryOptions.order,
-    limit: queryOptions.limit,
-    offset: queryOptions.offset,
-  });
-
-  const totalCount = await Product.count({ where: queryOptions.where });
+  // Parallelize independent data fetching
+  const [products, totalCount, categories, brands, priceRange] = await Promise.all([
+    Product.findAll({
+      where: queryOptions.where,
+      attributes: ['id', 'name', 'brand', 'description', 'rating', 'numReviews', 'isFeatured', 'isNew', 'isTrending', 'material', 'categoryId', 'discount', 'createdAt'],
+      include: [
+        {
+          model: ProductVariant,
+          as: 'variants',
+          attributes: ['id', 'size', 'color', 'price', 'stock'],
+          where: Object.keys(priceFilter).length > 0 ? priceFilter : undefined,
+          required: Object.keys(priceFilter).length > 0,
+        },
+        {
+          model: ProductImage,
+          as: 'images',
+          attributes: ['id', 'url', 'isPrimary', 'order', 'variantId'],
+          separate: true,
+          order: [['order', 'ASC']],
+        },
+        { model: Category, attributes: ['id', 'name'] },
+      ],
+      order: queryOptions.order,
+      limit: queryOptions.limit,
+      offset: queryOptions.offset,
+    }),
+    Product.count({ where: queryOptions.where }),
+    Category.findAll({ attributes: ['id', 'name'], raw: true }),
+    Product.findAll({ 
+      attributes: [[sequelize.fn('DISTINCT', sequelize.col('brand')), 'brand']],
+      where: { brand: { [Op.ne]: null } },
+      raw: true,
+    }),
+    ProductVariant.findAll({
+      attributes: [
+        [sequelize.fn('MIN', sequelize.col('price')), 'min'],
+        [sequelize.fn('MAX', sequelize.col('price')), 'max']
+      ],
+      raw: true
+    })
+  ]);
 
   const response = {
     products,
@@ -57,15 +72,11 @@ exports.getAllProducts = catchAsync(async (req, res, next) => {
       pages: Math.ceil(totalCount / (parseInt(req.query.limit, 10) || 10)),
     },
     filters: {
-      categories: await Category.findAll({ attributes: ['id', 'name'] }),
-      brands: await Product.findAll({ 
-        attributes: [[sequelize.fn('DISTINCT', sequelize.col('brand')), 'brand']],
-        where: { brand: { [Op.ne]: null } },
-        raw: true,
-      }),
+      categories,
+      brands: brands.map(b => b.brand),
       priceRange: {
-        min: await ProductVariant.min('price'),
-        max: await ProductVariant.max('price'),
+        min: parseFloat(priceRange[0]?.min || 0),
+        max: parseFloat(priceRange[0]?.max || 0),
       },
     },
   };
@@ -116,7 +127,8 @@ exports.createProduct = catchAsync(async (req, res, next) => {
 
   if (req.files && req.files.length > 0) {
     const uploadPromises = req.files.map(async (file, i) => {
-      const cloudinaryUrl = await imageService.uploadImage(file.path, 'products');
+      // M7: Pass the file object (not file.path) — imageService expects an object with .path
+      const cloudinaryUrl = await imageService.uploadImage(file, 'products');
       return {
         productId: result.id,
         url: cloudinaryUrl,
@@ -156,6 +168,10 @@ exports.deleteProduct = catchAsync(async (req, res, next) => {
 
 // @desc    Get featured products
 exports.getFeaturedProducts = catchAsync(async (req, res, next) => {
+  const cacheKey = 'products:featured';
+  const cachedData = await cacheService.get(cacheKey);
+  if (cachedData) return res.status(200).json({ status: 'success', fromCache: true, data: cachedData });
+
   const products = await Product.findAll({
     where: { isFeatured: true },
     include: [
@@ -164,11 +180,17 @@ exports.getFeaturedProducts = catchAsync(async (req, res, next) => {
     ],
     limit: 10
   });
+
+  await cacheService.set(cacheKey, products, 3600); // 1 hour
   res.status(200).json({ status: 'success', data: products });
 });
 
 // @desc    Get new arrivals
 exports.getNewArrivals = catchAsync(async (req, res, next) => {
+  const cacheKey = 'products:new-arrivals';
+  const cachedData = await cacheService.get(cacheKey);
+  if (cachedData) return res.status(200).json({ status: 'success', fromCache: true, data: cachedData });
+
   const threeMonthsAgo = new Date();
   threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
@@ -183,15 +205,22 @@ exports.getNewArrivals = catchAsync(async (req, res, next) => {
     limit: 10,
     order: [['createdAt', 'DESC']]
   });
+
+  await cacheService.set(cacheKey, products, 3600); // 1 hour
   res.status(200).json({ status: 'success', data: products });
 });
 
 // @desc    Get trending products
 exports.getTrendingProducts = catchAsync(async (req, res, next) => {
+  const cacheKey = 'products:trending';
+  const cachedData = await cacheService.get(cacheKey);
+  if (cachedData) return res.status(200).json({ status: 'success', fromCache: true, data: cachedData });
+
   const threeMonthsAgo = new Date();
   threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+  const cutoffDate = sequelize.escape(threeMonthsAgo.toISOString());
 
-  // Use subquery or aggregate to find most ordered products in last 3 months
+  // C4: Use sequelize.escape() to prevent SQL injection in literal subqueries
   const trendingProducts = await Product.findAll({
     attributes: {
       include: [
@@ -201,7 +230,7 @@ exports.getTrendingProducts = catchAsync(async (req, res, next) => {
             FROM "OrderItems" AS "OrderItem"
             INNER JOIN "ProductVariants" AS "Variant" ON "OrderItem"."variantId" = "Variant"."id"
             WHERE "Variant"."productId" = "Product"."id"
-            AND "OrderItem"."createdAt" >= '${threeMonthsAgo.toISOString()}'
+            AND "OrderItem"."createdAt" >= ${cutoffDate}
           )`),
           'orderCount'
         ]
@@ -213,21 +242,25 @@ exports.getTrendingProducts = catchAsync(async (req, res, next) => {
     ],
     order: [[sequelize.literal('"orderCount"'), 'DESC']],
     limit: 10,
-    // Ensure we only show items that have actually been ordered
     where: sequelize.literal(`(
       SELECT SUM("OrderItem"."quantity")
       FROM "OrderItems" AS "OrderItem"
       INNER JOIN "ProductVariants" AS "Variant" ON "OrderItem"."variantId" = "Variant"."id"
       WHERE "Variant"."productId" = "Product"."id"
-      AND "OrderItem"."createdAt" >= '${threeMonthsAgo.toISOString()}'
+      AND "OrderItem"."createdAt" >= ${cutoffDate}
     ) > 0`)
   });
 
+  await cacheService.set(cacheKey, trendingProducts, 3600); // 1 hour
   res.status(200).json({ status: 'success', data: trendingProducts });
 });
 
 // @desc    Get top rated products (rating > 4.3)
 exports.getTopRatedProducts = catchAsync(async (req, res, next) => {
+  const cacheKey = 'products:top-rated';
+  const cachedData = await cacheService.get(cacheKey);
+  if (cachedData) return res.status(200).json({ status: 'success', fromCache: true, data: cachedData });
+
   const products = await Product.findAll({
     where: { 
       rating: { [Op.gte]: 4.3 } 
@@ -239,6 +272,8 @@ exports.getTopRatedProducts = catchAsync(async (req, res, next) => {
     limit: 10,
     order: [['rating', 'DESC']]
   });
+
+  await cacheService.set(cacheKey, products, 3600); // 1 hour
   res.status(200).json({ status: 'success', data: products });
 });
 
@@ -258,14 +293,21 @@ exports.searchProducts = catchAsync(async (req, res, next) => {
 
 // @desc    Get products by category
 exports.getProductsByCategory = catchAsync(async (req, res, next) => {
+  const { categoryId } = req.params;
+  const cacheKey = `products:category:${categoryId}`;
+  const cachedData = await cacheService.get(cacheKey);
+  if (cachedData) return res.status(200).json({ status: 'success', fromCache: true, data: cachedData });
+
   const products = await Product.findAll({
-    where: { categoryId: req.params.categoryId },
+    where: { categoryId },
     include: [
       { model: ProductImage, as: 'images', separate: true, order: [['order', 'ASC']] },
       { model: ProductVariant, as: 'variants', attributes: ['id', 'size', 'color', 'price', 'stock'] },
       { model: Category, attributes: ['id', 'name'] },
     ],
   });
+
+  await cacheService.set(cacheKey, products, 300);
   res.status(200).json({ status: 'success', data: products });
 });
 

@@ -1,4 +1,5 @@
 const AppError = require('../utils/AppError');
+const config = require('../config/env');
 
 const handleSequelizeValidationError = (err) => {
   const errors = err.errors.map(e => e.message);
@@ -60,7 +61,7 @@ module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
-  if (process.env.NODE_ENV === 'development') {
+  if (config.NODE_ENV === 'development') {
     sendErrorDev(err, res);
   } else {
     let error = { ...err };

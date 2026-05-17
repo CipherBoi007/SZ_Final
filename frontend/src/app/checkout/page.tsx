@@ -215,7 +215,7 @@ function CheckoutContent() {
       });
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_ShPCY9vwVFgWgq',
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: rpOrderData.data.amount,
         currency: rpOrderData.data.currency,
         name: 'SouthZone',

@@ -1,8 +1,11 @@
 const redis = require('redis');
 const config = require('./env');
 
+// Support cloud Redis via full URL (Upstash, Redis Cloud) or host:port
+const redisUrl = config.REDIS.URL || `redis://${config.REDIS.HOST}:${config.REDIS.PORT}`;
+
 const redisClient = redis.createClient({
-  url: `redis://${config.REDIS.HOST}:${config.REDIS.PORT}`,
+  url: redisUrl,
   socket: {
     reconnectStrategy: (retries) => {
       if (retries >= 5) {
@@ -32,8 +35,12 @@ redisClient.on('end', () => {
   try {
     await redisClient.connect();
   } catch (error) {
-    console.warn('Redis connection failed. Caching will be disabled:', error.message);
     isRedisReady = false;
+    if (config.NODE_ENV === 'production') {
+      console.error('⚠️  PRODUCTION WARNING: Redis unavailable. OTP and caching will not work correctly across multiple instances.');
+    } else {
+      console.warn('Redis connection failed. Caching will be disabled:', error.message);
+    }
   }
 })();
 

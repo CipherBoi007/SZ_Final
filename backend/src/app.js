@@ -5,6 +5,7 @@ const compression = require('compression');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
+const config = require('./config/env');
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -27,23 +28,45 @@ require('./config/passport');
 
 const app = express();
 
+const isProduction = config.NODE_ENV === 'production';
+
 // Initialize Passport
 app.use(passport.initialize());
 
-// Security middleware
+// H6: Security middleware with proper CSP (not disabled)
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "blob:", "https://res.cloudinary.com", "https://images.unsplash.com", "https://picsum.photos"],
+      connectSrc: ["'self'", "https://api.razorpay.com", config.FRONTEND_URL].filter(Boolean),
+      frameSrc: ["'self'", "https://api.razorpay.com"],
+    },
+  },
 }));
 
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  'http://localhost:3000','https://southzone-pied.vercel.app',
-  /\.vercel\.app$/, // Allow all vercel preview deployments
-];
+// M2: Tighten CORS — no wildcard regex in production
+const allowedOrigins = isProduction
+  ? [config.FRONTEND_URL].filter(Boolean)
+  : [
+      config.FRONTEND_URL,
+      'http://localhost:3000',
+      'https://southzone-pied.vercel.app',
+    ].filter(Boolean);
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, health checks)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
 }));
 
@@ -57,20 +80,24 @@ app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Logging
-if (process.env.NODE_ENV === 'development') {
+// M8: Request logging — enabled in ALL environments
+if (isProduction) {
+  app.use(morgan('combined'));
+} else {
   app.use(morgan('dev'));
 }
 
 const path = require('path');
 
-// Global rate limiting
+// C3: Global rate limiting — always ON in production, configurable in dev
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
   message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
 });
-if (process.env.RATE_LIMIT === 'ON') {
+if (isProduction || process.env.RATE_LIMIT === 'ON') {
   app.use('/api', limiter);
 }
 
@@ -91,8 +118,33 @@ app.use('/api/config', configRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/promotions', promotionRoutes);
 
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', timestamp: new Date() });
+// M6: Health check with DB/Redis readiness
+app.get('/health', async (req, res) => {
+  const health = {
+    status: 'OK',
+    timestamp: new Date(),
+    uptime: process.uptime(),
+    environment: config.NODE_ENV,
+  };
+
+  try {
+    const sequelize = require('./config/database');
+    await sequelize.authenticate();
+    health.database = 'connected';
+  } catch (err) {
+    health.database = 'disconnected';
+    health.status = 'DEGRADED';
+  }
+
+  try {
+    const { isRedisReady } = require('./config/redis');
+    health.redis = isRedisReady() ? 'connected' : 'disconnected';
+  } catch (err) {
+    health.redis = 'unavailable';
+  }
+
+  const statusCode = health.status === 'OK' ? 200 : 503;
+  res.status(statusCode).json(health);
 });
 
 app.all('*', (req, res, next) => {

@@ -91,9 +91,10 @@ const User = sequelize.define('User', {
 });
 
 User.prototype.comparePassword = async function(candidatePassword) {
-  if (!this.password || !this.password.startsWith('$2')) {
-    return candidatePassword === this.password;
-  }
+  // No password set (e.g., Google-only user) — always reject password login
+  if (!this.password) return false;
+  // Ensure password is a bcrypt hash before comparing
+  if (!this.password.startsWith('$2')) return false;
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
