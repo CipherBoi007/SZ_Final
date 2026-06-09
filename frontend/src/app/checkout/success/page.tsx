@@ -124,7 +124,7 @@ function SuccessContent() {
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-        className="bg-[#0A0A0A] border border-white/[0.05] rounded-[32px] p-10 md:p-12 shadow-2xl relative overflow-hidden"
+        className="glass-strong rounded-[32px] p-10 md:p-12 shadow-2xl relative overflow-hidden"
       >
         {/* Subtle Branding Watermark */}
         <ShieldCheck className="absolute -top-10 -right-10 w-48 h-48 text-white/[0.02] -rotate-12" />
@@ -134,7 +134,7 @@ function SuccessContent() {
           <div className="w-16 h-16 mx-auto mb-8 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center">
             <CheckCircle2 className="w-8 h-8 text-accent" strokeWidth={1.5} />
           </div>
-          <h1 className="text-3xl font-serif font-black text-white uppercase tracking-tight mb-3">Collection Secured</h1>
+          <h1 className="text-3xl sm:text-4xl font-serif font-black text-white uppercase tracking-tight mb-3">Collection Secured</h1>
           <p className="text-[10px] text-white/20 uppercase tracking-[0.4em] font-black leading-relaxed max-w-xs mx-auto">
             Your pieces are now reserved within the SouthZone vault.
           </p>

@@ -51,7 +51,7 @@ export default function AdminProducts() {
     <div>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-4xl font-serif font-black text-white uppercase tracking-tight mb-2">Showroom</h1>
+          <h1 className="text-4xl font-serif font-black text-white uppercase tracking-tight mb-2">Products</h1>
           <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em]">Global Boutique Collection Audit</p>
         </div>
         <button onClick={() => { setEditProduct(null); setIsModalOpen(true); }} className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-accent hover:bg-accent-hover text-[11px] font-black text-white uppercase tracking-widest transition-all glow-red shadow-2xl">
@@ -103,10 +103,10 @@ export default function AdminProducts() {
           {/* Desktop Table */}
           <div className="hidden md:block rounded-[32px] glass-strong border border-white/5 overflow-hidden">
             <table className="w-full text-sm">
-              <thead><tr className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] border-b border-white/5">
-                <th className="text-left p-8">Collection Piece</th>
+               <thead><tr className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] border-b border-white/5">
+                <th className="text-left p-8">Product</th>
                 <th className="text-left p-8">Category</th>
-                <th className="text-left p-8">Vault Price</th>
+                <th className="text-left p-8">Price</th>
                 <th className="text-left p-8">Stock</th>
                 <th className="text-right p-8">Actions</th>
               </tr></thead>
@@ -126,7 +126,7 @@ export default function AdminProducts() {
                           <div className="w-12 h-12 rounded-xl overflow-hidden relative shrink-0 border border-white/5"><Image src={imgSrc} alt="" fill className="object-cover" /></div>
                           <div>
                             <span className="text-white font-black uppercase tracking-tight block">{product.name}</span>
-                            <span className="text-[10px] text-white/20 font-black uppercase tracking-widest">{variants.length} Configurations</span>
+                             <span className="text-[10px] text-white/20 font-black uppercase tracking-widest">{variants.length} Variants</span>
                           </div>
                         </div>
                       </td>

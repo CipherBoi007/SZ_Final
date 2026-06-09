@@ -79,10 +79,10 @@ function ProfileContent() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const tabs = [
-    { id: 'overview', label: 'Member Identity', icon: Settings },
-    { id: 'orders', label: 'Order Manifests', icon: ShoppingBag },
-    { id: 'addresses', label: 'Delivery Hubs', icon: MapPin },
-    { id: 'security', label: 'Security Vault', icon: Shield },
+    { id: 'overview', label: 'Profile Details', icon: Settings },
+    { id: 'orders', label: 'My Orders', icon: ShoppingBag },
+    { id: 'addresses', label: 'Saved Addresses', icon: MapPin },
+    { id: 'security', label: 'Security Settings', icon: Shield },
   ];
 
   useEffect(() => {
@@ -122,10 +122,10 @@ function ProfileContent() {
     try {
       if (editingId) {
         await addressAPI.update(editingId, addrForm);
-        toast.success('Hub Updated');
+        toast.success('Address Updated');
       } else {
         await addressAPI.create(addrForm);
-        toast.success('Hub Secured');
+        toast.success('Address Saved');
       }
       const { data } = await addressAPI.getAll();
       setAddresses(data.data || []);
@@ -133,7 +133,7 @@ function ProfileContent() {
       setEditingId(null);
       setAddrForm({ name: '', phone: '', addressLine1: '', city: '', state: '', pincode: '', type: 'home', landmark: '' });
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to sync hub');
+      toast.error(err.response?.data?.message || 'Failed to save address');
     } finally { setSaving(false); }
   };
 
@@ -154,12 +154,12 @@ function ProfileContent() {
   };
 
   const handleDeleteAddress = async (id: string) => {
-    if (!confirm('Are you sure you want to remove this hub?')) return;
+    if (!confirm('Are you sure you want to delete this address?')) return;
     try {
       await addressAPI.delete(id);
       setAddresses(addresses.filter(a => a.id.toString() !== id));
-      toast.success('Hub Removed');
-    } catch { toast.error('Failed to remove hub'); }
+      toast.success('Address Deleted');
+    } catch { toast.error('Failed to delete address'); }
   };
 
   const handleSetDefaultAddress = async (id: string) => {
@@ -167,8 +167,8 @@ function ProfileContent() {
       await addressAPI.setDefault(id);
       const { data } = await addressAPI.getAll();
       setAddresses(data.data || []);
-      toast.success('Primary Hub Updated');
-    } catch { toast.error('Failed to set primary'); }
+      toast.success('Default Address Updated');
+    } catch { toast.error('Failed to set default address'); }
   };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -237,7 +237,7 @@ function ProfileContent() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           <StatBlock icon={Package} label="Open Orders" value={activeOrdersCount} color="accent" onClick={() => setActiveTab('orders')} />
           <StatBlock icon={Heart} label="Saved Pieces" value={wishlistItems.length} color="white" onClick={() => router.push('/wishlist')} />
-          <StatBlock icon={MapPin} label="Saved Hubs" value={addresses.length} color="white" onClick={() => setActiveTab('addresses')} />
+          <StatBlock icon={MapPin} label="Saved Addresses" value={addresses.length} color="white" onClick={() => setActiveTab('addresses')} />
           <StatBlock icon={Shield} label="Security" value="Encrypted" color="white" onClick={() => setActiveTab('security')} />
         </div>
 
@@ -294,9 +294,9 @@ function ProfileContent() {
               {activeTab === 'overview' && (
                 <motion.div key="overview" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-12">
                   
-                  {/* Identity Summary */}
+                  {/* Personal Information */}
                   <section>
-                    <SectionHeader title="Identity Summary" desc="Manage your digital presence" 
+                    <SectionHeader title="Personal Information" desc="Manage your profile settings" 
                       action={
                         <button onClick={() => setIsEditing(!isEditing)} className="text-[10px] font-black text-accent uppercase tracking-[0.4em] hover:underline">
                           {isEditing ? 'Cancel Edit' : 'Edit Details'}
@@ -307,9 +307,9 @@ function ProfileContent() {
                     <div className="p-10 rounded-3xl bg-white/[0.02] border border-white/5">
                       <form onSubmit={handleUpdateProfile} className="grid grid-cols-1 md:grid-cols-2 gap-10">
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Full Legal Name</label>
+                          <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Full Name</label>
                           {isEditing ? (
-                            <input value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-black border-b border-white/10 py-3 text-xl font-black text-white outline-none focus:border-accent transition-all tracking-tight" />
+                            <input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 px-5 text-sm text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner tracking-wide" />
                           ) : (
                             <p className="text-xl font-black text-white tracking-tight">{name}</p>
                           )}
@@ -317,22 +317,22 @@ function ProfileContent() {
                         <div className="space-y-2">
                           <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Email Address</label>
                           {isEditing ? (
-                            <input value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-black border-b border-white/10 py-3 text-xl font-black text-white outline-none focus:border-accent transition-all tracking-tight" />
+                            <input value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 px-5 text-sm text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner tracking-wide" />
                           ) : (
                             <p className="text-xl font-black text-white tracking-tight">{email}</p>
                           )}
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Communication Hub</label>
+                          <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Phone Number</label>
                           {isEditing ? (
-                            <input value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-black border-b border-white/10 py-3 text-xl font-black text-white outline-none focus:border-accent transition-all tracking-tight" />
+                            <input value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 px-5 text-sm text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner tracking-wide" />
                           ) : (
-                            <p className="text-xl font-black text-white tracking-tight">{phone || '+91 Connected'}</p>
+                            <p className="text-xl font-black text-white tracking-tight">{phone || 'Not Connected'}</p>
                           )}
                         </div>
                         {isEditing && (
                           <div className="md:col-span-2 flex justify-end">
-                            <button type="submit" disabled={saving} className="px-12 py-5 rounded-full bg-white text-black text-[10px] font-black uppercase tracking-[0.4em] hover:bg-accent hover:text-white transition-all shadow-2xl">
+                            <button type="submit" disabled={saving} className="px-12 py-5 rounded-2xl bg-white text-black text-[10px] font-black uppercase tracking-[0.3em] hover:bg-accent hover:text-white transition-all shadow-2xl glow-red-hover">
                               {saving ? 'Syncing...' : 'Save Profile'}
                             </button>
                           </div>
@@ -417,13 +417,13 @@ function ProfileContent() {
 
               {activeTab === 'addresses' && (
                 <motion.div key="addresses" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-8">
-                  <SectionHeader title="Address Portfolio" desc="Manage your delivery hubs" 
+                  <SectionHeader title="Saved Addresses" desc="Manage your shipping addresses" 
                     action={
                       <button 
                         onClick={() => setShowAddAddress(!showAddAddress)} 
-                        className="px-8 py-4 rounded-full bg-accent text-white text-[10px] font-black uppercase tracking-[0.4em] glow-red shadow-2xl"
+                        className="px-8 py-4 rounded-2xl bg-accent text-white text-[10px] font-black uppercase tracking-[0.3em] glow-red shadow-2xl hover:bg-accent-hover transition-all"
                       >
-                        {showAddAddress ? 'Cancel Entry' : 'Add New Hub'}
+                        {showAddAddress ? 'Cancel' : 'Add New Address'}
                       </button>
                     } 
                   />
@@ -433,33 +433,33 @@ function ProfileContent() {
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
                         <div className="p-10 rounded-3xl bg-white/[0.02] border border-accent/20 shadow-2xl mb-12">
                           <h3 className="text-xl font-black text-white tracking-tight mb-8 uppercase">
-                            {editingId ? 'Refine Hub Details' : 'Register New Delivery Hub'}
+                            {editingId ? 'Edit Address Details' : 'Add New Shipping Address'}
                           </h3>
                           <form onSubmit={handleAddAddress} className="space-y-8">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                               <div className="space-y-2">
-                                <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Hub Recipient</label>
-                                <input value={addrForm.name} onChange={(e) => setAddrForm({ ...addrForm, name: e.target.value })} required placeholder="Full Name" className="w-full bg-black border-b border-white/10 py-3 text-lg text-white outline-none focus:border-accent transition-all tracking-tight" />
+                                <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Recipient Name</label>
+                                <input value={addrForm.name} onChange={(e) => setAddrForm({ ...addrForm, name: e.target.value })} required placeholder="Full Name" className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 px-5 text-xs text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner tracking-wide font-semibold" />
                               </div>
                               <div className="space-y-2">
-                                <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Hub Contact</label>
-                                <input value={addrForm.phone} onChange={(e) => setAddrForm({ ...addrForm, phone: e.target.value })} required placeholder="Phone Number" className="w-full bg-black border-b border-white/10 py-3 text-lg text-white outline-none focus:border-accent transition-all tracking-tight" />
+                                <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Phone Number</label>
+                                <input value={addrForm.phone} onChange={(e) => setAddrForm({ ...addrForm, phone: e.target.value })} required placeholder="Phone Number" className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 px-5 text-xs text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner tracking-wide font-semibold" />
                               </div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                               <div className="space-y-2">
                                 <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Street Address / Building</label>
-                                <input value={addrForm.addressLine1} onChange={(e) => setAddrForm({ ...addrForm, addressLine1: e.target.value })} required placeholder="123 Elite Avenue..." className="w-full bg-black border-b border-white/10 py-3 text-lg text-white outline-none focus:border-accent transition-all tracking-tight" />
+                                <input value={addrForm.addressLine1} onChange={(e) => setAddrForm({ ...addrForm, addressLine1: e.target.value })} required placeholder="Street address or building details..." className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 px-5 text-xs text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner tracking-wide font-semibold" />
                               </div>
                               <div className="space-y-4">
-                                <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Hub Purpose</label>
+                                <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Address Type</label>
                                 <div className="flex gap-4">
                                   {['home', 'office'].map((type) => (
                                     <button 
                                       key={type}
                                       type="button"
                                       onClick={() => setAddrForm({ ...addrForm, type })}
-                                      className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
+                                      className={`px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border ${
                                         addrForm.type === type ? 'bg-white text-black border-white' : 'bg-transparent border-white/10 text-white/40 hover:border-white/30'
                                       }`}
                                     >
@@ -473,25 +473,25 @@ function ProfileContent() {
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                               <div className="space-y-2">
                                 <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">City</label>
-                                <input value={addrForm.city} onChange={(e) => setAddrForm({ ...addrForm, city: e.target.value })} required className="w-full bg-black border-b border-white/10 py-3 text-lg text-white outline-none focus:border-accent transition-all tracking-tight" />
+                                <input value={addrForm.city} onChange={(e) => setAddrForm({ ...addrForm, city: e.target.value })} required placeholder="City" className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 px-5 text-xs text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner tracking-wide font-semibold" />
                               </div>
                               <div className="space-y-2">
                                 <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">State</label>
-                                <input value={addrForm.state} onChange={(e) => setAddrForm({ ...addrForm, state: e.target.value })} required className="w-full bg-black border-b border-white/10 py-3 text-lg text-white outline-none focus:border-accent transition-all tracking-tight" />
+                                <input value={addrForm.state} onChange={(e) => setAddrForm({ ...addrForm, state: e.target.value })} required placeholder="State" className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 px-5 text-xs text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner tracking-wide font-semibold" />
                               </div>
                               <div className="space-y-2">
                                 <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Zip Code</label>
-                                <input value={addrForm.pincode} onChange={(e) => setAddrForm({ ...addrForm, pincode: e.target.value })} required className="w-full bg-black border-b border-white/10 py-3 text-lg text-white outline-none focus:border-accent transition-all tracking-tight" />
+                                <input value={addrForm.pincode} onChange={(e) => setAddrForm({ ...addrForm, pincode: e.target.value })} required placeholder="Zip Code" className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 px-5 text-xs text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner tracking-wide font-semibold" />
                               </div>
                             </div>
 
                             <div className="space-y-2">
-                              <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Hub Landmark</label>
-                              <input value={addrForm.landmark} onChange={(e) => setAddrForm({ ...addrForm, landmark: e.target.value })} placeholder="E.g. Near Sovereign Tower..." className="w-full bg-black border-b border-white/10 py-3 text-lg text-white outline-none focus:border-accent transition-all tracking-tight" />
+                              <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Landmark</label>
+                              <input value={addrForm.landmark} onChange={(e) => setAddrForm({ ...addrForm, landmark: e.target.value })} placeholder="E.g. Near Sovereign Tower (Optional)..." className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 px-5 text-xs text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner tracking-wide font-semibold" />
                             </div>
 
-                            <button type="submit" disabled={saving} className="px-12 py-5 rounded-full bg-white text-black text-[10px] font-black uppercase tracking-[0.4em] hover:bg-accent hover:text-white transition-all shadow-2xl">
-                              {saving ? 'Synchronizing...' : (editingId ? 'Update Hub' : 'Register Hub')}
+                            <button type="submit" disabled={saving} className="px-12 py-5 rounded-2xl bg-white text-black text-[10px] font-black uppercase tracking-[0.3em] hover:bg-accent hover:text-white transition-all shadow-2xl glow-red-hover">
+                              {saving ? 'Syncing...' : (editingId ? 'Update Address' : 'Save Address')}
                             </button>
                           </form>
                         </div>
@@ -503,7 +503,7 @@ function ProfileContent() {
                     {addresses.map((addr) => (
                       <div key={addr.id} className={`p-10 rounded-3xl border transition-all relative overflow-hidden group ${addr.isDefault ? 'border-accent bg-accent/5' : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.04]'}`}>
                         <div className="flex items-center justify-between mb-8">
-                          <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.5em]">{addr.type || 'Residence'}</span>
+                          <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.5em]">{addr.type || 'Home'}</span>
                           {addr.isDefault && <CheckCircle2 className="w-4 h-4 text-accent" />}
                         </div>
                         <h3 className="text-2xl font-black text-white tracking-tight mb-2">{addr.name || addr.fullName}</h3>
@@ -514,9 +514,9 @@ function ProfileContent() {
                         </div>
                         <div className="flex items-center justify-between pt-8 border-t border-white/5">
                           <div className="flex gap-6">
-                            <button onClick={() => handleEditInitiate(addr)} className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] hover:text-white transition-all">Edit Hub</button>
+                            <button onClick={() => handleEditInitiate(addr)} className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] hover:text-white transition-all">Edit Address</button>
                             {!addr.isDefault && (
-                              <button onClick={() => handleSetDefaultAddress(addr.id.toString())} className="text-[10px] font-black text-accent/50 uppercase tracking-[0.4em] hover:text-accent transition-all">Set Primary</button>
+                              <button onClick={() => handleSetDefaultAddress(addr.id.toString())} className="text-[10px] font-black text-accent/50 uppercase tracking-[0.4em] hover:text-accent transition-all">Set Default</button>
                             )}
                           </div>
                           <button onClick={() => handleDeleteAddress(addr.id.toString())} className="text-[10px] font-black text-red-500/50 uppercase tracking-[0.4em] hover:text-red-500 transition-all">Delete</button>
@@ -526,7 +526,7 @@ function ProfileContent() {
                     {addresses.length === 0 && !showAddAddress && (
                       <div className="md:col-span-2 py-32 text-center border-2 border-dashed border-white/5 rounded-3xl">
                         <MapPin className="w-12 h-12 text-white/5 mx-auto mb-6" />
-                        <p className="text-[11px] text-white/20 uppercase tracking-[0.4em] font-black">No delivery hubs registered yet</p>
+                        <p className="text-[11px] text-white/20 uppercase tracking-[0.4em] font-black">No saved addresses found</p>
                       </div>
                     )}
                   </div>
@@ -535,18 +535,18 @@ function ProfileContent() {
 
               {activeTab === 'security' && (
                 <motion.div key="security" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-12">
-                  <SectionHeader title="The Security Vault" desc="Protect your digital assets" />
+                  <SectionHeader title="Security Settings" desc="Protect your account security" />
                   <div className="max-w-xl p-12 rounded-3xl bg-white/[0.02] border border-white/5 shadow-2xl">
                     <form className="space-y-10">
                       <div className="space-y-4">
-                        <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Current Security Key</label>
-                        <input type="password" placeholder="••••••••••••" className="w-full bg-black border-b border-white/10 py-4 text-xl font-black text-white outline-none focus:border-accent transition-all tracking-tighter" />
+                        <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Current Password</label>
+                        <input type="password" placeholder="••••••••••••" className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 px-5 text-xs text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner tracking-widest font-semibold" />
                       </div>
                       <div className="space-y-4">
-                        <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">New Security Key</label>
-                        <input type="password" placeholder="••••••••••••" className="w-full bg-black border-b border-white/10 py-4 text-xl font-black text-white outline-none focus:border-accent transition-all tracking-tighter" />
+                        <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">New Password</label>
+                        <input type="password" placeholder="••••••••••••" className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 px-5 text-xs text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner tracking-widest font-semibold" />
                       </div>
-                      <button className="w-full py-5 rounded-2xl bg-white text-black text-[11px] font-black uppercase tracking-[0.4em] hover:bg-accent hover:text-white transition-all shadow-2xl">Update Vault Access</button>
+                      <button className="w-full py-5 rounded-2xl bg-white text-black text-[11px] font-black uppercase tracking-[0.3em] hover:bg-accent hover:text-white transition-all shadow-2xl glow-red-hover">Update Password</button>
                     </form>
                   </div>
                 </motion.div>

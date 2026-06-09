@@ -73,11 +73,11 @@ export default function TransactionsLedger() {
       {/* Header & Stats */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
         <div>
-          <h1 className="text-4xl font-serif font-black text-white uppercase tracking-tight mb-2">Financial Ledger</h1>
+          <h1 className="text-4xl font-serif font-black text-white uppercase tracking-tight mb-2">Transactions</h1>
           <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em]">Real-time Boutique Revenue Log</p>
         </div>
         <button onClick={fetchTransactions} className="flex items-center gap-3 px-6 py-3 rounded-2xl glass hover:bg-white/5 text-[10px] font-black text-white uppercase tracking-widest transition-all">
-          <RefreshCw className="w-4 h-4" /> Sync Vault
+          <RefreshCw className="w-4 h-4" /> Refresh
         </button>
       </div>
 
@@ -144,8 +144,8 @@ export default function TransactionsLedger() {
               <thead>
                 <tr className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] border-b border-white/5">
                   <th className="text-left p-8">Date</th>
-                  <th className="text-left p-8">Elite Member</th>
-                  <th className="text-left p-8">Vault ID</th>
+                  <th className="text-left p-8">Customer</th>
+                  <th className="text-left p-8">Order ID</th>
                   <th className="text-left p-8">Type</th>
                   <th className="text-right p-8">Debit</th>
                   <th className="text-right p-8">Credit</th>
@@ -202,7 +202,7 @@ export default function TransactionsLedger() {
         {filtered.length === 0 && (
           <div className="p-20 text-center space-y-4">
             <CreditCard className="w-12 h-12 text-white/5 mx-auto" />
-            <p className="text-[10px] font-black text-white/10 uppercase tracking-[0.6em]">No Vault Entries Found</p>
+            <p className="text-[10px] font-black text-white/10 uppercase tracking-[0.6em]">No Transactions Found</p>
           </div>
         )}
       </div>

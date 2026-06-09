@@ -148,7 +148,7 @@ const ProductCard = ({ product }: { product: any }) => {
 
       <div className="p-5 flex flex-col flex-1">
         <div className="mb-3">
-          <h3 className="text-xs font-serif font-bold text-white/90 group-hover:text-white transition-colors line-clamp-1 leading-tight uppercase tracking-tight">
+          <h3 className="text-xs font-normal text-white/90 group-hover:text-white transition-colors line-clamp-1 leading-tight uppercase tracking-wide">
             {product.name}
           </h3>
           <p className="text-[10px] text-white/20 uppercase tracking-[0.2em] font-medium mt-1">{product.brand || 'SouthZone'}</p>
@@ -157,7 +157,7 @@ const ProductCard = ({ product }: { product: any }) => {
         <div className="mt-auto pt-4 border-t border-white/5">
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-base font-black text-accent tracking-tighter leading-none">
+              <span className="text-base font-semibold text-accent tracking-tighter leading-none">
                 ₹{minDiscounted.toLocaleString()}
               </span>
             </div>

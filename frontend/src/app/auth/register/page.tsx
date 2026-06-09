@@ -156,6 +156,10 @@ export default function RegisterPage() {
     }
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/google`;
+  };
+
   return (
     <div className="min-h-screen flex">
       <div className="hidden lg:block lg:w-1/2 relative">
@@ -315,7 +319,10 @@ export default function RegisterPage() {
             <div className="flex-1 h-px bg-white/5" />
           </div>
           
-          <button className="mt-6 w-full flex items-center justify-center gap-3 py-3.5 rounded-xl glass glass-hover text-sm text-white/70 hover:text-white transition-colors">
+          <button 
+            onClick={handleGoogleLogin}
+            className="mt-6 w-full flex items-center justify-center gap-3 py-3.5 rounded-xl glass glass-hover text-sm text-white/70 hover:text-white transition-colors"
+          >
             <Image src="/images/google.png" alt="Google" width={18} height={18} className="w-auto h-auto" /> Continue with Google
           </button>
           

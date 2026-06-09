@@ -40,7 +40,7 @@ export default function AdminPromotions() {
       const { data } = await adminAPI.getPromotions();
       setPromotions(data.data || []);
     } catch { 
-      toast.error('Failed to load campaigns');
+      toast.error('Failed to load promotions');
     } finally {
       setLoading(false);
     }
@@ -81,28 +81,28 @@ export default function AdminPromotions() {
     try {
       if (editId) {
         await adminAPI.updatePromotion(editId, formData);
-        toast.success('Campaign updated');
+        toast.success('Promotion updated');
       } else {
         await adminAPI.createPromotion(formData);
-        toast.success('New campaign launched');
+        toast.success('Promotion created');
       }
       setIsModalOpen(false);
       fetchPromotions();
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Campaign save failed');
+      toast.error(err.response?.data?.message || 'Promotion save failed');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Abort this campaign? This cannot be undone.')) return;
+    if (!confirm('Are you sure you want to delete this promotion? This cannot be undone.')) return;
     try {
       await adminAPI.deletePromotion(id);
-      toast.success('Campaign removed');
+      toast.success('Promotion deleted');
       setPromotions(promotions.filter((p) => p.id !== id));
     } catch {
-      toast.error('Failed to remove campaign');
+      toast.error('Failed to delete promotion');
     }
   };
 
@@ -110,7 +110,7 @@ export default function AdminPromotions() {
     try {
       await adminAPI.updatePromotion(promo.id, { isActive: !promo.isActive });
       setPromotions(promotions.map(p => p.id === promo.id ? { ...p, isActive: !promo.isActive } : p));
-      toast.success(promo.isActive ? 'Campaign deactivated' : 'Campaign reactivated');
+      toast.success(promo.isActive ? 'Promotion deactivated' : 'Promotion activated');
     } catch {
       toast.error('Status toggle failed');
     }
@@ -119,7 +119,7 @@ export default function AdminPromotions() {
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-6">
       <div className="w-10 h-10 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-      <p className="text-[9px] text-white/20 uppercase tracking-[0.6em]">Syncing Campaigns</p>
+      <p className="text-[9px] text-white/20 uppercase tracking-[0.6em]">Loading Promotions</p>
     </div>
   );
 
@@ -127,11 +127,11 @@ export default function AdminPromotions() {
     <div className="space-y-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
         <div>
-          <h1 className="text-4xl font-serif font-black text-white uppercase tracking-tight mb-2 text-glow">Campaigns</h1>
-          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em]">High-Visibility Boutique Spotlights</p>
+          <h1 className="text-4xl font-serif font-black text-white uppercase tracking-tight mb-2 text-glow">Promotions</h1>
+          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em]">Manage promotional banners</p>
         </div>
         <button onClick={() => handleOpenModal()} className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-accent hover:bg-accent-hover text-[11px] font-black text-white uppercase tracking-widest transition-all glow-red shadow-2xl">
-          <PlusCircle className="w-4 h-4" /> Launch Campaign
+          <PlusCircle className="w-4 h-4" /> Create Promotion
         </button>
       </div>
 
@@ -182,7 +182,7 @@ export default function AdminPromotions() {
               
               <div className="flex items-center justify-between gap-2">
                 <button onClick={() => toggleStatus(promo)} className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest transition-colors text-white/20 hover:text-white truncate">
-                  {promo.isActive ? 'Shutdown' : 'Activate'}
+                  {promo.isActive ? 'Deactivate' : 'Activate'}
                 </button>
                 <div className="flex items-center gap-2">
                   <button onClick={() => handleOpenModal(promo)} className="p-2 sm:p-4 rounded-xl glass border border-white/5 text-white/40 hover:text-white transition-all">
@@ -200,7 +200,7 @@ export default function AdminPromotions() {
         {promotions.length === 0 && (
           <div className="col-span-full py-32 text-center space-y-4 rounded-[40px] border border-dashed border-white/10">
             <Megaphone className="w-16 h-16 text-white/5 mx-auto" />
-            <p className="text-[10px] font-black text-white/10 uppercase tracking-[0.6em]">No Active Campaigns In Vault</p>
+            <p className="text-[10px] font-black text-white/10 uppercase tracking-[0.6em]">No Promotions Found</p>
           </div>
         )}
       </div>
@@ -214,8 +214,8 @@ export default function AdminPromotions() {
             
             <div className="flex items-center justify-between mb-10 relative z-10">
               <div>
-                <h2 className="text-3xl font-serif font-black text-white uppercase tracking-tight">{editId ? 'Refine Campaign' : 'Launch New Campaign'}</h2>
-                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mt-1">Configure Spotlight Parameters</p>
+                <h2 className="text-3xl font-serif font-black text-white uppercase tracking-tight">{editId ? 'Edit Promotion' : 'Create Promotion'}</h2>
+                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mt-1">Promotion details</p>
               </div>
               <button onClick={() => setIsModalOpen(false)} className="p-4 text-white/20 hover:text-white rounded-2xl glass transition-all">
                 <X className="w-6 h-6" />
@@ -244,7 +244,7 @@ export default function AdminPromotions() {
 
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-white/20 tracking-widest">Target Routing</label>
+                  <label className="text-[10px] font-black uppercase text-white/20 tracking-widest">Target Link</label>
                   <input value={formData.targetLink} onChange={(e) => setFormData({ ...formData, targetLink: e.target.value })} className="w-full py-4 px-6 rounded-2xl bg-white/5 border border-white/5 text-sm font-mono text-white focus:border-accent/30 outline-none transition-all" placeholder="/shop" />
                 </div>
                 <div className="space-y-2">
@@ -255,18 +255,18 @@ export default function AdminPromotions() {
 
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-white/20 tracking-widest">Commence Date</label>
+                  <label className="text-[10px] font-black uppercase text-white/20 tracking-widest">Start Date</label>
                   <input type="date" value={formData.startDate} onChange={(e) => setFormData({ ...formData, startDate: e.target.value })} className="w-full py-4 px-6 rounded-2xl bg-white/5 border border-white/5 text-sm text-white focus:border-accent/30 outline-none transition-all" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-white/20 tracking-widest">Expiry Date</label>
+                  <label className="text-[10px] font-black uppercase text-white/20 tracking-widest">End Date</label>
                   <input type="date" value={formData.endDate} onChange={(e) => setFormData({ ...formData, endDate: e.target.value })} className="w-full py-4 px-6 rounded-2xl bg-white/5 border border-white/5 text-sm text-white focus:border-accent/30 outline-none transition-all" />
                 </div>
               </div>
 
               <button type="submit" disabled={saving} className="w-full mt-6 flex items-center justify-center gap-3 px-8 py-5 rounded-2xl bg-accent hover:bg-accent-hover text-white text-sm font-black uppercase tracking-widest transition-all glow-red disabled:opacity-50 shadow-2xl">
                 {saving ? <RefreshCw className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
-                {editId ? 'Authorize Update' : 'Initialize Campaign'}
+                {editId ? 'Save Changes' : 'Create Promotion'}
               </button>
             </form>
           </div>

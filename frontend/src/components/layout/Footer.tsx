@@ -9,17 +9,17 @@ export default function Footer() {
       <div className="border-b border-white/5">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-            <div className="text-center lg:text-left">
-              <h3 className="font-serif text-2xl font-bold text-white mb-2">Join the SouthZone Club</h3>
+            <div className="text-center lg:text-left text-white">
+              <h3 className="font-serif text-3xl font-black tracking-widest uppercase mb-2">Join the SouthZone Club</h3>
               <p className="text-sm text-white/40">Subscribe for early access to drops and exclusive offers.</p>
             </div>
-            <div className="w-full max-w-md flex items-center gap-2">
+            <div className="w-full max-w-md flex flex-col sm:flex-row items-center gap-3">
               <input 
                 type="email" 
-                placeholder="Enter your email" 
-                className="flex-1 bg-white/5 border border-white/10 rounded-full px-6 py-3 text-sm text-white outline-none focus:border-accent/50 transition-all"
+                placeholder="ENTER YOUR EMAIL" 
+                className="w-full sm:flex-1 bg-white/5 border border-white/5 rounded-2xl px-5 py-4 text-xs text-white placeholder:text-white/20 outline-none focus:border-accent/30 transition-all shadow-inner tracking-wider uppercase font-semibold"
               />
-              <button className="bg-white text-black px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all">
+              <button className="w-full sm:w-auto bg-white text-black px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-accent hover:text-white transition-all glow-red-hover">
                 Join
               </button>
             </div>
@@ -44,7 +44,7 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               {[Instagram, Twitter, Facebook].map((Icon, i) => (
-                <a key={i} href="#" className="w-10 h-10 flex items-center justify-center glass rounded-full text-white/50 hover:text-white hover:bg-accent transition-all duration-300">
+                <a key={i} href="#" className="w-10 h-10 flex items-center justify-center glass rounded-xl text-white/50 hover:text-white hover:bg-accent hover:border-accent/30 transition-all duration-300">
                   <Icon className="h-5 w-5" />
                 </a>
               ))}
@@ -53,7 +53,7 @@ export default function Footer() {
 
           {/* Shop */}
           <div>
-            <h3 className="text-sm font-bold text-white tracking-[0.2em] uppercase mb-6">Collections</h3>
+            <h3 className="font-serif text-lg font-black text-white tracking-widest uppercase mb-6">Collections</h3>
             <ul className="space-y-4">
               {['Formals', 'Casuals', 'Traditional', 'Sports'].map(item => (
                 <li key={item}><Link href={`/shop?category=${item}`} className="text-sm text-white/40 hover:text-accent transition-colors">{item}</Link></li>
@@ -63,7 +63,7 @@ export default function Footer() {
 
           {/* Support */}
           <div>
-            <h3 className="text-sm font-bold text-white tracking-[0.2em] uppercase mb-6">Support</h3>
+            <h3 className="font-serif text-lg font-black text-white tracking-widest uppercase mb-6">Support</h3>
             <ul className="space-y-4">
               {['Track Order', 'Returns', 'Size Guide', 'Contact Us'].map(item => (
                 <li key={item}><Link href="#" className="text-sm text-white/40 hover:text-accent transition-colors">{item}</Link></li>
@@ -73,7 +73,7 @@ export default function Footer() {
 
           {/* Legal */}
           <div>
-            <h3 className="text-sm font-bold text-white tracking-[0.2em] uppercase mb-6">Company</h3>
+            <h3 className="font-serif text-lg font-black text-white tracking-widest uppercase mb-6">Company</h3>
             <ul className="space-y-4">
               {['About Us', 'Terms of Service', 'Privacy Policy', 'Cookie Policy'].map(item => (
                 <li key={item}><Link href="#" className="text-sm text-white/40 hover:text-accent transition-colors">{item}</Link></li>

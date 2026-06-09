@@ -30,17 +30,17 @@ export default function AdminReviews() {
     if (!confirm('Are you sure you want to remove this feedback?')) return;
     try {
       await adminAPI.deleteReview(id);
-      toast.success('Review purged');
+      toast.success('Review deleted');
       setReviews(reviews.filter((r) => r.id !== id));
     } catch {
-      toast.error('Purge failed');
+      toast.error('Deletion failed');
     }
   };
 
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-6">
       <div className="w-10 h-10 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-      <p className="text-[9px] text-white/20 uppercase tracking-[0.6em]">Syncing Social Proof</p>
+      <p className="text-[9px] text-white/20 uppercase tracking-[0.6em]">Loading Reviews</p>
     </div>
   );
 
@@ -48,11 +48,11 @@ export default function AdminReviews() {
     <div className="space-y-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
         <div>
-          <h1 className="text-4xl font-serif font-black text-white uppercase tracking-tight mb-2">Social Proof</h1>
-          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em]">Global Review Moderation Suite</p>
+          <h1 className="text-4xl font-serif font-black text-white uppercase tracking-tight mb-2">Reviews</h1>
+          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em]">Moderate store customer reviews</p>
         </div>
         <button onClick={fetchReviews} className="flex items-center gap-3 px-6 py-3 rounded-2xl glass hover:bg-white/5 text-[10px] font-black text-white uppercase tracking-widest transition-all">
-          <RefreshCw className="w-4 h-4" /> Sync Feed
+          <RefreshCw className="w-4 h-4" /> Refresh
         </button>
       </div>
 
@@ -76,7 +76,7 @@ export default function AdminReviews() {
                   <h3 className="text-lg font-serif font-black text-white uppercase tracking-tight mb-2">"{review.comment}"</h3>
                   <div className="flex flex-wrap gap-4">
                     <div className="flex items-center gap-2 text-[10px] font-black text-white/40 uppercase tracking-widest">
-                      <User className="w-3.5 h-3.5 text-accent" /> {review.User?.name || 'Elite Member'}
+                      <User className="w-3.5 h-3.5 text-accent" /> {review.User?.name || 'Customer'}
                     </div>
                     <div className="flex items-center gap-2 text-[10px] font-black text-white/40 uppercase tracking-widest">
                       <Package className="w-3.5 h-3.5 text-accent" /> {review.Product?.name || 'Product'}
@@ -97,7 +97,7 @@ export default function AdminReviews() {
         {reviews.length === 0 && (
           <div className="py-32 text-center space-y-4 rounded-[40px] border border-dashed border-white/10">
             <MessageSquare className="w-16 h-16 text-white/5 mx-auto" />
-            <p className="text-[10px] font-black text-white/10 uppercase tracking-[0.6em]">No Social Proof Logged</p>
+            <p className="text-[10px] font-black text-white/10 uppercase tracking-[0.6em]">No Reviews Found</p>
           </div>
         )}
       </div>

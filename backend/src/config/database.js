@@ -15,7 +15,7 @@ const sequelize = new Sequelize(config.DB.NAME, config.DB.USER, config.DB.PASSWO
   host: config.DB.HOST,
   port: config.DB.PORT,
   dialect: 'postgres',
-  logging: config.NODE_ENV === 'development' ? console.log : false,
+  logging: process.env.DB_LOGGING === 'true' ? console.log : false,
   dialectOptions,
   pool: {
     max: config.DB.POOL_MAX,     // M5: Configurable via DB_POOL_MAX env var (default: 5)

@@ -162,8 +162,21 @@ function HeroSection({ config }: { config: any }) {
 
 /* ─── Categories ───────────────────────────────────────── */
 function CategoriesSection({ sectionConfig, categories }: { sectionConfig: any; categories: any[] }) {
-  const order = ['Formals', 'Casuals', 'Traditional', 'Sports'];
-  const cats = order.map(name => categories.find(c => c.name === name)).filter(Boolean);
+  const cats = useMemo(() => {
+    if (!categories || categories.length === 0) return [];
+    const order = ['Formals', 'Casuals', 'Traditional', 'Sports'];
+    const matched: any[] = [];
+    const remaining: any[] = [];
+    categories.forEach(cat => {
+      if (order.some(name => cat.name?.toLowerCase() === name.toLowerCase())) {
+        matched.push(cat);
+      } else {
+        remaining.push(cat);
+      }
+    });
+    return [...matched, ...remaining].slice(0, 4);
+  }, [categories]);
+  
   
   return (
     <section className="relative py-16 md:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -252,10 +265,10 @@ function ProductGridSection({ title, subtitle, products, viewAllLink }: {
                     {hasDiscount && <span className="font-serif absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-accent text-white glow-red">{discount}% Off</span>}
                   </div>
                   <Link href={`/shop/${product.id}`} className="block p-4 bg-white/[0.02] backdrop-blur-md">
-                    <h3 className="font-serif text-sm font-semibold text-white/90 group-hover:text-white transition-colors line-clamp-1">{product.name}</h3>
+                    <h3 className="text-xs font-normal text-white/90 group-hover:text-white transition-colors line-clamp-1 uppercase tracking-wide leading-tight">{product.name}</h3>
                     <div className="mt-2 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-white font-serif">₹{minD.toLocaleString()}</span>
+                        <span className="text-sm font-semibold text-white">₹{minD.toLocaleString()}</span>
                         {hasDiscount && <span className="text-[10px] text-white/30 line-through">₹{min.toLocaleString()}</span>}
                       </div>
                       <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold ${

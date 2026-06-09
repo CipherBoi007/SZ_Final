@@ -54,8 +54,8 @@ export default function AdminCustomers() {
     <div>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-4xl font-serif font-black text-white uppercase tracking-tight mb-2">Member Registry</h1>
-          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em]">Global Elite Member Audit</p>
+          <h1 className="text-4xl font-serif font-black text-white uppercase tracking-tight mb-2">Customers</h1>
+          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em]">Manage and view registered store customers</p>
         </div>
       </div>
 
@@ -95,9 +95,9 @@ export default function AdminCustomers() {
           <div className="hidden md:block rounded-[32px] glass-strong border border-white/5 overflow-hidden">
             <table className="w-full text-sm">
               <thead><tr className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] border-b border-white/5">
-                <th className="text-left p-8">Elite Member</th>
-                <th className="text-left p-8">Communication Hook</th>
-                <th className="text-left p-8">Authority Status</th>
+                <th className="text-left p-8">Customer</th>
+                <th className="text-left p-8">Email</th>
+                <th className="text-left p-8">Role</th>
                 <th className="text-left p-8">Joined</th>
                 <th className="text-right p-8">Actions</th>
               </tr></thead>
@@ -109,7 +109,7 @@ export default function AdminCustomers() {
                         <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent text-xs font-black border border-accent/20">{user.name?.charAt(0)?.toUpperCase() || '?'}</div>
                         <div>
                           <p className="text-white font-black uppercase tracking-tight">{user.name}</p>
-                          {user.isActive === false && <span className="text-[9px] font-black uppercase tracking-widest text-red-400">Suspended Registry</span>}
+                          {user.isActive === false && <span className="text-[9px] font-black uppercase tracking-widest text-red-400">Suspended</span>}
                         </div>
                       </div>
                     </td>

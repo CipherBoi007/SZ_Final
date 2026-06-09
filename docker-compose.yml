@@ -38,6 +38,7 @@ services:
 
   # ─── Backend API Service ─────────────────────────────────────
   backend:
+    image: southzone-backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -89,6 +90,7 @@ services:
 
   # ─── Frontend Next.js Service ────────────────────────────────
   frontend:
+    image: southzone-frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile

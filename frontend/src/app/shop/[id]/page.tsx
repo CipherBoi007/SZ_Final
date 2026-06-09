@@ -65,9 +65,9 @@ const MiniProductCard = ({ product }: { product: any }) => {
         <div className="absolute top-3 right-3"><WishlistButton productId={product.id} /></div>
       </Link>
       <div className="p-4 flex flex-col gap-1">
-        <h4 className="text-[11px] font-bold text-white/90 line-clamp-1 uppercase tracking-tight">{product.name}</h4>
+        <h4 className="text-[11px] font-medium text-white/90 line-clamp-1 uppercase tracking-wide">{product.name}</h4>
         <div className="flex items-center justify-between mt-2">
-          <span className="text-sm font-black text-accent tracking-tighter">₹{discounted.toLocaleString()}</span>
+          <span className="text-sm font-semibold text-accent tracking-tighter">₹{discounted.toLocaleString()}</span>
           <StarRating rating={product.rating || 4.0} />
         </div>
       </div>

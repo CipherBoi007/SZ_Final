@@ -28,6 +28,9 @@ require('./config/passport');
 
 const app = express();
 
+// Trust reverse proxies (Nginx, Vercel, Cloudflare) for accurate rate limiting
+app.set('trust proxy', 1);
+
 const isProduction = config.NODE_ENV === 'production';
 
 // Initialize Passport
@@ -80,11 +83,15 @@ app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// M8: Request logging — enabled in ALL environments
+// M8: Request logging — enabled in ALL environments with custom local timestamps
+morgan.token('timestamp', () => {
+  return `[${new Date().toLocaleString()}]`;
+});
+
 if (isProduction) {
-  app.use(morgan('combined'));
+  app.use(morgan(':timestamp :remote-addr - :remote-user ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"'));
 } else {
-  app.use(morgan('dev'));
+  app.use(morgan(':timestamp :method :url :status :response-time ms - :res[content-length]'));
 }
 
 const path = require('path');
