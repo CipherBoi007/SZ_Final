@@ -218,7 +218,7 @@ export default function Navbar() {
             <div className="flex items-center gap-1 sm:gap-2">
               <Link
                 href="/shop"
-                className="hidden lg:flex p-2 sm:p-2.5 text-white/70 hover:text-white transition-colors rounded-full hover:bg-white/5"
+                className="p-2 sm:p-2.5 text-white/70 hover:text-white transition-colors rounded-full hover:bg-white/5"
                 aria-label="Shop"
               >
                 <Store className="w-5 h-5" />
@@ -242,7 +242,7 @@ export default function Navbar() {
 
               <Link
                 href="/wishlist"
-                className="hidden sm:flex p-2.5 text-white/70 hover:text-white transition-colors rounded-full hover:bg-white/5"
+                className="p-2 sm:p-2.5 text-white/70 hover:text-white transition-colors rounded-full hover:bg-white/5"
               >
                 <Heart className="w-5 h-5" />
               </Link>
@@ -450,7 +450,23 @@ export default function Navbar() {
                 ))}
               </nav>
 
-              <div className="p-6 border-t border-white/5 bg-black/20 flex flex-col gap-3 shrink-0">
+              <div className="p-6 border-t border-white/5 bg-black/20 flex flex-col gap-2 shrink-0">
+                <button
+                  onClick={() => { setMobileOpen(false); handleFilterToggle(); }}
+                  className="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white rounded-xl hover:bg-white/5 transition-all group w-full"
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                >
+                  <SlidersHorizontal className="w-5 h-5 text-accent/70 group-hover:text-accent" /> 
+                  <span className="flex-1 text-left">Refine & Filter</span>
+                </button>
+                <button
+                  onClick={() => { setMobileOpen(false); setSearchOpen(true); }}
+                  className="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white rounded-xl hover:bg-white/5 transition-all group w-full"
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                >
+                  <Search className="w-5 h-5 text-white/40 group-hover:text-white" /> 
+                  <span className="flex-1 text-left">Search Products</span>
+                </button>
                 <Link
                   href="/wishlist"
                   onClick={() => setMobileOpen(false)}
@@ -460,6 +476,17 @@ export default function Navbar() {
                   <Heart className="w-5 h-5 text-red-500/70 group-hover:text-red-500" /> 
                   <span className="flex-1">Wishlist</span>
                 </Link>
+                <button
+                  onClick={() => { setMobileOpen(false); openCart(); }}
+                  className="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white rounded-xl hover:bg-white/5 transition-all group w-full"
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                >
+                  <ShoppingBag className="w-5 h-5 text-accent/70 group-hover:text-accent" /> 
+                  <span className="flex-1 text-left">Shopping Bag</span>
+                  {totalItemsCount > 0 && (
+                    <span className="px-2 py-0.5 rounded-full bg-accent text-[10px] font-bold text-white glow-red">{totalItemsCount}</span>
+                  )}
+                </button>
                 <Link
                   href={user ? (user.role === 'admin' ? '/admin' : '/profile') : '/auth/login'}
                   onClick={() => setMobileOpen(false)}
