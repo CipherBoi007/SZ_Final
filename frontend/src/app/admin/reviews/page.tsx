@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Star, Trash2, MessageSquare, Package, User, Calendar, RefreshCw } from 'lucide-react';
+import { Star, Trash2, MessageSquare, Package, User, Calendar, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { adminAPI } from '@/lib/api';
 
@@ -10,6 +10,8 @@ import { adminAPI } from '@/lib/api';
 export default function AdminReviews() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   useEffect(() => {
     fetchReviews();
@@ -31,7 +33,14 @@ export default function AdminReviews() {
     try {
       await adminAPI.deleteReview(id);
       toast.success('Review deleted');
-      setReviews(reviews.filter((r) => r.id !== id));
+      setReviews((prev) => {
+        const nextReviews = prev.filter((r) => r.id !== id);
+        const nextTotalPages = Math.ceil(nextReviews.length / limit);
+        if (page > nextTotalPages && nextTotalPages > 0) {
+          setPage(nextTotalPages);
+        }
+        return nextReviews;
+      });
     } catch {
       toast.error('Deletion failed');
     }
@@ -43,6 +52,9 @@ export default function AdminReviews() {
       <p className="text-[9px] text-white/20 uppercase tracking-[0.6em]">Loading Reviews</p>
     </div>
   );
+
+  const totalPages = Math.ceil(reviews.length / limit);
+  const paginatedReviews = reviews.slice((page - 1) * limit, page * limit);
 
   return (
     <div className="space-y-12">
@@ -57,7 +69,7 @@ export default function AdminReviews() {
       </div>
 
       <div className="space-y-4">
-        {reviews.map((review) => (
+        {paginatedReviews.map((review) => (
           <div key={review.id} className="p-6 sm:p-8 rounded-[32px] glass-strong border border-white/5 group hover:border-white/10 transition-all duration-500">
             <div className="flex flex-col md:flex-row justify-between gap-6">
               <div className="space-y-4 flex-1">
@@ -98,6 +110,29 @@ export default function AdminReviews() {
           <div className="py-32 text-center space-y-4 rounded-[40px] border border-dashed border-white/10">
             <MessageSquare className="w-16 h-16 text-white/5 mx-auto" />
             <p className="text-[10px] font-black text-white/10 uppercase tracking-[0.6em]">No Reviews Found</p>
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="p-6 border-t border-white/5 bg-white/[0.01] flex items-center justify-between rounded-[32px] glass-strong border border-white/5">
+            <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Page {page} of {totalPages}</p>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setPage(p => Math.max(1, p - 1))} 
+                disabled={page === 1}
+                className="p-3 rounded-xl glass border border-white/5 text-white disabled:opacity-20 hover:bg-white/5 transition-all"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))} 
+                disabled={page === totalPages}
+                className="p-3 rounded-xl glass border border-white/5 text-white disabled:opacity-20 hover:bg-white/5 transition-all"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         )}
       </div>

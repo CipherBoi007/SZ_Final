@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Search, Shield, UserX } from 'lucide-react';
+import { Users, Search, Shield, UserX, ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { adminAPI } from '@/lib/api';
 
@@ -12,6 +12,8 @@ export default function AdminCustomers() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   useEffect(() => {
     async function fetch() {
@@ -50,6 +52,9 @@ export default function AdminCustomers() {
     u.name?.toLowerCase().includes(search.toLowerCase()) || u.email?.toLowerCase().includes(search.toLowerCase())
   );
 
+  const totalPages = Math.ceil(filtered.length / limit);
+  const paginated = filtered.slice((page - 1) * limit, page * limit);
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-8">
@@ -63,7 +68,10 @@ export default function AdminCustomers() {
         <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-accent transition-colors" />
         <input 
           value={search} 
-          onChange={(e) => setSearch(e.target.value)} 
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }} 
           placeholder="Search Members by Name or Email..."
           className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 pl-14 pr-6 text-sm text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner" 
         />
@@ -74,7 +82,7 @@ export default function AdminCustomers() {
       ) : (
         <div className="space-y-4">
           <div className="md:hidden space-y-3">
-            {filtered.map((user) => (
+            {paginated.map((user) => (
               <div key={user.id} className="p-4 rounded-2xl glass-strong border border-white/5 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4 min-w-0">
                   <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent text-[10px] font-black shrink-0 border border-accent/20">
@@ -102,7 +110,7 @@ export default function AdminCustomers() {
                 <th className="text-right p-8">Actions</th>
               </tr></thead>
               <tbody>
-                {filtered.map((user) => (
+                {paginated.map((user) => (
                   <tr key={user.id} className="border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group">
                     <td className="p-8">
                       <div className="flex items-center gap-4">
@@ -130,6 +138,29 @@ export default function AdminCustomers() {
             </table>
           </div>
           {filtered.length === 0 && <div className="p-8 text-center text-white/20"><Users className="w-8 h-8 mx-auto mb-2" /><p>No customers found</p></div>}
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="p-6 border-t border-white/5 bg-white/[0.01] flex items-center justify-between rounded-2xl glass-strong border border-white/5">
+              <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Page {page} of {totalPages}</p>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => setPage(p => Math.max(1, p - 1))} 
+                  disabled={page === 1}
+                  className="p-3 rounded-xl glass border border-white/5 text-white disabled:opacity-20 hover:bg-white/5 transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))} 
+                  disabled={page === totalPages}
+                  className="p-3 rounded-xl glass border border-white/5 text-white disabled:opacity-20 hover:bg-white/5 transition-all"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

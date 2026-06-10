@@ -57,7 +57,6 @@ const allowedOrigins = isProduction
   ? [config.FRONTEND_URL].filter(Boolean)
   : [
       config.FRONTEND_URL,
-      'http://localhost:3000',
       'https://southzone-new.vercel.app',
     ].filter(Boolean);
 

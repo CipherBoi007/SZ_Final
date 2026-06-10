@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Ticket, PlusCircle, Trash2, Edit2 } from 'lucide-react';
+import { Ticket, PlusCircle, Trash2, Edit2, ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { adminAPI } from '@/lib/api';
 
@@ -13,6 +13,8 @@ export default function AdminCoupons() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ code: '', discountType: 'percentage', discountValue: '', minPurchase: '', maxDiscount: '', usageLimit: '', expiryDate: '' });
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   useEffect(() => {
     fetchCoupons();
@@ -53,10 +55,20 @@ export default function AdminCoupons() {
     if (!confirm('Delete this coupon?')) return;
     try {
       await adminAPI.deleteCoupon(id);
-      setCoupons(coupons.filter((c) => c.id.toString() !== id));
+      setCoupons((prev) => {
+        const nextCoupons = prev.filter((c) => c.id.toString() !== id);
+        const nextTotalPages = Math.ceil(nextCoupons.length / limit);
+        if (page > nextTotalPages && nextTotalPages > 0) {
+          setPage(nextTotalPages);
+        }
+        return nextCoupons;
+      });
       toast.success('Coupon deleted');
     } catch { toast.error('Failed to delete'); }
   };
+
+  const totalPages = Math.ceil(coupons.length / limit);
+  const paginatedCoupons = coupons.slice((page - 1) * limit, page * limit);
 
   return (
     <div>
@@ -99,7 +111,7 @@ export default function AdminCoupons() {
               <th className="text-right p-4 font-medium">Actions</th>
             </tr></thead>
             <tbody>
-              {coupons.map((coupon) => {
+              {paginatedCoupons.map((coupon) => {
                 const expired = coupon.expiryDate && new Date(coupon.expiryDate) < new Date();
                 return (
                   <tr key={coupon.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
@@ -117,6 +129,29 @@ export default function AdminCoupons() {
             </tbody>
           </table>
           {coupons.length === 0 && <div className="p-8 text-center text-white/20"><Ticket className="w-8 h-8 mx-auto mb-2" /><p>No coupons yet</p></div>}
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="p-6 border-t border-white/5 bg-white/[0.01] flex items-center justify-between">
+              <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Page {page} of {totalPages}</p>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => setPage(p => Math.max(1, p - 1))} 
+                  disabled={page === 1}
+                  className="p-3 rounded-xl glass border border-white/5 text-white disabled:opacity-20 hover:bg-white/5 transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))} 
+                  disabled={page === totalPages}
+                  className="p-3 rounded-xl glass border border-white/5 text-white disabled:opacity-20 hover:bg-white/5 transition-all"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
