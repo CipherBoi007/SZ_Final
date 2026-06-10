@@ -328,5 +328,37 @@ table th {
   letter-spacing: 0.15em !important;           /* Clean spacious tracking */
 }
 
+/* ─── Shop Page: Filter Drawer Animations ─── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+/* ─── Shop Page: Product Card Paint Containment ─── */
+.shop-product-card {
+  contain: layout style;
+}
+
+/* ─── iOS Safe Area Bottom Padding ─── */
+.safe-area-pb {
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+}
+
+/* ─── Mobile: Disable backdrop-filter on drawer overlay for GPU perf ─── */
+@media (max-width: 768px) {
+  .shop-product-card {
+    contain: layout style paint;
+  }
+}
+
+/* ─── Overscroll containment for drawers ─── */
+.overscroll-contain {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
 

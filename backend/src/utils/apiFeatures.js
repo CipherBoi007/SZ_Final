@@ -43,7 +43,9 @@ class APIFeatures {
         const condition = {};
         for (const [opKey, opValue] of Object.entries(value)) {
           if (opMap[opKey]) {
-            condition[opMap[opKey]] = opValue;
+            // Coerce numeric strings to numbers for proper SQL comparisons
+            const parsed = Number(opValue);
+            condition[opMap[opKey]] = !isNaN(parsed) && opValue !== '' ? parsed : opValue;
           }
         }
         if (Object.keys(condition).length > 0) {
