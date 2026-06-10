@@ -243,8 +243,6 @@ button,
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* ─── A1: Mobile Performance Optimizations ─────────────── */
-
-/* GPU-accelerate commonly animated elements */
 @media (max-width: 768px) {
   /* Promote animated elements to their own compositing layer */
   [class*="animate-"], 
@@ -252,23 +250,6 @@ button,
   img {
     will-change: auto;
     transform: translateZ(0);
-  }
-
-  /* Use content-visibility to skip rendering off-screen sections */
-  section {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 500px;
-  }
-
-  /* Reduce transition durations on mobile for snappier feel */
-  * {
-    transition-duration: 0.15s !important;
-  }
-  
-  /* But keep critical animations normal */
-  .animate-spin {
-    transition-duration: unset !important;
-    animation-duration: 1s !important;
   }
 
   /* Optimize touch targets */

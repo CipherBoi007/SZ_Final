@@ -455,7 +455,7 @@ function ShopContent() {
       <AnimatePresence>
         {showFilters && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFilters(false)} className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-xl" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFilters(false)} className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm" />
             <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 35, stiffness: 300 }} className="fixed top-0 right-0 z-[110] h-full w-full max-w-sm bg-surface border-l border-white/10 flex flex-col shadow-2xl">
               <div className="flex items-center justify-between p-8 border-b border-white/5">
                 <div className="flex items-center gap-4">

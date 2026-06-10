@@ -28,7 +28,7 @@ export default function MobileBottomNav() {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden pointer-events-none">
       {/* Glass Background Dock */}
-      <div className="mx-4 mb-6 p-2 rounded-[32px] bg-background/80 backdrop-blur-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-auto relative overflow-hidden">
+      <div className="mx-4 mb-6 p-2 rounded-[32px] bg-background/80 backdrop-blur-md border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-auto relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-t from-accent/5 to-transparent opacity-50" />
         
         <div className="flex items-center justify-around relative z-10">

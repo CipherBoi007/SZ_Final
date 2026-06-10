@@ -76,15 +76,17 @@ function HeroSection({ config }: { config: any }) {
           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
           className="absolute inset-0"
         >
-          <Image
-            src={slides[current].image}
-            alt="background blur"
-            fill
-            sizes="100vw"
-            className="object-cover object-center blur-xl sm:blur-2xl opacity-40 scale-110"
-            priority={current === 0}
-            quality={10}
-          />
+          <div className="hidden md:block absolute inset-0">
+            <Image
+              src={slides[current].image}
+              alt="background blur"
+              fill
+              sizes="100vw"
+              className="object-cover object-center blur-xl sm:blur-2xl opacity-40 scale-110"
+              priority={current === 0}
+              quality={10}
+            />
+          </div>
           <div className="absolute inset-0 bg-black/60" />
         </motion.div>
       </AnimatePresence>
@@ -107,7 +109,7 @@ function HeroSection({ config }: { config: any }) {
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 22rem, 24rem"
                 className="object-cover object-center"
                 priority={current <= 1}
-                quality={90}
+                quality={75}
               />
             </div>
             
