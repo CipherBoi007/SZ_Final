@@ -60,6 +60,19 @@ exports.getAllProducts = catchAsync(async (req, res, next) => {
     delete queryOptions.where.price;
   }
 
+  // Map order by price to variant price
+  let orderClause = queryOptions.order;
+  let hasPriceSort = false;
+  if (orderClause && orderClause.length > 0) {
+    orderClause = orderClause.map(clause => {
+      if (clause[0] === 'price') {
+        hasPriceSort = true;
+        return [{ model: ProductVariant, as: 'variants' }, 'price', clause[1]];
+      }
+      return clause;
+    });
+  }
+
   // Parallelize independent data fetching
   const [products, totalCount, categories, brands, priceRange] = await Promise.all([
     Product.findAll({
@@ -71,7 +84,7 @@ exports.getAllProducts = catchAsync(async (req, res, next) => {
           as: 'variants',
           attributes: ['id', 'size', 'color', 'price', 'stock'],
           where: Object.keys(priceFilter).length > 0 ? priceFilter : undefined,
-          required: Object.keys(priceFilter).length > 0,
+          required: Object.keys(priceFilter).length > 0 || hasPriceSort,
         },
         {
           model: ProductImage,
@@ -82,7 +95,7 @@ exports.getAllProducts = catchAsync(async (req, res, next) => {
         },
         { model: Category, attributes: ['id', 'name'] },
       ],
-      order: queryOptions.order,
+      order: orderClause,
       limit: queryOptions.limit,
       offset: queryOptions.offset,
     }),
