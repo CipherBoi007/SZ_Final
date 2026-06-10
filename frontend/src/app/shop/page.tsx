@@ -196,21 +196,35 @@ function ShopContent() {
   const [showFilters, setShowFilters] = useState(false);
   const [initialDataFetched, setInitialDataFetched] = useState(false);
 
+  const isFirstRender = useRef(true);
+  const [debouncedPriceRange, setDebouncedPriceRange] = useState(priceRange);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedPriceRange(priceRange);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [priceRange]);
+
   const isBrowsing = searchQuery !== '' || activeCategories.length > 0 || sortBy !== 'Newest' || activeTags.length > 0 || priceRange.min > 0 || priceRange.max < 50000 || searchParams.get('tag') || searchParams.get('category');
 
   // Sync with URL Parameters and Listen for Global Events
   useEffect(() => {
     const search = searchParams.get('search') || '';
-    const category = searchParams.get('category');
-    const tag = searchParams.get('tag');
-    const sort = searchParams.get('sort');
-    const shouldOpenFilter = searchParams.get('filter') === 'true';
-    
     if (search) setSearchQuery(search);
-    if (category) setActiveCategories([category]);
-    if (tag) setActiveTags([tag]);
-    if (sort) setSortBy(sort);
-    if (shouldOpenFilter) setShowFilters(true);
+
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      const category = searchParams.get('category');
+      const tag = searchParams.get('tag');
+      const sort = searchParams.get('sort');
+      const shouldOpenFilter = searchParams.get('filter') === 'true';
+      
+      if (category) setActiveCategories([category]);
+      if (tag) setActiveTags([tag]);
+      if (sort) setSortBy(sort);
+      if (shouldOpenFilter) setShowFilters(true);
+    }
 
     // Global Event Listener for Navbar Filter Icon
     const handleGlobalToggle = () => setShowFilters(prev => !prev);
@@ -317,8 +331,8 @@ function ShopContent() {
         if (activeTags.includes('Featured')) params.isFeatured = true;
       }
       
-      if (priceRange.min > 0 || priceRange.max < 50000) {
-        params.price = { gte: priceRange.min, lte: priceRange.max };
+      if (debouncedPriceRange.min > 0 || debouncedPriceRange.max < 50000) {
+        params.price = { gte: debouncedPriceRange.min, lte: debouncedPriceRange.max };
       }
 
       const res = await productAPI.getAll(params);
@@ -344,7 +358,7 @@ function ShopContent() {
     if (isBrowsing && initialDataFetched) {
       fetchFilteredProducts();
     }
-  }, [activeCategories, sortBy, activeTags, priceRange, searchQuery, initialDataFetched]);
+  }, [activeCategories, sortBy, activeTags, debouncedPriceRange, searchQuery, initialDataFetched]);
 
   const toggleCategory = (id: string) => {
     setActiveCategories(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
@@ -375,7 +389,7 @@ function ShopContent() {
       <div className="h-4 lg:h-8" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32 relative mt-16">
-        {loading && !loadingMore ? (
+        {loading && !loadingMore && products.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-48 gap-6">
             <div className="relative w-16 h-16">
               <div className="absolute inset-0 border-2 border-accent/20 rounded-full" />
@@ -401,7 +415,12 @@ function ShopContent() {
                 ))}
               </motion.div>
             ) : (
-              <div className="relative">
+              <div className={`relative transition-opacity duration-300 ${loading && !loadingMore ? 'opacity-40 pointer-events-none' : ''}`}>
+                {loading && !loadingMore && (
+                  <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                    <div className="w-10 h-10 border-2 border-accent border-t-transparent rounded-full animate-spin shadow-2xl" />
+                  </div>
+                )}
                 <div className="flex items-center justify-between mb-16 border-b border-white/10 pb-10">
                   <div className="flex items-center gap-5">
                     <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center text-accent shadow-inner">
