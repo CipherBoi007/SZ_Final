@@ -211,20 +211,23 @@ function ShopContent() {
   // Sync with URL Parameters and Listen for Global Events
   useEffect(() => {
     const search = searchParams.get('search') || '';
-    if (search) setSearchQuery(search);
+    setSearchQuery(search);
 
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      const category = searchParams.get('category');
-      const tag = searchParams.get('tag');
-      const sort = searchParams.get('sort');
-      const shouldOpenFilter = searchParams.get('filter') === 'true';
-      
-      if (category) setActiveCategories([category]);
-      if (tag) setActiveTags([tag]);
-      if (sort) setSortBy(sort);
-      if (shouldOpenFilter) setShowFilters(true);
-    }
+    const category = searchParams.get('category');
+    const tag = searchParams.get('tag');
+    const sort = searchParams.get('sort');
+    const shouldOpenFilter = searchParams.get('filter') === 'true';
+    
+    if (category) setActiveCategories([category]);
+    else setActiveCategories([]);
+
+    if (tag) setActiveTags([tag]);
+    else setActiveTags([]);
+
+    if (sort) setSortBy(sort);
+    else setSortBy('Newest');
+
+    if (shouldOpenFilter) setShowFilters(true);
 
     // Global Event Listener for Navbar Filter Icon
     const handleGlobalToggle = () => setShowFilters(prev => !prev);
@@ -475,8 +478,8 @@ function ShopContent() {
         {showFilters && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFilters(false)} className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm" />
-            <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 35, stiffness: 300 }} className="fixed top-0 right-0 z-[110] h-full w-full max-w-sm bg-surface border-l border-white/10 flex flex-col shadow-2xl">
-              <div className="flex items-center justify-between p-8 border-b border-white/5">
+            <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 35, stiffness: 300 }} className="fixed top-0 right-0 z-[110] h-[100dvh] w-full max-w-sm bg-surface border-l border-white/10 flex flex-col shadow-2xl">
+              <div className="flex items-center justify-between p-6 sm:p-8 border-b border-white/5">
                 <div className="flex items-center gap-4">
                   <SlidersHorizontal className="w-5 h-5 text-accent" />
                   <h2 className="text-xl font-serif font-black text-white tracking-tight uppercase">Refine Selection</h2>
@@ -484,7 +487,7 @@ function ShopContent() {
                 <button onClick={() => setShowFilters(false)} className="p-3 text-white/20 hover:text-white transition-all bg-white/5 hover:bg-white/10 rounded-full"><X className="w-5 h-5" /></button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-8 space-y-12 custom-scrollbar">
+              <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-8 sm:space-y-12 custom-scrollbar">
                 {/* 1. Sorting Options */}
                 <section>
                   <h3 className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-6">Sort Ordering</h3>
@@ -561,7 +564,7 @@ function ShopContent() {
                 </section>
               </div>
 
-              <div className="p-8 border-t border-white/5 bg-black/20 flex gap-4">
+              <div className="p-6 sm:p-8 border-t border-white/5 bg-black/20 flex gap-4">
                 <button onClick={() => { setActiveCategories([]); setActiveTags([]); setSearchQuery(''); setPriceRange({ min: 0, max: 50000 }); setShowFilters(false); router.push('/shop'); }} className="flex-1 px-8 py-5 rounded-2xl border border-white/10 text-white/30 text-[10px] font-black uppercase tracking-widest">Clear All</button>
                 <button onClick={() => setShowFilters(false)} className="flex-1 px-8 py-5 rounded-2xl bg-white text-black text-[10px] font-black uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-2xl">Apply</button>
               </div>
@@ -571,7 +574,7 @@ function ShopContent() {
       </AnimatePresence>
 
       {/* Mobile Sticky Action Hub */}
-      <div className="lg:hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-[90] w-[calc(100%-2rem)] max-w-sm">
+      <div className="lg:hidden fixed bottom-26 left-1/2 -translate-x-1/2 z-[90] w-[calc(100%-2rem)] max-w-sm">
         <motion.div 
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}

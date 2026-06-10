@@ -84,10 +84,10 @@ const navLinks = [
   { href: '/', label: 'Home', icon: Home },
   {
     href: '/shop', label: 'Showroom', icon: Store, children: [
-      { href: '/shop?category=Formals', label: 'The Formal Edit' },
-      { href: '/shop?category=Traditional', label: 'Heritage Collection' },
-      { href: '/shop?category=Casuals', label: 'Daily Essentials' },
-      { href: '/shop?category=Sports', label: 'Active Performance' },
+      { href: '/shop?category=Midnight Selection', label: 'The Formal Edit' },
+      { href: '/shop?category=Avant-Garde Edge', label: 'Heritage Collection' },
+      { href: '/shop?category=Minimalist Noir', label: 'Daily Essentials' },
+      { href: '/shop?category=Urban Elite', label: 'Active Performance' },
     ],
   },
   { 

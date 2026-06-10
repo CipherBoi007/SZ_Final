@@ -13,8 +13,46 @@ exports.getAllProducts = catchAsync(async (req, res, next) => {
   const cachedData = await cacheService.get(cacheKey);
   if (cachedData) return res.status(200).json({ status: 'success', fromCache: true, data: cachedData });
 
+  // Normalize category/categoryId query params (e.g. ?category=Minimalist Noir -> categoryId=Minimalist Noir)
+  if (req.query.category && !req.query.categoryId) {
+    req.query.categoryId = req.query.category;
+    delete req.query.category;
+  }
+
   const features = new APIFeatures(req.query).filter().search().sort().paginate();
   const queryOptions = features.build();
+
+  // Resolve category names inside categoryId to database IDs dynamically
+  if (queryOptions.where.categoryId) {
+    const categoryIdVal = queryOptions.where.categoryId;
+    const categoryIds = Array.isArray(categoryIdVal) ? categoryIdVal : [categoryIdVal];
+    
+    const ids = [];
+    const names = [];
+    
+    categoryIds.forEach(val => {
+      if (typeof val === 'string' && val.startsWith('CAT') && val.length === 15) {
+        ids.push(val);
+      } else if (typeof val === 'string') {
+        names.push(val);
+      }
+    });
+    
+    if (names.length > 0) {
+      const foundCategories = await Category.findAll({
+        where: {
+          name: names
+        }
+      });
+      ids.push(...foundCategories.map(c => c.id));
+    }
+    
+    if (ids.length > 0) {
+      queryOptions.where.categoryId = ids.length === 1 ? ids[0] : ids;
+    } else {
+      queryOptions.where.categoryId = 'NOT_FOUND';
+    }
+  }
 
   const priceFilter = {};
   if (queryOptions.where.price) {
