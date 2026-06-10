@@ -1,10 +1,11 @@
 const { DataTypes } = require('sequelize');
+const generateCustomId = require('../utils/idGenerator');
 const sequelize = require('../config/database');
 
 const Address = sequelize.define('Address', {
   id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
+    type: DataTypes.STRING(15),
+    defaultValue: () => generateCustomId('ADR'),
     primaryKey: true,
   },
   type: {

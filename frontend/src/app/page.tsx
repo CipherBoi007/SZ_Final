@@ -419,28 +419,28 @@ export default function Home() {
         title="New Arrivals" 
         subtitle="The Fresh List" 
         products={newArrivals} 
-        viewAllLink="/new-arrivals" 
+        viewAllLink="/shop/new-arrivals" 
       />
 
       <ProductGridSection 
         title="Featured Drops" 
         subtitle="Premium Selection" 
         products={featured} 
-        viewAllLink="/featured" 
+        viewAllLink="/shop?tag=Featured" 
       />
 
       <ProductGridSection 
         title="Trending Now" 
         subtitle="Most Wanted" 
         products={trending} 
-        viewAllLink="/trending" 
+        viewAllLink="/shop/trending" 
       />
 
       <ProductGridSection 
         title="High Rated" 
         subtitle="Customer Favorites" 
         products={topRated} 
-        viewAllLink="/high-rated" 
+        viewAllLink="/shop?sort=Rating" 
       />
 
       <OffersSection promotions={promotions} />

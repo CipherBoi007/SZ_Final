@@ -1,10 +1,11 @@
 const { DataTypes } = require('sequelize');
+const generateCustomId = require('../utils/idGenerator');
 const sequelize = require('../config/database');
 
 const Category = sequelize.define('Category', {
   id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
+    type: DataTypes.STRING(15),
+    defaultValue: () => generateCustomId('CAT'),
     primaryKey: true,
   },
   name: {
@@ -13,7 +14,7 @@ const Category = sequelize.define('Category', {
     unique: true,
   },
   parentId: {
-    type: DataTypes.UUID,
+    type: DataTypes.STRING(15),
     allowNull: true,
     references: {
       model: 'Categories',

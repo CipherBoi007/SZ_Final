@@ -378,7 +378,7 @@ function ProfileContent() {
                           <div className="flex items-center gap-6">
                             <div className="w-20 h-20 rounded-2xl overflow-hidden bg-white/5 relative">
                               {order.OrderItems?.[0]?.Product?.images?.[0]?.url ? (
-                                <Image src={order.OrderItems[0].Product.images[0].url} alt="" fill className="object-cover" />
+                                <Image src={order.OrderItems[0].Product.images[0].url} alt="" fill sizes="80px" className="object-cover" />
                               ) : <Package className="w-8 h-8 text-white/10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
                             </div>
                             <div>

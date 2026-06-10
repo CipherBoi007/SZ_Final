@@ -1,10 +1,11 @@
 const { DataTypes } = require('sequelize');
+const generateCustomId = require('../utils/idGenerator');
 const sequelize = require('../config/database');
 
 const Promotion = sequelize.define('Promotion', {
   id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
+    type: DataTypes.STRING(15),
+    defaultValue: () => generateCustomId('PRM'),
     primaryKey: true,
   },
   title: {

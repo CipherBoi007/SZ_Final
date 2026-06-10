@@ -16,10 +16,10 @@ const createOrderValidation = [
     .isString().withMessage('Coupon code must be a string'),
   body('shippingAddressId')
     .optional()
-    .isUUID().withMessage('Invalid shipping address ID'),
+    .matches(/^ADR\d{12}$/).withMessage('Invalid shipping address ID format'),
   body('billingAddressId')
     .optional()
-    .isUUID().withMessage('Invalid billing address ID'),
+    .matches(/^ADR\d{12}$/).withMessage('Invalid billing address ID format'),
 ];
 
 module.exports = {

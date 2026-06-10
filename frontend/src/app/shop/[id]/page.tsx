@@ -61,7 +61,7 @@ const MiniProductCard = ({ product }: { product: any }) => {
   return (
     <div className="group min-w-[200px] sm:min-w-[240px] flex flex-col bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden hover:bg-white/[0.04] transition-all duration-500">
       <Link href={`/shop/${product.id}`} className="relative aspect-[3/4] block overflow-hidden">
-        <Image src={imgSrc} alt={product.name} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
+        <Image src={imgSrc} alt={product.name} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition-transform duration-700 group-hover:scale-110" />
         <div className="absolute top-3 right-3"><WishlistButton productId={product.id} /></div>
       </Link>
       <div className="p-4 flex flex-col gap-1">
@@ -211,13 +211,13 @@ export default function ProductDetail() {
               <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-y-auto no-scrollbar max-h-[500px]">
                 {images.map((img: string, i: number) => (
                   <button key={i} onClick={() => setSelectedImage(i)} className={`relative min-w-[80px] w-20 lg:w-24 aspect-[4/5] rounded-xl overflow-hidden transition-all border ${selectedImage === i ? 'border-accent shadow-[0_0_20px_rgba(220,20,60,0.3)]' : 'border-white/5 opacity-40 hover:opacity-100'}`}>
-                    <Image src={img} alt="" fill className="object-cover" />
+                    <Image src={img} alt="" fill sizes="96px" className="object-cover" />
                   </button>
                 ))}
               </div>
               <div className="flex-1">
                 <motion.div key={selectedImage} initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="relative aspect-[4/5] rounded-3xl overflow-hidden border border-white/5 bg-white/[0.02] shadow-2xl">
-                  <Image src={images[selectedImage]} alt={product.name} fill className="object-cover" priority />
+                  <Image src={images[selectedImage]} alt={product.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" priority />
                   <div className="absolute top-6 right-6 z-10"><WishlistButton productId={product.id} /></div>
                   {product.discount > 0 && (
                     <div className="absolute top-6 left-6 px-4 py-2 rounded-full bg-accent text-white text-[11px] font-black uppercase tracking-widest glow-red">{product.discount}% OFF</div>

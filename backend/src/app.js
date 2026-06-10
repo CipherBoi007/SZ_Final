@@ -58,7 +58,7 @@ const allowedOrigins = isProduction
   : [
       config.FRONTEND_URL,
       'http://localhost:3000',
-      'https://southzone-pied.vercel.app',
+      'https://southzone-new.vercel.app',
     ].filter(Boolean);
 
 app.use(cors({
@@ -67,6 +67,13 @@ app.use(cors({
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
+    }
+    // Allow local network IP testing in development
+    if (!isProduction) {
+      const localNetworkRegex = /^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/;
+      if (localNetworkRegex.test(origin)) {
+        return callback(null, true);
+      }
     }
     callback(new Error('Not allowed by CORS'));
   },
@@ -109,6 +116,14 @@ if (isProduction || process.env.RATE_LIMIT === 'ON') {
 }
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Disable caching for dynamic API routes to prevent stale client state
+app.use('/api', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
 
 // Routes
 app.use('/api/auth', authRoutes);

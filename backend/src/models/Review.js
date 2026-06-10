@@ -1,10 +1,11 @@
 const { DataTypes } = require('sequelize');
+const generateCustomId = require('../utils/idGenerator');
 const sequelize = require('../config/database');
 
 const Review = sequelize.define('Review', {
   id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
+    type: DataTypes.STRING(15),
+    defaultValue: () => generateCustomId('REV'),
     primaryKey: true,
   },
   rating: {
@@ -26,7 +27,7 @@ const Review = sequelize.define('Review', {
     defaultValue: false,
   },
   orderItemId: {
-    type: DataTypes.UUID,
+    type: DataTypes.STRING(15),
     allowNull: true,
   },
 }, {

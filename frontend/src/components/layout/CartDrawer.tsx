@@ -94,7 +94,7 @@ export default function CartDrawer() {
                   return (
                     <div key={item.id} className="flex gap-3 py-3 border-b border-white/5 last:border-0">
                       <div className="relative w-16 h-20 rounded-lg overflow-hidden shrink-0">
-                        <Image src={imgSrc} alt={product.name || ''} fill className="object-cover" />
+                        <Image src={imgSrc} alt={product.name || ''} fill sizes="64px" className="object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <Link

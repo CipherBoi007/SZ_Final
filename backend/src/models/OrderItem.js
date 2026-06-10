@@ -1,10 +1,11 @@
 const { DataTypes } = require('sequelize');
+const generateCustomId = require('../utils/idGenerator');
 const sequelize = require('../config/database');
 
 const OrderItem = sequelize.define('OrderItem', {
   id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
+    type: DataTypes.STRING(15),
+    defaultValue: () => generateCustomId('ORI'),
     primaryKey: true,
   },
   quantity: {
@@ -16,7 +17,7 @@ const OrderItem = sequelize.define('OrderItem', {
     allowNull: false,
   },
   variantId: {
-    type: DataTypes.UUID,
+    type: DataTypes.STRING(15),
     allowNull: false,
   },
   productSnapshot: {

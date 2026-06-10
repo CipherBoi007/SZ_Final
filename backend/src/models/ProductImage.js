@@ -1,10 +1,11 @@
 const { DataTypes } = require('sequelize');
+const generateCustomId = require('../utils/idGenerator');
 const sequelize = require('../config/database');
 
 const ProductImage = sequelize.define('ProductImage', {
   id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
+    type: DataTypes.STRING(15),
+    defaultValue: () => generateCustomId('IMG'),
     primaryKey: true,
   },
   url: {
@@ -20,7 +21,7 @@ const ProductImage = sequelize.define('ProductImage', {
     defaultValue: 0,
   },
   variantId: {
-    type: DataTypes.UUID,
+    type: DataTypes.STRING(15),
     allowNull: true,
   },
 }, {

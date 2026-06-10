@@ -1,14 +1,15 @@
 const { DataTypes } = require('sequelize');
+const generateCustomId = require('../utils/idGenerator');
 const sequelize = require('../config/database');
 
 const ProductVariant = sequelize.define('ProductVariant', {
   id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
+    type: DataTypes.STRING(15),
+    defaultValue: () => generateCustomId('VAR'),
     primaryKey: true,
   },
   productId: {
-    type: DataTypes.UUID,
+    type: DataTypes.STRING(15),
     allowNull: false,
     references: {
       model: 'Products',

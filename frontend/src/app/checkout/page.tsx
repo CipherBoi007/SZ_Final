@@ -220,7 +220,7 @@ function CheckoutContent() {
         currency: rpOrderData.data.currency,
         name: 'SouthZone',
         description: 'Payment for your order',
-        image: '/images/southzone_logo_final.jpg',
+        image: '/images/LOGO.png',
         order_id: rpOrderData.data.orderId,
         handler: async function (response: any) {
           try {
@@ -365,7 +365,7 @@ function CheckoutContent() {
                   return (
                     <div key={item.id || 'direct'} className="flex gap-4 p-4 rounded-2xl glass bg-white/[0.01] hover:bg-white/[0.02] transition-colors border border-white/5">
                       <div className="relative w-16 h-20 sm:w-20 sm:h-24 rounded-xl overflow-hidden shrink-0 border border-white/5 bg-white/5">
-                        <Image src={imgSrc} alt={product.name || ''} fill className="object-cover" />
+                        <Image src={imgSrc} alt={product.name || ''} fill sizes="96px" className="object-cover" />
                       </div>
                       <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
                         <div>

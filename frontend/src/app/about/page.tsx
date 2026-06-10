@@ -10,7 +10,7 @@ export default function AboutPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero Section */}
         <div className="relative h-[40vh] min-h-[400px] w-full rounded-3xl overflow-hidden mb-16 lg:mb-24">
-          <Image src="/images/hero4.jpg" alt="About SouthZone" fill className="object-cover" />
+          <Image src="/images/hero4.jpg" alt="About SouthZone" fill sizes="100vw" className="object-cover" />
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
             <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
@@ -40,7 +40,7 @@ export default function AboutPage() {
           </motion.div>
           <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="relative aspect-square rounded-3xl overflow-hidden glass p-2">
             <div className="relative w-full h-full rounded-2xl overflow-hidden">
-              <Image src="/images/hero1.jpg" alt="SouthZone Fashion" fill className="object-cover" />
+              <Image src="/images/hero1.jpg" alt="SouthZone Fashion" fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
             </div>
           </motion.div>
         </div>

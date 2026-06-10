@@ -194,17 +194,22 @@ function ShopContent() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [totalProducts, setTotalProducts] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
+  const [initialDataFetched, setInitialDataFetched] = useState(false);
+
+  const isBrowsing = searchQuery !== '' || activeCategories.length > 0 || sortBy !== 'Newest' || activeTags.length > 0 || priceRange.min > 0 || priceRange.max < 50000 || searchParams.get('tag') || searchParams.get('category');
 
   // Sync with URL Parameters and Listen for Global Events
   useEffect(() => {
     const search = searchParams.get('search') || '';
     const category = searchParams.get('category');
     const tag = searchParams.get('tag');
+    const sort = searchParams.get('sort');
     const shouldOpenFilter = searchParams.get('filter') === 'true';
     
     if (search) setSearchQuery(search);
     if (category) setActiveCategories([category]);
     if (tag) setActiveTags([tag]);
+    if (sort) setSortBy(sort);
     if (shouldOpenFilter) setShowFilters(true);
 
     // Global Event Listener for Navbar Filter Icon
@@ -221,36 +226,66 @@ function ShopContent() {
   const fetchInitialData = async () => {
     setLoading(true);
     try {
-      const limit = getPageSize();
-      const [trendingRes, newRes, topRes, catRes] = await Promise.all([
-        productAPI.getTrending(),
-        productAPI.getNewArrivals(),
-        productAPI.getTopRated(),
-        configAPI.getCategories()
-      ]);
-
-      setTrending(trendingRes.data?.data || []);
-      setNewArrivals(newRes.data?.data || []);
-      setTopRated(topRes.data?.data || []);
-      
+      const catRes = await configAPI.getCategories();
       const cats = catRes.data?.data || [];
       setCategories(cats);
 
-      const catPromises = cats.slice(0, 5).map((cat: any) => 
-        productAPI.getAll({ categoryId: cat.id, limit: 10 })
-      );
-      const catResults = await Promise.all(catPromises);
-      setCategorySections(catResults.map((res, i) => ({
-        id: cats[i].id,
-        name: cats[i].name,
-        products: res.data?.data?.products || []
-      })));
+      if (!isBrowsing) {
+        const [trendingRes, newRes, topRes] = await Promise.all([
+          productAPI.getTrending(),
+          productAPI.getNewArrivals(),
+          productAPI.getTopRated()
+        ]);
+
+        setTrending(trendingRes.data?.data || []);
+        setNewArrivals(newRes.data?.data || []);
+        setTopRated(topRes.data?.data || []);
+
+        const catPromises = cats.slice(0, 5).map((cat: any) => 
+          productAPI.getAll({ categoryId: cat.id, limit: 10 })
+        );
+        const catResults = await Promise.all(catPromises);
+        setCategorySections(catResults.map((res, i) => ({
+          id: cats[i].id,
+          name: cats[i].name,
+          products: res.data?.data?.products || []
+        })));
+      }
 
     } catch (err) { console.error(err); }
     setLoading(false);
+    setInitialDataFetched(true);
   };
 
   useEffect(() => { fetchInitialData(); }, []);
+
+  useEffect(() => {
+    if (!isBrowsing && initialDataFetched && trending.length === 0) {
+      const fetchLandingData = async () => {
+        try {
+          const [trendingRes, newRes, topRes] = await Promise.all([
+            productAPI.getTrending(),
+            productAPI.getNewArrivals(),
+            productAPI.getTopRated()
+          ]);
+          setTrending(trendingRes.data?.data || []);
+          setNewArrivals(newRes.data?.data || []);
+          setTopRated(topRes.data?.data || []);
+
+          const catPromises = categories.slice(0, 5).map((cat: any) => 
+            productAPI.getAll({ categoryId: cat.id, limit: 10 })
+          );
+          const catResults = await Promise.all(catPromises);
+          setCategorySections(catResults.map((res, i) => ({
+            id: categories[i].id,
+            name: categories[i].name,
+            products: res.data?.data?.products || []
+          })));
+        } catch (err) { console.error(err); }
+      };
+      fetchLandingData();
+    }
+  }, [isBrowsing, initialDataFetched, trending.length, categories]);
 
   const fetchFilteredProducts = async (isLoadMore = false) => {
     if (isLoadMore) setLoadingMore(true);
@@ -279,6 +314,7 @@ function ShopContent() {
         if (activeTags.includes('On Sale')) params.discount = { gt: 0 };
         if (activeTags.includes('New Drops')) params.isNew = true;
         if (activeTags.includes('Trending')) params.isTrending = true;
+        if (activeTags.includes('Featured')) params.isFeatured = true;
       }
       
       if (priceRange.min > 0 || priceRange.max < 50000) {
@@ -304,7 +340,11 @@ function ShopContent() {
     setLoadingMore(false);
   };
 
-  useEffect(() => { if (isBrowsing && !loading) fetchFilteredProducts(); }, [activeCategories, sortBy, activeTags, priceRange, searchQuery]);
+  useEffect(() => {
+    if (isBrowsing && initialDataFetched) {
+      fetchFilteredProducts();
+    }
+  }, [activeCategories, sortBy, activeTags, priceRange, searchQuery, initialDataFetched]);
 
   const toggleCategory = (id: string) => {
     setActiveCategories(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
@@ -314,14 +354,13 @@ function ShopContent() {
     setActiveTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
   };
 
-  const isBrowsing = searchQuery !== '' || activeCategories.length > 0 || sortBy !== 'Newest' || activeTags.length > 0 || priceRange.min > 0 || priceRange.max < 50000 || searchParams.get('tag') || searchParams.get('category');
-
   const getResultsTitle = () => {
     const urlTag = searchParams.get('tag');
     if (searchQuery) return `Results for "${searchQuery}"`;
     if (sortBy === 'Rating' && activeCategories.length === 0) return "Top Rated Pieces";
     if ((activeTags.includes('Trending') || urlTag === 'Trending') && activeCategories.length === 0) return "Trending Now";
     if ((activeTags.includes('New Drops') || urlTag === 'New Drops') && activeCategories.length === 0) return "New Arrivals Collection";
+    if ((activeTags.includes('Featured') || urlTag === 'Featured') && activeCategories.length === 0) return "Featured Drops";
     if (activeCategories.length === 1) {
       const cat = categories.find(c => c.id.toString() === activeCategories[0]);
       return cat ? `${cat.name} Collection` : "Refined Results";

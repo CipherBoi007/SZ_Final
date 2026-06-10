@@ -6,6 +6,35 @@ class CacheService {
     return isRedisReady() && redisClient.isOpen;
   }
 
+  async _waitForReady(timeoutMs = 3000) {
+    if (this._isAvailable()) return true;
+    if (!redisClient.isOpen) return false;
+
+    return new Promise((resolve) => {
+      const onReady = () => {
+        cleanup();
+        resolve(true);
+      };
+      const onError = () => {
+        cleanup();
+        resolve(false);
+      };
+      const timer = setTimeout(() => {
+        cleanup();
+        resolve(false);
+      }, timeoutMs);
+
+      function cleanup() {
+        redisClient.removeListener('ready', onReady);
+        redisClient.removeListener('error', onError);
+        clearTimeout(timer);
+      }
+
+      redisClient.once('ready', onReady);
+      redisClient.once('error', onError);
+    });
+  }
+
   async get(key) {
     if (!this._isAvailable()) return null;
     try {
@@ -36,6 +65,7 @@ class CacheService {
   }
 
   async delByPattern(pattern) {
+    await this._waitForReady();
     if (!this._isAvailable()) return;
     try {
       const keys = await redisClient.keys(pattern);
@@ -48,6 +78,7 @@ class CacheService {
   }
 
   async flush() {
+    await this._waitForReady();
     if (!this._isAvailable()) return;
     try {
       await redisClient.flushAll();

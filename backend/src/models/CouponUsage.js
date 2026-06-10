@@ -1,14 +1,15 @@
 const { DataTypes } = require('sequelize');
+const generateCustomId = require('../utils/idGenerator');
 const sequelize = require('../config/database');
 
 const CouponUsage = sequelize.define('CouponUsage', {
   id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
+    type: DataTypes.STRING(15),
+    defaultValue: () => generateCustomId('CPU'),
     primaryKey: true,
   },
   couponId: {
-    type: DataTypes.UUID,
+    type: DataTypes.STRING(15),
     allowNull: false,
     references: {
       model: 'Coupons',
@@ -16,7 +17,7 @@ const CouponUsage = sequelize.define('CouponUsage', {
     },
   },
   userId: {
-    type: DataTypes.UUID,
+    type: DataTypes.STRING(15),
     allowNull: false,
     references: {
       model: 'Users',

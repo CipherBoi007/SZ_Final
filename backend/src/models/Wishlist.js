@@ -1,14 +1,15 @@
 const { DataTypes } = require('sequelize');
+const generateCustomId = require('../utils/idGenerator');
 const sequelize = require('../config/database');
 
 const Wishlist = sequelize.define('Wishlist', {
   id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
+    type: DataTypes.STRING(15),
+    defaultValue: () => generateCustomId('WSH'),
     primaryKey: true,
   },
   userId: {
-    type: DataTypes.UUID,
+    type: DataTypes.STRING(15),
     allowNull: false,
     references: {
       model: 'Users',
@@ -16,7 +17,7 @@ const Wishlist = sequelize.define('Wishlist', {
     },
   },
   productId: {
-    type: DataTypes.UUID,
+    type: DataTypes.STRING(15),
     allowNull: false,
     references: {
       model: 'Products',

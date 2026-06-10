@@ -1,11 +1,12 @@
 const { DataTypes } = require('sequelize');
+const generateCustomId = require('../utils/idGenerator');
 const sequelize = require('../config/database');
 const bcrypt = require('bcryptjs');
 
 const User = sequelize.define('User', {
   id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
+    type: DataTypes.STRING(15),
+    defaultValue: () => generateCustomId('USR'),
     primaryKey: true,
   },
   name: {
@@ -79,12 +80,12 @@ const User = sequelize.define('User', {
   hooks: {
     beforeCreate: async (user) => {
       if (user.password) {
-        user.password = await bcrypt.hash(user.password, 12);
+        if (!user.password.startsWith('$2')) { user.password = await bcrypt.hash(user.password, 12); }
       }
     },
     beforeUpdate: async (user) => {
       if (user.changed('password')) {
-        user.password = await bcrypt.hash(user.password, 12);
+        if (!user.password.startsWith('$2')) { user.password = await bcrypt.hash(user.password, 12); }
       }
     },
   },

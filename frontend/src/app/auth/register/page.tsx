@@ -175,7 +175,6 @@ export default function RegisterPage() {
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             Back to Shop
           </Link>
-          <div className="lg:hidden mb-8"><Image src="/images/southzone_logo_final.jpg" alt="SouthZone" width={140} height={42} className="h-8 w-auto rounded" /></div>
           <h1 className="text-3xl font-bold text-white">Create account</h1>
           <p className="mt-2 text-sm text-white/40">Join Southzone for the best streetwear experience</p>
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">

@@ -125,7 +125,7 @@ export default function CartPage() {
                     className="flex gap-4 p-4 rounded-2xl glass"
                   >
                     <div className="relative w-24 h-32 sm:w-28 sm:h-36 rounded-xl overflow-hidden shrink-0">
-                      <Image src={imgSrc} alt={product.name || 'Product'} fill className="object-cover" />
+                      <Image src={imgSrc} alt={product.name || 'Product'} fill sizes="120px" className="object-cover" />
                     </div>
                     
                     <div className="flex-1 flex flex-col justify-between min-w-0">

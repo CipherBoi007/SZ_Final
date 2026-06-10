@@ -375,7 +375,7 @@ export default function Navbar() {
                               className="flex items-center gap-4 p-2 rounded-xl hover:bg-white/5 transition-colors"
                             >
                               <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-white/5">
-                                <Image src={imgSrc} alt={product.name} fill className="object-cover" />
+                                <Image src={imgSrc} alt={product.name} fill sizes="48px" className="object-cover" />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium text-white line-clamp-1">{product.name}</p>

@@ -2,6 +2,9 @@ import axios from 'axios';
 
 const getBaseUrl = () => {
   let url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    url = url.replace('localhost', window.location.hostname).replace('127.0.0.1', window.location.hostname);
+  }
   return url.replace(/\/$/, ''); // Remove trailing slash
 };
 

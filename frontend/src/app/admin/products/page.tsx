@@ -84,7 +84,7 @@ export default function AdminProducts() {
               return (
                 <div key={product.id} className="p-4 rounded-2xl glass-strong border border-white/5 flex items-center gap-4">
                   <div className="w-16 h-16 rounded-xl overflow-hidden relative shrink-0">
-                    <Image src={imgSrc} alt="" fill className="object-cover" />
+                    <Image src={imgSrc} alt="" fill sizes="64px" className="object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[11px] font-black text-white uppercase tracking-tight truncate">{product.name}</p>
@@ -123,7 +123,7 @@ export default function AdminProducts() {
                     <tr key={product.id} className="border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group">
                       <td className="p-8">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-xl overflow-hidden relative shrink-0 border border-white/5"><Image src={imgSrc} alt="" fill className="object-cover" /></div>
+                          <div className="w-12 h-12 rounded-xl overflow-hidden relative shrink-0 border border-white/5"><Image src={imgSrc} alt="" fill sizes="48px" className="object-cover" /></div>
                           <div>
                             <span className="text-white font-black uppercase tracking-tight block">{product.name}</span>
                              <span className="text-[10px] text-white/20 font-black uppercase tracking-widest">{variants.length} Variants</span>

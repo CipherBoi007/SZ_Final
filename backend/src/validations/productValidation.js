@@ -13,7 +13,7 @@ const createProductValidation = [
     .notEmpty().withMessage('Description is required'),
   body('categoryId')
     .notEmpty().withMessage('Category ID is required')
-    .isUUID().withMessage('Invalid category ID'),
+    .matches(/^CAT\d{12}$/).withMessage('Invalid category ID format'),
   body('price')
     .notEmpty().withMessage('Price is required')
     .isFloat({ min: 0 }).withMessage('Price must be a positive number'),
@@ -41,7 +41,7 @@ const updateProductValidation = [
     .isFloat({ min: 0 }).withMessage('Price must be a positive number'),
   body('categoryId')
     .optional()
-    .isUUID().withMessage('Invalid category ID'),
+    .matches(/^CAT\d{12}$/).withMessage('Invalid category ID format'),
   body('size')
     .optional()
     .isIn(['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']).withMessage('Invalid size'),
