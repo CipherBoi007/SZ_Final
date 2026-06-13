@@ -29,17 +29,7 @@ export default function WishlistPage() {
     }
   };
 
-  if (!token) {
-    return (
-      <div className="min-h-screen pt-24 flex flex-col items-center justify-center gap-6">
-        <Heart className="w-16 h-16 text-white/10" />
-        <h2 className="text-2xl font-bold text-white/50">Please login to view your wishlist</h2>
-        <Link href="/auth/login" className="px-6 py-3 rounded-full bg-accent text-white font-semibold glow-red-hover transition-all">
-          Login
-        </Link>
-      </div>
-    );
-  }
+
 
   if (isLoading) {
     return (

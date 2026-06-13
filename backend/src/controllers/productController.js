@@ -54,10 +54,18 @@ exports.getAllProducts = catchAsync(async (req, res, next) => {
     }
   }
 
-  const priceFilter = {};
+  const variantFilter = {};
   if (queryOptions.where.price) {
-    priceFilter.price = queryOptions.where.price;
+    variantFilter.price = queryOptions.where.price;
     delete queryOptions.where.price;
+  }
+  if (queryOptions.where.size) {
+    variantFilter.size = queryOptions.where.size;
+    delete queryOptions.where.size;
+  }
+  if (queryOptions.where.stock) {
+    variantFilter.stock = queryOptions.where.stock;
+    delete queryOptions.where.stock;
   }
 
   // Map order by price to variant price
@@ -83,8 +91,8 @@ exports.getAllProducts = catchAsync(async (req, res, next) => {
           model: ProductVariant,
           as: 'variants',
           attributes: ['id', 'size', 'color', 'price', 'stock'],
-          where: Object.keys(priceFilter).length > 0 ? priceFilter : undefined,
-          required: Object.keys(priceFilter).length > 0 || hasPriceSort,
+          where: Object.keys(variantFilter).length > 0 ? variantFilter : undefined,
+          required: Object.keys(variantFilter).length > 0 || hasPriceSort,
         },
         {
           model: ProductImage,
@@ -99,7 +107,18 @@ exports.getAllProducts = catchAsync(async (req, res, next) => {
       limit: queryOptions.limit,
       offset: queryOptions.offset,
     }),
-    Product.count({ where: queryOptions.where }),
+    Product.count({
+      where: queryOptions.where,
+      include: Object.keys(variantFilter).length > 0 ? [
+        {
+          model: ProductVariant,
+          as: 'variants',
+          where: variantFilter,
+          required: true
+        }
+      ] : undefined,
+      distinct: true
+    }),
     Category.findAll({ attributes: ['id', 'name'], raw: true }),
     Product.findAll({ 
       attributes: [[sequelize.fn('DISTINCT', sequelize.col('brand')), 'brand']],

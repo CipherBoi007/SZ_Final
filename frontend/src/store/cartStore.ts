@@ -9,7 +9,7 @@ interface CartState {
   isLoading: boolean;
   isOpen: boolean;
   fetchCart: () => Promise<void>;
-  addItem: (data: { variantId: string; quantity: number }) => Promise<void>;
+  addItem: (data: { variantId: string; quantity: number }, productDetails?: { product: any; variant: any }) => Promise<void>;
   updateQuantity: (id: string, quantity: number) => Promise<void>;
   removeItem: (id: string) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -37,7 +37,8 @@ export const useCartStore = create<CartState>()(
       fetchCart: async () => {
         const { token } = require('./authStore').useAuthStore.getState();
         if (!token) {
-          set({ items: [], total: 0, isLoading: false });
+          // Keep whatever items are already in state (restored from localStorage)
+          set({ isLoading: false });
           return;
         }
         
@@ -56,13 +57,52 @@ export const useCartStore = create<CartState>()(
         }
       },
 
-      addItem: async (itemData) => {
+      addItem: async (itemData, productDetails) => {
         const { token } = require('./authStore').useAuthStore.getState();
         if (!token) {
-          // Store in localStorage for guest cart
-          const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
-          guestCart.push(itemData);
-          localStorage.setItem('guest_cart', JSON.stringify(guestCart));
+          const currentItems = get().items;
+          const existingItemIndex = currentItems.findIndex(item => item.variantId === itemData.variantId);
+          
+          let newItems = [...currentItems];
+          if (existingItemIndex > -1) {
+            newItems[existingItemIndex] = {
+              ...newItems[existingItemIndex],
+              quantity: newItems[existingItemIndex].quantity + itemData.quantity
+            };
+          } else if (productDetails) {
+            const { product, variant } = productDetails;
+            const newItem: CartItem = {
+              id: 'guest_' + itemData.variantId,
+              variantId: itemData.variantId,
+              quantity: itemData.quantity,
+              userId: 'guest',
+              variant: {
+                id: variant.id,
+                size: variant.size,
+                color: variant.color,
+                price: Number(variant.price),
+                stock: variant.stock,
+                sku: variant.sku,
+                Product: {
+                  id: product.id,
+                  name: product.name,
+                  brand: product.brand,
+                  images: product.images,
+                  discount: product.discount
+                } as any
+              }
+            };
+            newItems.push(newItem);
+          }
+          
+          const newTotal = newItems.reduce((sum, item) => {
+            const price = Number(item.variant.price);
+            const discount = (item.variant.Product as any).discount || 0;
+            const finalPrice = Math.round(price * (1 - discount / 100));
+            return sum + finalPrice * item.quantity;
+          }, 0);
+
+          set({ items: newItems, total: newTotal });
           return;
         }
         
@@ -76,6 +116,21 @@ export const useCartStore = create<CartState>()(
       },
 
       updateQuantity: async (id, quantity) => {
+        const { token } = require('./authStore').useAuthStore.getState();
+        if (!token) {
+          const newItems = get().items.map(item => 
+            item.id === id ? { ...item, quantity } : item
+          );
+          const newTotal = newItems.reduce((sum, item) => {
+            const price = Number(item.variant.price);
+            const discount = (item.variant.Product as any).discount || 0;
+            const finalPrice = Math.round(price * (1 - discount / 100));
+            return sum + finalPrice * item.quantity;
+          }, 0);
+          set({ items: newItems, total: newTotal });
+          return;
+        }
+
         try {
           await cartAPI.update(id, { quantity });
           await get().fetchCart();
@@ -86,6 +141,19 @@ export const useCartStore = create<CartState>()(
       },
 
       removeItem: async (id) => {
+        const { token } = require('./authStore').useAuthStore.getState();
+        if (!token) {
+          const newItems = get().items.filter(item => item.id !== id);
+          const newTotal = newItems.reduce((sum, item) => {
+            const price = Number(item.variant.price);
+            const discount = (item.variant.Product as any).discount || 0;
+            const finalPrice = Math.round(price * (1 - discount / 100));
+            return sum + finalPrice * item.quantity;
+          }, 0);
+          set({ items: newItems, total: newTotal });
+          return;
+        }
+
         const currentItems = get().items;
         set({ items: currentItems.filter((item) => item.id !== id) });
         try {
@@ -98,6 +166,12 @@ export const useCartStore = create<CartState>()(
       },
 
       clearCart: async () => {
+        const { token } = require('./authStore').useAuthStore.getState();
+        if (!token) {
+          set({ items: [], total: 0 });
+          return;
+        }
+
         try {
           await cartAPI.clear();
           set({ items: [], total: 0 });

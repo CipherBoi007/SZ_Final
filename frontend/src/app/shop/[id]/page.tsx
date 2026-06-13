@@ -143,12 +143,11 @@ export default function ProductDetail() {
   const deliveryDate = product?.estimatedDelivery ? formatDeliveryDate(product.estimatedDelivery) : '';
 
   const handleAddToCart = async () => {
-    if (!token) { toast.error('Please login first'); router.push('/auth/login'); return; }
     if (!selectedSize) { toast.error('Please select a size'); return; }
     if (!activeVariant) { toast.error('Selected combination is not available'); return; }
     setIsAdding(true);
     try {
-      await addItem({ variantId: activeVariant.id, quantity });
+      await addItem({ variantId: activeVariant.id, quantity }, { product, variant: activeVariant });
       toast.success('Added to cart!');
       openCart();
     } catch (err: any) {
@@ -170,7 +169,6 @@ export default function ProductDetail() {
   };
 
   const handleBuyNow = async () => {
-    if (!token) { toast.error('Please login first'); router.push('/auth/login'); return; }
     if (!selectedSize) { toast.error('Please select a size'); return; }
     if (!activeVariant) { toast.error('Selected combination is not available'); return; }
     
@@ -270,9 +268,32 @@ export default function ProductDetail() {
               <div>
                 <h3 className="text-[11px] font-black text-white/20 uppercase tracking-[0.5em] mb-4">Select Size</h3>
                 <div className="flex flex-wrap gap-3">
-                  {uniqueSizes.map((size: string) => (
-                    <button key={size} onClick={() => handleSizeChange(size)} className={`w-14 h-14 rounded-2xl flex items-center justify-center text-[12px] font-black transition-all border ${selectedSize === size ? 'bg-accent border-accent text-white glow-red' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/15'}`}>{size}</button>
-                  ))}
+                  {(['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'] as string[]).map((size: string) => {
+                    const isAvailable = uniqueSizes.includes(size) && variants.some((v: any) => v.size === size && v.stock > 0);
+                    const isSelected = selectedSize === size;
+                    return (
+                      <button 
+                        key={size} 
+                        onClick={() => isAvailable && handleSizeChange(size)} 
+                        disabled={!isAvailable}
+                        className={`relative w-14 h-14 rounded-2xl flex items-center justify-center text-[12px] font-black transition-all border ${
+                          !isAvailable 
+                            ? 'bg-white/[0.02] border-white/5 text-white/10 cursor-not-allowed' 
+                            : isSelected 
+                              ? 'bg-accent border-accent text-white glow-red' 
+                              : 'bg-white/5 border-white/5 text-white/40 hover:border-white/15'
+                        }`}
+                      >
+                        {size}
+                        {/* Diagonal cross-out line for unavailable sizes */}
+                        {!isAvailable && (
+                          <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <span className="absolute w-[140%] h-[1px] bg-white/15 rotate-[-45deg]" />
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

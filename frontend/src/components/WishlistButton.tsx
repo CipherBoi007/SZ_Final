@@ -23,20 +23,18 @@ export default function WishlistButton({ productId, className = "" }: WishlistBu
     e.preventDefault();
     e.stopPropagation();
 
-    if (!token) {
-      toast.error('Please login to add to wishlist');
-      router.push('/auth/login');
-      return;
-    }
-
     try {
       if (isFav) {
-        const id = getWishlistItemId(productId);
-        if (id) await removeItem(id);
+        const id = getWishlistItemId(productId) || 'guest_' + productId;
+        await removeItem(id);
         toast.success('Removed from wishlist');
       } else {
-        await addItem(productId);
-        toast.success('Added to wishlist');
+        const success = await addItem(productId);
+        if (success) {
+          toast.success('Added to wishlist');
+        } else {
+          toast.error('Failed to add to wishlist');
+        }
       }
     } catch (err) {
       toast.error('Failed to update wishlist');

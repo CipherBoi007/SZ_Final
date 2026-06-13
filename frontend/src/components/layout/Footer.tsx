@@ -55,8 +55,17 @@ export default function Footer() {
           <div>
             <h3 className="font-serif text-lg font-black text-white tracking-widest uppercase mb-6">Collections</h3>
             <ul className="space-y-4">
-              {['Formals', 'Casuals', 'Traditional', 'Sports'].map(item => (
-                <li key={item}><Link href={`/shop?category=${item}`} className="text-sm text-white/40 hover:text-accent transition-colors">{item}</Link></li>
+              {[
+                { label: 'The Formal Edit', query: 'Midnight Selection' },
+                { label: 'Heritage Collection', query: 'Avant-Garde Edge' },
+                { label: 'Daily Essentials', query: 'Minimalist Noir' },
+                { label: 'Active Performance', query: 'Urban Elite' },
+              ].map(item => (
+                <li key={item.label}>
+                  <Link href={`/shop?category=${encodeURIComponent(item.query)}`} className="text-sm text-white/40 hover:text-accent transition-colors">
+                    {item.label}
+                  </Link>
+                </li>
               ))}
             </ul>
           </div>
@@ -65,9 +74,10 @@ export default function Footer() {
           <div>
             <h3 className="font-serif text-lg font-black text-white tracking-widest uppercase mb-6">Support</h3>
             <ul className="space-y-4">
-              {['Track Order', 'Returns', 'Size Guide', 'Contact Us'].map(item => (
-                <li key={item}><Link href="#" className="text-sm text-white/40 hover:text-accent transition-colors">{item}</Link></li>
-              ))}
+              <li><Link href="/track" className="text-sm text-white/40 hover:text-accent transition-colors">Track Order</Link></li>
+              <li><Link href="/returns" className="text-sm text-white/40 hover:text-accent transition-colors">Returns</Link></li>
+              <li><Link href="/faq" className="text-sm text-white/40 hover:text-accent transition-colors">FAQ</Link></li>
+              <li><Link href="/contact" className="text-sm text-white/40 hover:text-accent transition-colors">Contact Us</Link></li>
             </ul>
           </div>
 
@@ -75,9 +85,10 @@ export default function Footer() {
           <div>
             <h3 className="font-serif text-lg font-black text-white tracking-widest uppercase mb-6">Company</h3>
             <ul className="space-y-4">
-              {['About Us', 'Terms of Service', 'Privacy Policy', 'Cookie Policy'].map(item => (
-                <li key={item}><Link href="#" className="text-sm text-white/40 hover:text-accent transition-colors">{item}</Link></li>
-              ))}
+              <li><Link href="/about" className="text-sm text-white/40 hover:text-accent transition-colors">About Us</Link></li>
+              <li><Link href="/terms" className="text-sm text-white/40 hover:text-accent transition-colors">Terms of Service</Link></li>
+              <li><Link href="/privacy" className="text-sm text-white/40 hover:text-accent transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/coupons" className="text-sm text-white/40 hover:text-accent transition-colors">Coupons</Link></li>
             </ul>
           </div>
         </div>

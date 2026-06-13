@@ -32,6 +32,13 @@ export const useWishlistStore = create<WishlistState>()(
       isLoading: false,
 
       fetchWishlist: async () => {
+        const { token } = require('./authStore').useAuthStore.getState();
+        if (!token) {
+          // Keep whatever items are already in state (restored from localStorage)
+          set({ isLoading: false });
+          return;
+        }
+
         set({ isLoading: true });
         try {
           const { data } = await wishlistAPI.getAll();
@@ -45,6 +52,32 @@ export const useWishlistStore = create<WishlistState>()(
       },
 
       addItem: async (productId) => {
+        const { token } = require('./authStore').useAuthStore.getState();
+        if (!token) {
+          try {
+            const { productAPI } = require('@/lib/api');
+            const { data } = await productAPI.getById(productId);
+            const product = data?.data || data;
+            
+            const newItem: WishlistItem = {
+              id: 'guest_' + productId,
+              productId,
+              userId: 'guest',
+              createdAt: new Date().toISOString(),
+              product
+            };
+
+            const currentItems = get().items;
+            if (!currentItems.some(i => i.productId === productId)) {
+              set({ items: [...currentItems, newItem] });
+            }
+            return true;
+          } catch (error) {
+            console.error('Guest wishlist add error:', error);
+            return false;
+          }
+        }
+
         try {
           await wishlistAPI.add(productId);
           await get().fetchWishlist();
@@ -56,6 +89,13 @@ export const useWishlistStore = create<WishlistState>()(
       },
 
       removeItem: async (id) => {
+        const { token } = require('./authStore').useAuthStore.getState();
+        if (!token) {
+          const currentItems = get().items;
+          set({ items: currentItems.filter((item) => item.id !== id) });
+          return;
+        }
+
         const currentItems = get().items;
         set({ items: currentItems.filter((item) => item.id !== id) });
         try {

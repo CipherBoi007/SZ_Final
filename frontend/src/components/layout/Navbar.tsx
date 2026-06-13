@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, ShoppingBag, Heart, User, Menu, X, ChevronDown,
   Home, Sparkles, Percent, SlidersHorizontal, Store, Package,
-  Shield, MapPin
+  Shield, MapPin, HelpCircle
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
@@ -98,6 +98,18 @@ const navLinks = [
     ]
   },
   { href: '/shop?sale=true', label: 'Exclusive Offers', icon: Percent },
+  {
+    href: '#', label: 'Support & Info', icon: HelpCircle, children: [
+      { href: '/track', label: 'Track Order' },
+      { href: '/returns', label: 'Returns Manifest' },
+      { href: '/faq', label: 'FAQ Manifest' },
+      { href: '/contact', label: 'Contact Us' },
+      { href: '/about', label: 'About Us' },
+      { href: '/coupons', label: 'Available Coupons' },
+      { href: '/terms', label: 'Terms of Service' },
+      { href: '/privacy', label: 'Privacy Policy' },
+    ]
+  }
 ];
 
 export default function Navbar() {

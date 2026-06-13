@@ -9,7 +9,7 @@ import {
   X, Star, ChevronDown, Filter, 
   ArrowRight, SlidersHorizontal, ShoppingBag,
   Sparkles, TrendingUp, Heart, Tag, Check, Layers,
-  IndianRupee, Zap, SortAsc
+  IndianRupee, Zap, SortAsc, Package
 } from 'lucide-react';
 import { productAPI, configAPI } from '@/lib/api';
 import { getProductPriceRange, getDiscountedPrice } from '@/types';
@@ -187,6 +187,8 @@ function ShopContent() {
   // Filter states
   const [activeCategories, setActiveCategories] = useState<string[]>([]);
   const [activeTags, setActiveTags] = useState<string[]>([]);
+  const [activeSizes, setActiveSizes] = useState<string[]>([]);
+  const [availability, setAvailability] = useState<'all' | 'inStock'>('all');
   const [priceRange, setPriceRange] = useState({ min: 0, max: 50000 });
   const [sortBy, setSortBy] = useState('Newest');
   const [searchQuery, setSearchQuery] = useState('');
@@ -219,9 +221,11 @@ function ShopContent() {
            activeCategories.length > 0 || 
            sortBy !== 'Newest' || 
            activeTags.length > 0 || 
+           activeSizes.length > 0 ||
+           availability !== 'all' ||
            debouncedPriceRange.min > 0 || 
            debouncedPriceRange.max < 50000;
-  }, [searchQuery, activeCategories, sortBy, activeTags, debouncedPriceRange]);
+  }, [searchQuery, activeCategories, sortBy, activeTags, activeSizes, availability, debouncedPriceRange]);
 
   const getPageSize = () => {
     if (typeof window === 'undefined') return 25;
@@ -269,6 +273,8 @@ function ShopContent() {
       setActiveTags([]);
       setSortBy('Newest');
       setPriceRange({ min: 0, max: 50000 });
+      setActiveSizes([]);
+      setAvailability('all');
       setBrowseMode(false);
       // Reset the guard after a tick
       setTimeout(() => { urlSyncRef.current = false; }, 50);
@@ -390,6 +396,11 @@ function ShopContent() {
         params.price = { gte: debouncedPriceRange.min, lte: debouncedPriceRange.max };
       }
 
+      // Size filter — passed to backend to filter by variant size
+      if (activeSizes.length > 0) params.size = activeSizes;
+      // Availability filter — only show products with stock > 0
+      if (availability === 'inStock') params.stock = { gt: 0 };
+
       const res = await productAPI.getAll(params);
       
       // Check if this request was aborted
@@ -417,7 +428,7 @@ function ShopContent() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [activeCategories, sortBy, activeTags, debouncedPriceRange, searchQuery, page]);
+  }, [activeCategories, sortBy, activeTags, activeSizes, availability, debouncedPriceRange, searchQuery, page]);
 
   // ──────── Trigger filtered fetch when filters change ────────
   useEffect(() => {
@@ -428,7 +439,7 @@ function ShopContent() {
       setBrowseMode(true);
       fetchFilteredProducts();
     }
-  }, [activeCategories, sortBy, activeTags, debouncedPriceRange, searchQuery, initialDataFetched]);
+  }, [activeCategories, sortBy, activeTags, activeSizes, availability, debouncedPriceRange, searchQuery, initialDataFetched]);
 
   // ──────── Also trigger fetch when browseMode turns on from URL ────────
   useEffect(() => {
@@ -445,17 +456,25 @@ function ShopContent() {
     setActiveTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
   };
 
+  const toggleSize = (size: string) => {
+    setActiveSizes(prev => prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]);
+  };
+
   const clearAllFilters = () => {
     setSearchQuery('');
     setActiveCategories([]);
     setSortBy('Newest');
     setActiveTags([]);
+    setActiveSizes([]);
+    setAvailability('all');
     setPriceRange({ min: 0, max: 50000 });
     setProducts([]);
     setTotalProducts(0);
     setBrowseMode(false);
     router.push('/shop');
   };
+
+  const ALL_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
 
   const getResultsTitle = () => {
     const urlTag = searchParams.get('tag');
@@ -638,7 +657,52 @@ function ShopContent() {
                 </div>
               </section>
 
-              {/* 3. Price Linear Slider */}
+              {/* 3. Sizes */}
+              <section>
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h3 className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Sizes</h3>
+                  {activeSizes.length > 0 && <button onClick={() => setActiveSizes([])} className="text-[9px] font-bold text-accent uppercase tracking-widest">Reset</button>}
+                </div>
+                <div className="flex flex-wrap gap-2 sm:gap-3">
+                  {ALL_SIZES.map(size => (
+                    <button 
+                      key={size} 
+                      onClick={() => toggleSize(size)}
+                      className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-[11px] sm:text-[12px] font-black transition-all border ${
+                        activeSizes.includes(size) 
+                          ? 'bg-accent border-accent text-white glow-red shadow-[0_0_15px_rgba(220,20,60,0.4)]' 
+                          : 'bg-white/5 border-white/5 text-white/40 hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              {/* 4. Availability */}
+              <section>
+                <h3 className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-4 sm:mb-6">Availability</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { key: 'all' as const, label: 'Show All' },
+                    { key: 'inStock' as const, label: 'In Stock Only' },
+                  ].map(opt => (
+                    <button 
+                      key={opt.key}
+                      onClick={() => setAvailability(opt.key)}
+                      className={`p-3.5 sm:p-4 rounded-xl border transition-all flex items-center justify-center gap-2 ${
+                        availability === opt.key ? 'bg-accent/10 border-accent text-white' : 'bg-white/5 border-white/5 text-white/30 hover:border-white/20'
+                      }`}
+                    >
+                      {opt.key === 'inStock' && <Package className="w-3.5 h-3.5" />}
+                      <span className="text-[10px] font-bold uppercase tracking-widest">{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              {/* 5. Price Linear Slider */}
               <section>
                 <h3 className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-4 sm:mb-6">Price Boundary</h3>
                 <PriceSlider 
@@ -648,7 +712,7 @@ function ShopContent() {
                 />
               </section>
 
-              {/* 4. Collection Tags */}
+              {/* 6. Collection Tags */}
               <section>
                 <div className="flex items-center justify-between mb-4 sm:mb-6">
                   <h3 className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Collection Tags</h3>
