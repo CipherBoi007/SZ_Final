@@ -220,7 +220,7 @@ function CheckoutContent() {
         currency: rpOrderData.data.currency,
         name: 'SouthZone',
         description: 'Payment for your order',
-        image: '/images/LOGO.png',
+        image: '/images/Final_LOGO.JPG',
         order_id: rpOrderData.data.orderId,
         handler: async function (response: any) {
           try {

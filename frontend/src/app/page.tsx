@@ -166,7 +166,7 @@ function HeroSection({ config }: { config: any }) {
 function CategoriesSection({ sectionConfig, categories }: { sectionConfig: any; categories: any[] }) {
   const cats = useMemo(() => {
     if (!categories || categories.length === 0) return [];
-    const order = ['Formals', 'Casuals', 'Traditional', 'Sports'];
+    const order = ['Pants', 'Shirts', 'T-Shirts', 'Gym Wear'];
     const matched: any[] = [];
     const remaining: any[] = [];
     categories.forEach(cat => {
@@ -175,6 +175,11 @@ function CategoriesSection({ sectionConfig, categories }: { sectionConfig: any; 
       } else {
         remaining.push(cat);
       }
+    });
+    matched.sort((a, b) => {
+      const idxA = order.findIndex(name => a.name?.toLowerCase() === name.toLowerCase());
+      const idxB = order.findIndex(name => b.name?.toLowerCase() === name.toLowerCase());
+      return idxA - idxB;
     });
     return [...matched, ...remaining].slice(0, 4);
   }, [categories]);

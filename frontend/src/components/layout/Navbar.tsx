@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';
-import { productAPI } from '@/lib/api';
+import { productAPI, configAPI } from '@/lib/api';
 import { getProductPriceRange, getDiscountedPrice } from '@/types';
 import CartDrawer from './CartDrawer';
 
@@ -80,38 +80,6 @@ function MobileNavItem({ link, setMobileOpen }: { link: any; setMobileOpen: (v: 
   );
 }
 
-const navLinks = [
-  { href: '/', label: 'Home', icon: Home },
-  {
-    href: '/shop', label: 'Showroom', icon: Store, children: [
-      { href: '/shop?category=Midnight Selection', label: 'The Formal Edit' },
-      { href: '/shop?category=Avant-Garde Edge', label: 'Heritage Collection' },
-      { href: '/shop?category=Minimalist Noir', label: 'Daily Essentials' },
-      { href: '/shop?category=Urban Elite', label: 'Active Performance' },
-    ],
-  },
-  { 
-    href: '#', label: 'Campaigns', icon: Sparkles, children: [
-      { href: '/shop?tag=New Drops', label: 'Fresh Arrivals' },
-      { href: '/shop?tag=Trending', label: 'Boutique Trending' },
-      { href: '/shop?sortBy=Rating', label: 'Elite Favorites' },
-    ]
-  },
-  { href: '/shop?sale=true', label: 'Exclusive Offers', icon: Percent },
-  {
-    href: '#', label: 'Support & Info', icon: HelpCircle, children: [
-      { href: '/track', label: 'Track Order' },
-      { href: '/returns', label: 'Returns Manifest' },
-      { href: '/faq', label: 'FAQ Manifest' },
-      { href: '/contact', label: 'Contact Us' },
-      { href: '/about', label: 'About Us' },
-      { href: '/coupons', label: 'Available Coupons' },
-      { href: '/terms', label: 'Terms of Service' },
-      { href: '/privacy', label: 'Privacy Policy' },
-    ]
-  }
-];
-
 export default function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
@@ -124,22 +92,75 @@ export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const { user } = useAuthStore();
   
+  const [categories, setCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const { data } = await configAPI.getCategories();
+        setCategories(data?.data || []);
+      } catch (err) {
+        console.error('Failed to fetch categories in Navbar:', err);
+      }
+    }
+    fetchCategories();
+  }, []);
+
   // Hide Navbar on Admin pages to avoid redundancy
   const isAdmin = pathname.startsWith('/admin');
 
-  const memberLinks = [
+  const memberLinks = useMemo(() => [
     { href: '/profile', label: 'Member Identity', icon: User },
     { href: '/profile?tab=orders', label: 'Order Manifests', icon: Package },
     { href: '/profile?tab=addresses', label: 'Delivery Hubs', icon: MapPin },
     { href: '/wishlist', label: 'Curated Wishlist', icon: Heart },
-  ];
+  ], []);
 
-  const currentNavLinks = user?.role === 'admin' ? [
-    { href: '/admin', label: 'Executive Hub', icon: SlidersHorizontal },
-    { href: '/admin/products', label: 'Catalog Audit', icon: Package },
-    { href: '/admin/orders', label: 'Fulfillment', icon: ShoppingBag },
-    { href: '/admin/reviews', label: 'Social Proof', icon: Heart }
-  ] : (user ? [...navLinks, { href: '#', label: 'Member Vault', icon: Shield, children: memberLinks }] : navLinks);
+  const currentNavLinks = useMemo(() => {
+    const showroomChildren = [
+      { href: '/shop', label: 'All' },
+      ...categories.map(cat => ({
+        href: `/shop?category=${encodeURIComponent(cat.id)}`,
+        label: cat.name
+      }))
+    ];
+
+    const baseLinks = [
+      { href: '/', label: 'Home', icon: Home },
+      { href: '/shop', label: 'Showroom', icon: Store, children: showroomChildren },
+      { 
+        href: '#', label: 'Campaigns', icon: Sparkles, children: [
+          { href: '/shop?tag=New Drops', label: 'Fresh Arrivals' },
+          { href: '/shop?tag=Trending', label: 'Boutique Trending' },
+          { href: '/shop?sortBy=Rating', label: 'Elite Favorites' },
+        ]
+      },
+      { href: '/shop?sale=true', label: 'Exclusive Offers', icon: Percent },
+      {
+        href: '#', label: 'Support & Info', icon: HelpCircle, children: [
+          { href: '/track', label: 'Track Order' },
+          { href: '/returns', label: 'Returns Manifest' },
+          { href: '/faq', label: 'FAQ Manifest' },
+          { href: '/contact', label: 'Contact Us' },
+          { href: '/about', label: 'About Us' },
+          { href: '/coupons', label: 'Available Coupons' },
+          { href: '/terms', label: 'Terms of Service' },
+          { href: '/privacy', label: 'Privacy Policy' },
+        ]
+      }
+    ];
+
+    if (!user) {
+      baseLinks.push({ href: '/auth/login', label: 'Sign In', icon: User });
+    }
+
+    return user?.role === 'admin' ? [
+      { href: '/admin', label: 'Executive Hub', icon: SlidersHorizontal },
+      { href: '/admin/products', label: 'Catalog Audit', icon: Package },
+      { href: '/admin/orders', label: 'Fulfillment', icon: ShoppingBag },
+      { href: '/admin/reviews', label: 'Social Proof', icon: Heart }
+    ] : (user ? [...baseLinks, { href: '#', label: 'Member Vault', icon: Shield, children: memberLinks }] : baseLinks);
+  }, [categories, user, memberLinks]);
   
   const cartItems = useCartStore((s) => s.items);
   const totalItemsCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
@@ -212,15 +233,17 @@ export default function Navbar() {
             </button>
 
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 shrink-0">
-              <Image
-                src="/images/LOGO.png"
-                alt="SouthZone"
-                width={140}
-                height={42}
-                className="h-8 w-auto lg:h-10 rounded"
-                priority
-              />
+            <Link href="/" className="flex items-center gap-2 shrink-0 lg:-ml-4 -ml-2">
+              <div className="relative h-12 w-[180px] lg:h-16 lg:w-[240px]">
+                <Image
+                  src="/images/Final_LOGO.JPG"
+                  alt="SouthZone"
+                  fill
+                  sizes="(max-width: 1024px) 180px, 240px"
+                  className="object-contain object-left origin-left mix-blend-screen"
+                  priority
+                />
+              </div>
             </Link>
 
             {/* Center Space - Cleared for Minimalism */}
@@ -437,13 +460,15 @@ export default function Navbar() {
               className="fixed top-0 left-0 z-50 h-full w-80 bg-surface border-r border-white/5 p-0 flex flex-col shadow-2xl"
             >
               <div className="flex items-center justify-between p-6 border-b border-white/5">
-                <Image
-                  src="/images/LOGO.png"
-                  alt="SouthZone"
-                  width={120}
-                  height={36}
-                  className="h-7 w-auto rounded"
-                />
+                <div className="relative h-12 w-[180px] -ml-2">
+                  <Image
+                    src="/images/Final_LOGO.JPG"
+                    alt="SouthZone"
+                    fill
+                    sizes="180px"
+                    className="object-contain object-left origin-left mix-blend-screen"
+                  />
+                </div>
                 <button
                   onClick={() => setMobileOpen(false)}
                   className="p-2 text-white/70 hover:text-white bg-white/5 rounded-full"
@@ -462,53 +487,7 @@ export default function Navbar() {
                 ))}
               </nav>
 
-              <div className="p-6 border-t border-white/5 bg-black/20 flex flex-col gap-2 shrink-0">
-                <button
-                  onClick={() => { setMobileOpen(false); handleFilterToggle(); }}
-                  className="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white rounded-xl hover:bg-white/5 transition-all group w-full"
-                  style={{ fontFamily: "'Inter', sans-serif" }}
-                >
-                  <SlidersHorizontal className="w-5 h-5 text-accent/70 group-hover:text-accent" /> 
-                  <span className="flex-1 text-left">Refine & Filter</span>
-                </button>
-                <button
-                  onClick={() => { setMobileOpen(false); setSearchOpen(true); }}
-                  className="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white rounded-xl hover:bg-white/5 transition-all group w-full"
-                  style={{ fontFamily: "'Inter', sans-serif" }}
-                >
-                  <Search className="w-5 h-5 text-white/40 group-hover:text-white" /> 
-                  <span className="flex-1 text-left">Search Products</span>
-                </button>
-                <Link
-                  href="/wishlist"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white rounded-xl hover:bg-white/5 transition-all group"
-                  style={{ fontFamily: "'Inter', sans-serif" }}
-                >
-                  <Heart className="w-5 h-5 text-red-500/70 group-hover:text-red-500" /> 
-                  <span className="flex-1">Wishlist</span>
-                </Link>
-                <button
-                  onClick={() => { setMobileOpen(false); openCart(); }}
-                  className="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white rounded-xl hover:bg-white/5 transition-all group w-full"
-                  style={{ fontFamily: "'Inter', sans-serif" }}
-                >
-                  <ShoppingBag className="w-5 h-5 text-accent/70 group-hover:text-accent" /> 
-                  <span className="flex-1 text-left">Shopping Bag</span>
-                  {totalItemsCount > 0 && (
-                    <span className="px-2 py-0.5 rounded-full bg-accent text-[10px] font-bold text-white glow-red">{totalItemsCount}</span>
-                  )}
-                </button>
-                <Link
-                  href={user ? (user.role === 'admin' ? '/admin' : '/profile') : '/auth/login'}
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white rounded-xl hover:bg-white/5 transition-all"
-                  style={{ fontFamily: "'Inter', sans-serif" }}
-                >
-                  <User className="w-5 h-5 text-accent/70" /> 
-                  <span className="flex-1">{user ? 'My Profile' : 'Sign In'}</span>
-                </Link>
-              </div>
+
             </motion.aside>
           </>
         )}

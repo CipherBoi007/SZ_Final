@@ -32,13 +32,15 @@ export default function Footer() {
           
           {/* Brand Info */}
           <div className="col-span-2 lg:col-span-2">
-            <Image
-              src="/images/LOGO.png"
-              alt="SouthZone"
-              width={150}
-              height={45}
-              className="h-8 w-auto mb-6 brightness-125"
-            />
+            <div className="relative h-16 w-[240px] mb-6 -ml-4 brightness-125">
+              <Image
+                src="/images/Final_LOGO.JPG"
+                alt="SouthZone"
+                fill
+                sizes="240px"
+                className="object-contain object-left origin-left mix-blend-screen"
+              />
+            </div>
             <p className="text-sm text-white/40 leading-relaxed max-w-sm mb-8">
               SouthZone is more than a brand; it's a movement. We blend traditional craftsmanship with modern streetwear to deliver fits that define a generation. Designed for the bold, made in India.
             </p>
@@ -56,10 +58,10 @@ export default function Footer() {
             <h3 className="font-serif text-lg font-black text-white tracking-widest uppercase mb-6">Collections</h3>
             <ul className="space-y-4">
               {[
-                { label: 'The Formal Edit', query: 'Midnight Selection' },
-                { label: 'Heritage Collection', query: 'Avant-Garde Edge' },
-                { label: 'Daily Essentials', query: 'Minimalist Noir' },
-                { label: 'Active Performance', query: 'Urban Elite' },
+                { label: 'Pants', query: 'Pants' },
+                { label: 'Shirts', query: 'Shirts' },
+                { label: 'T-Shirts', query: 'T-Shirts' },
+                { label: 'Gym Wear', query: 'Gym Wear' },
               ].map(item => (
                 <li key={item.label}>
                   <Link href={`/shop?category=${encodeURIComponent(item.query)}`} className="text-sm text-white/40 hover:text-accent transition-colors">

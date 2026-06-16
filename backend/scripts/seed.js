@@ -19,406 +19,370 @@ const {
 } = require('../src/models');
 
 const productsData = [
-  // Minimalist Noir (Category 1)
+  // Pants (10 products)
   {
-    name: 'Noir Cotton T-Shirt',
-    description: 'Ultra-soft premium cotton t-shirt with a clean, classic fit.',
-    price: 299,
-    categoryName: 'Minimalist Noir',
-    image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=800',
+    name: 'Classic Slim-Fit Chinos',
+    description: 'Versatile stretch twill chinos with a refined slim-straight silhouette, perfect for any smart-casual occasion.',
+    price: 899,
+    categoryName: 'Pants',
+    image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=800',
     isFeatured: true,
     isTrending: true
   },
   {
-    name: 'Slate Grey Hoodie',
-    description: 'Heavyweight organic cotton hoodie with a double-lined hood.',
-    price: 699,
-    categoryName: 'Minimalist Noir',
-    image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=800',
+    name: 'Urban Cargo Trousers',
+    description: 'Durable cotton cargo pants with multiple utility pockets, reinforced seams, and tapered drawstring ankles.',
+    price: 1099,
+    categoryName: 'Pants',
+    image: 'https://images.unsplash.com/photo-1604176354204-9268737828e4?q=80&w=800',
     isFeatured: true,
     isTrending: false
   },
   {
-    name: 'Noir Denim Slim Jeans',
-    description: 'Classic five-pocket denim jeans with raw finish and slight stretch.',
+    name: 'Relaxed Linen Pants',
+    description: 'Lightweight, highly breathable linen-blend trousers with an elastic waistband and drawstring for ultimate comfort.',
+    price: 799,
+    categoryName: 'Pants',
+    image: 'https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?q=80&w=800',
+    isFeatured: false,
+    isTrending: true
+  },
+  {
+    name: 'Classic Pleated Dress Pants',
+    description: 'Tailored formal trousers with a sharp front crease, structured waist, and soft, wrinkle-resistant finish.',
+    price: 1299,
+    categoryName: 'Pants',
+    image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800',
+    isFeatured: false,
+    isTrending: false
+  },
+  {
+    name: 'Distressed Slim Denim Jeans',
+    description: 'Washed indigo denim slim-fit jeans featuring subtle distressed details and premium stretch comfort.',
     price: 999,
-    categoryName: 'Minimalist Noir',
+    categoryName: 'Pants',
     image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=800',
     isFeatured: false,
     isTrending: true
   },
   {
-    name: 'Basic Cotton Turtleneck',
-    description: 'Form-fitting soft knit turtleneck pullover for layered looks.',
-    price: 599,
-    categoryName: 'Minimalist Noir',
-    image: 'https://images.unsplash.com/photo-1615655096345-61a54750068d?q=80&w=800',
-    isFeatured: false,
-    isTrending: false
-  },
-  {
-    name: 'Noir Linen Summer Shirt',
-    description: 'Breathable and lightweight linen button-up shirt in deep charcoal.',
-    price: 499,
-    categoryName: 'Minimalist Noir',
-    image: 'https://images.unsplash.com/photo-1589310243389-96a5483213a8?q=80&w=800',
-    isFeatured: false,
-    isTrending: true
-  },
-  {
-    name: 'Windproof Monolith Parka',
-    description: 'Weather-resistant lightweight parka jacket with functional pockets.',
-    price: 1299,
-    categoryName: 'Minimalist Noir',
-    image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=800',
+    name: 'Heavyweight Fleece Joggers',
+    description: 'Cozy, thick loopback cotton track pants with a comfortable drawstring waist and deep side-zippered pockets.',
+    price: 699,
+    categoryName: 'Pants',
+    image: 'https://images.unsplash.com/photo-1551854838-212c50b4c184?q=80&w=800',
     isFeatured: true,
     isTrending: false
   },
   {
-    name: 'Noir Essential Sweatpants',
-    description: 'Tapered fleece joggers with drawstring waist and zip pockets.',
-    price: 399,
-    categoryName: 'Minimalist Noir',
-    image: 'https://images.unsplash.com/photo-1551854838-212c50b4c184?q=80&w=800',
+    name: 'Tailored Corduroy Trousers',
+    description: 'Soft, vintage-inspired textured corduroy pants in a rich hue, tailored for comfortable and stylish everyday wear.',
+    price: 950,
+    categoryName: 'Pants',
+    image: 'https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?q=80&w=800',
     isFeatured: false,
     isTrending: false
   },
   {
-    name: 'Tailored Twill Chinos',
-    description: 'Premium stretch twill chinos with a modern slim-straight silhouette.',
-    price: 799,
-    categoryName: 'Minimalist Noir',
+    name: 'Structured Crop Trousers',
+    description: 'Modern cropped-fit trousers featuring a clean front panel, side pockets, and hidden slide-lock closure.',
+    price: 850,
+    categoryName: 'Pants',
     image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=800',
     isFeatured: false,
     isTrending: true
   },
   {
-    name: 'Noir Urban Cargo Shorts',
-    description: 'Durable cotton cargo shorts with multiple utility pockets.',
-    price: 450,
-    categoryName: 'Minimalist Noir',
-    image: 'https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=800',
+    name: 'Athletic Fit Utility Joggers',
+    description: 'Sleek moisture-wicking joggers with zippered cuffs, dynamic paneling, and secure phone pockets.',
+    price: 599,
+    categoryName: 'Pants',
+    image: 'https://images.unsplash.com/photo-1483726234730-29b5314a04d1?q=80&w=800',
     isFeatured: false,
     isTrending: false
   },
   {
-    name: 'Luxe Heavyweight Crew',
-    description: 'Pre-shrunk thick loopback cotton crewneck sweatshirt in ash.',
-    price: 899,
-    categoryName: 'Minimalist Noir',
-    image: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=800',
-    isFeatured: false,
-    isTrending: false
-  },
-  {
-    name: 'Noir Fitted Casual Shorts',
-    description: 'Lightweight linen-blend shorts for clean casual lounging.',
-    price: 349,
-    categoryName: 'Minimalist Noir',
-    image: 'https://images.unsplash.com/photo-1560243563-062bfc001d68?q=80&w=800',
+    name: 'Sateen Luxury Dress Pants',
+    description: 'Exquisite cotton sateen formal trousers with a subtle sheen, customized waistband, and tailored slim-fit design.',
+    price: 1199,
+    categoryName: 'Pants',
+    image: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?q=80&w=800',
     isFeatured: false,
     isTrending: false
   },
 
-  // Avant-Garde Edge (Category 2)
+  // Shirts (10 products)
   {
-    name: 'Asymmetric Hem Tee',
-    description: 'Unique longline tee with an angled raw-cut bottom hem.',
-    price: 349,
-    categoryName: 'Avant-Garde Edge',
-    image: 'https://images.unsplash.com/photo-1554568218-0f1715e72254?q=80&w=800',
+    name: 'Oxford Button-Down Shirt',
+    description: 'Classic heavyweight organic cotton oxford shirt featuring a structured button-down collar and single chest pocket.',
+    price: 699,
+    categoryName: 'Shirts',
+    image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=800',
     isFeatured: true,
     isTrending: true
   },
   {
-    name: 'Structured Grid Hoodie',
-    description: 'Techno-fabric hoodie with structured seams and minimalist look.',
-    price: 799,
-    categoryName: 'Avant-Garde Edge',
-    image: 'https://images.unsplash.com/photo-1609873814058-a8928924184a?q=80&w=800',
+    name: 'Premium Silk-Blend Shirt',
+    description: 'Luxurious, flowing silk-blend button-down shirt with a standard collar and an exceptionally soft, premium finish.',
+    price: 999,
+    categoryName: 'Shirts',
+    image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?q=80&w=800',
     isFeatured: true,
     isTrending: false
   },
   {
-    name: 'Paneled Utility Cargo Pants',
-    description: 'Multi-pocket cargo trousers featuring geometric paneling.',
-    price: 1099,
-    categoryName: 'Avant-Garde Edge',
-    image: 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?q=80&w=800',
-    isFeatured: false,
-    isTrending: true
-  },
-  {
-    name: 'Splatter Print Tee',
-    description: 'Artistic abstract splatter graphic tee made from mercerized cotton.',
-    price: 399,
-    categoryName: 'Avant-Garde Edge',
-    image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=800',
-    isFeatured: false,
-    isTrending: false
-  },
-  {
-    name: 'Draped Knit Cardigan',
-    description: 'Collarless open-front long knit cardigan in charcoal blend.',
-    price: 899,
-    categoryName: 'Avant-Garde Edge',
-    image: 'https://images.unsplash.com/photo-1614975058789-41316d0e2e9c?q=80&w=800',
-    isFeatured: false,
-    isTrending: true
-  },
-  {
-    name: 'Avant Tech Windbreaker',
-    description: 'Ultra-light water repellent sports jacket with asymmetric zip.',
-    price: 1199,
-    categoryName: 'Avant-Garde Edge',
-    image: 'https://images.unsplash.com/photo-1548883354-7622d03aca27?q=80&w=800',
-    isFeatured: true,
-    isTrending: false
-  },
-  {
-    name: 'Angled Collar Dress Shirt',
-    description: 'Avant-garde button shirt with a unique diagonal collar extension.',
+    name: 'Linen Summer Button-Up',
+    description: 'Lightweight and highly breathable pure linen casual shirt with a relaxed silhouette and classic chest pocket.',
     price: 599,
-    categoryName: 'Avant-Garde Edge',
+    categoryName: 'Shirts',
+    image: 'https://images.unsplash.com/photo-1589310243389-96a5483213a8?q=80&w=800',
+    isFeatured: false,
+    isTrending: true
+  },
+  {
+    name: 'Diagonal Asymmetric Dress Shirt',
+    description: 'Avant-garde design shirt featuring a unique diagonal collar extension and concealed front placket.',
+    price: 799,
+    categoryName: 'Shirts',
     image: 'https://images.unsplash.com/photo-1603252109303-2751441dd157?q=80&w=800',
     isFeatured: false,
     isTrending: false
   },
   {
-    name: 'Slouchy Dropped-Crotch Joggers',
-    description: 'Comfortable knit sweatpants with a distinct relaxed rise.',
-    price: 699,
-    categoryName: 'Avant-Garde Edge',
-    image: 'https://images.unsplash.com/photo-1483726234730-29b5314a04d1?q=80&w=800',
-    isFeatured: false,
-    isTrending: true
-  },
-  {
-    name: 'Wrap Collar Sweatshirt',
-    description: 'Double-breasted collar neck jersey pullover in black.',
-    price: 850,
-    categoryName: 'Avant-Garde Edge',
-    image: 'https://images.unsplash.com/photo-1611312449412-6cefac5dc3e4?q=80&w=800',
-    isFeatured: false,
-    isTrending: false
-  },
-  {
-    name: 'Deconstructed Hem Tee',
-    description: 'Raw edge crewneck tee with distressed details on shoulders.',
-    price: 450,
-    categoryName: 'Avant-Garde Edge',
-    image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=800',
-    isFeatured: false,
-    isTrending: false
-  },
-  {
-    name: 'Panel Denim Utility Jacket',
-    description: 'Dark wash raw denim jacket with multi-textured cotton patches.',
-    price: 1299,
-    categoryName: 'Avant-Garde Edge',
-    image: 'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?q=80&w=800',
-    isFeatured: false,
-    isTrending: false
-  },
-
-  // Midnight Selection (Category 3)
-  {
-    name: 'Midnight Silk Shirt',
-    description: 'Sleek luxury silk-blend button shirt with standard collar.',
+    name: 'Denim Utility Overshirt',
+    description: 'Washed indigo denim shirt jacket with dual button-flap chest pockets and durable double-needle stitching.',
     price: 899,
-    categoryName: 'Midnight Selection',
-    image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?q=80&w=800',
-    isFeatured: true,
-    isTrending: true
-  },
-  {
-    name: 'Tuxedo Evening Blazer',
-    description: 'Slim fit structured blazer with satin peak lapels.',
-    price: 1299,
-    categoryName: 'Midnight Selection',
-    image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800',
-    isFeatured: true,
-    isTrending: false
-  },
-  {
-    name: 'Midnight Velvet Bomber',
-    description: 'Deep navy velvet jacket with premium metallic zippers.',
-    price: 1199,
-    categoryName: 'Midnight Selection',
-    image: 'https://images.unsplash.com/photo-1544923246-77307dd654cb?q=80&w=800',
+    categoryName: 'Shirts',
+    image: 'https://images.unsplash.com/photo-1516257984877-283b9c81a549?q=80&w=800',
     isFeatured: false,
     isTrending: true
   },
   {
-    name: 'Satin Trim Trousers',
-    description: 'Sharp formal trousers with a clean satin stripe along the sides.',
-    price: 999,
-    categoryName: 'Midnight Selection',
-    image: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?q=80&w=800',
-    isFeatured: false,
-    isTrending: false
-  },
-  {
-    name: 'Midnight Knit Sweater',
-    description: 'Soft merino wool crewneck sweater in deep navy blue.',
-    price: 799,
-    categoryName: 'Midnight Selection',
-    image: 'https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?q=80&w=800',
-    isFeatured: false,
-    isTrending: true
-  },
-  {
-    name: 'Midnight Silk Kurta',
-    description: 'Elegant luxury traditional silk kurta for festive evenings.',
-    price: 699,
-    categoryName: 'Midnight Selection',
-    image: 'https://images.unsplash.com/photo-1597983073493-88cd35cf93b0?q=80&w=800',
+    name: 'Flannel Plaid Casual Shirt',
+    description: 'Soft brushed cotton flannel shirt in a warm, timeless plaid pattern, ideal for layering during cooler weather.',
+    price: 650,
+    categoryName: 'Shirts',
+    image: 'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?q=80&w=800',
     isFeatured: true,
     isTrending: false
   },
   {
-    name: 'Classic Oxford Dress Shirt',
-    description: 'Premium white cotton dress shirt with button-down cuffs.',
-    price: 599,
-    categoryName: 'Midnight Selection',
-    image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=800',
-    isFeatured: false,
-    isTrending: false
-  },
-  {
-    name: 'Sleek Fit Evening Polo',
-    description: 'High-thread count knit polo shirt in dark navy blue.',
+    name: 'Sleek Evening Polo Shirt',
+    description: 'High-thread count mercerized knit polo shirt, designed for a sharp look on smart-casual evenings.',
     price: 499,
-    categoryName: 'Midnight Selection',
+    categoryName: 'Shirts',
     image: 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?q=80&w=800',
     isFeatured: false,
     isTrending: true
   },
   {
-    name: 'Textured Evening Vest',
-    description: 'Button-up dress vest in charcoal grey herringbone design.',
-    price: 399,
-    categoryName: 'Midnight Selection',
-    image: 'https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=800',
+    name: 'Mandarin Collar Casual Shirt',
+    description: 'Minimalist band collar shirt in soft slub cotton, perfect for clean layering or wearing solo.',
+    price: 549,
+    categoryName: 'Shirts',
+    image: 'https://images.unsplash.com/photo-1593032465175-481ac7f401a0?q=80&w=800',
     isFeatured: false,
     isTrending: false
   },
   {
-    name: 'Midnight Trench Coat',
-    description: 'Double-breasted classic wool-blend trench coat in pure black.',
-    price: 1299,
-    categoryName: 'Midnight Selection',
-    image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=800',
+    name: 'Striped Resort Cuban Shirt',
+    description: 'Relaxed-fit cuban collar shirt featuring vintage vertical stripe patterns, ideal for warm weekend getaways.',
+    price: 499,
+    categoryName: 'Shirts',
+    image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?q=80&w=800',
     isFeatured: false,
     isTrending: false
   },
   {
-    name: 'Midnight Silk Bow Tie',
-    description: 'Premium satin self-tie formal bow tie in classic black.',
-    price: 299,
-    categoryName: 'Midnight Selection',
-    image: 'https://images.unsplash.com/photo-1516257984877-283b9c81a549?q=80&w=800',
+    name: 'Modern Twill Work Shirt',
+    description: 'Heavyweight cotton twill utility shirt designed for rugged everyday styling and long-lasting wear.',
+    price: 749,
+    categoryName: 'Shirts',
+    image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?q=80&w=800',
     isFeatured: false,
     isTrending: false
   },
 
-  // Urban Elite (Category 4)
+  // T-Shirts (10 products)
   {
-    name: 'Boxy Graphic Streetwear Tee',
-    description: 'Thick heavy cotton streetwear graphic tee with retro vibes.',
+    name: 'Noir Organic Cotton Tee',
+    description: 'Ultra-soft premium organic cotton t-shirt with a clean, classic crewneck fit and reinforced collar.',
+    price: 299,
+    categoryName: 'T-Shirts',
+    image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=800',
+    isFeatured: true,
+    isTrending: true
+  },
+  {
+    name: 'Oversized Streetwear Graphic Tee',
+    description: 'Drop shoulder, heavy knit streetwear tee featuring a custom abstract graphic print on the back.',
     price: 399,
-    categoryName: 'Urban Elite',
+    categoryName: 'T-Shirts',
     image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=800',
     isFeatured: true,
-    isTrending: true
-  },
-  {
-    name: 'Streetwear Cargo Joggers',
-    description: 'Multi-pocket canvas cargo pants with elasticated hems.',
-    price: 999,
-    categoryName: 'Urban Elite',
-    image: 'https://images.unsplash.com/photo-1517462964-21fdcec3f25b?q=80&w=800',
-    isFeatured: true,
     isTrending: false
   },
   {
-    name: 'Elite Heavy Knit Hoodie',
-    description: '450gsm double-cotton hoodie in vintage washed black.',
-    price: 899,
-    categoryName: 'Urban Elite',
-    image: 'https://images.unsplash.com/photo-1543132220-4bf3de6e10ae?q=80&w=800',
+    name: 'Splatter Print Mercerized Tee',
+    description: 'Artistic abstract splatter graphic tee made from high-shine, silky-soft mercerized cotton.',
+    price: 349,
+    categoryName: 'T-Shirts',
+    image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=800',
     isFeatured: false,
     isTrending: true
   },
   {
-    name: 'Distressed Denim Overshirt',
-    description: 'Medium wash denim shirt jacket with light distressing and snap buttons.',
-    price: 699,
-    categoryName: 'Urban Elite',
-    image: 'https://images.unsplash.com/photo-1516257984877-283b9c81a549?q=80&w=800',
+    name: 'Minimalist Linen-Blend Tee',
+    description: 'Breathable linen-blend t-shirt with a beautiful subtle texture, drop tail, and split side seams.',
+    price: 329,
+    categoryName: 'T-Shirts',
+    image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=800',
     isFeatured: false,
     isTrending: false
   },
   {
-    name: 'Urban Flight Bomber Jacket',
-    description: 'Water-resistant nylon aviator jacket with sleeve zip pocket.',
-    price: 1199,
-    categoryName: 'Urban Elite',
-    image: 'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?q=80&w=800',
+    name: 'Asymmetric Longline Tee',
+    description: 'Avant-garde streetwear t-shirt featuring a unique raw-cut angled bottom hem and relaxed drape.',
+    price: 349,
+    categoryName: 'T-Shirts',
+    image: 'https://images.unsplash.com/photo-1554568218-0f1715e72254?q=80&w=800',
     isFeatured: false,
     isTrending: true
   },
   {
-    name: 'Retro Block Windbreaker',
-    description: 'High-collar sport windbreaker in colorblocked neutral tones.',
-    price: 1099,
-    categoryName: 'Urban Elite',
-    image: 'https://images.unsplash.com/photo-1548883354-7622d03aca27?q=80&w=800',
-    isFeatured: true,
-    isTrending: false
-  },
-  {
-    name: 'Elite Gym Fleece Joggers',
-    description: 'Tapered fit cotton fleece track pants for street and workout.',
-    price: 599,
-    categoryName: 'Urban Elite',
-    image: 'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=800',
-    isFeatured: false,
-    isTrending: false
-  },
-  {
-    name: 'Basic Oversized Tee',
-    description: 'Drop shoulder relaxed heavy knit tee in minimalist white.',
+    name: 'Heavyweight Boxy White Tee',
+    description: 'Classic thick loopback organic cotton crewneck tee in a structured, boxy silhouette.',
     price: 299,
-    categoryName: 'Urban Elite',
+    categoryName: 'T-Shirts',
     image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=800',
+    isFeatured: true,
+    isTrending: false
+  },
+  {
+    name: 'Heather Grey Performance Tee',
+    description: 'Flexible, ultra-light tri-blend athletic tee optimized for daily comfort and dynamic range of motion.',
+    price: 249,
+    categoryName: 'T-Shirts',
+    image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=800',
+    isFeatured: false,
+    isTrending: false
+  },
+  {
+    name: 'Earth-Tone Relaxed Fit Tee',
+    description: 'Soft pigment-dyed cotton tee with a washed vintage appearance, chest pocket, and relaxed fit.',
+    price: 279,
+    categoryName: 'T-Shirts',
+    image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=800',
     isFeatured: false,
     isTrending: true
   },
   {
-    name: 'Urban Utility Overshirt',
-    description: 'Durable cotton drill jacket with flap pockets on chest.',
-    price: 799,
-    categoryName: 'Urban Elite',
+    name: 'Raw Edge Slub Cotton Tee',
+    description: 'Textured slub cotton t-shirt featuring raw, rolled-edge details on the crewneck and sleeve cuffs.',
+    price: 299,
+    categoryName: 'T-Shirts',
+    image: 'https://images.unsplash.com/photo-1562157873-818bc0726f68?q=80&w=800',
+    isFeatured: false,
+    isTrending: false
+  },
+  {
+    name: 'Classic Striped Crewneck Tee',
+    description: 'Yarn-dyed cotton striped tee with standard fit and super-soft handfeel, a true wardrobe staple.',
+    price: 349,
+    categoryName: 'T-Shirts',
     image: 'https://images.unsplash.com/photo-1479064555552-3ef4979f8908?q=80&w=800',
     isFeatured: false,
     isTrending: false
   },
+
+  // Gym Wear (10 products)
   {
-    name: 'Classic Street Shorts',
-    description: 'Woven cotton shorts with an elastic waistband and relaxed fit.',
+    name: 'Compression Training Tee',
+    description: 'Moisture-wicking, highly supportive fit training top with flatlock anti-chafe stitching.',
+    price: 449,
+    categoryName: 'Gym Wear',
+    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=800',
+    isFeatured: true,
+    isTrending: true
+  },
+  {
+    name: 'Aero-Knit Runner Shorts',
+    description: 'Double-layer active sports shorts featuring an internal compression liner and quick-dry outer shell.',
     price: 499,
-    categoryName: 'Urban Elite',
+    categoryName: 'Gym Wear',
     image: 'https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=800',
+    isFeatured: true,
+    isTrending: false
+  },
+  {
+    name: 'Active Dry-Fit Tank Top',
+    description: 'High breathability lightweight training tank with dropped armholes for unrestricted movement.',
+    price: 349,
+    categoryName: 'Gym Wear',
+    image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800',
+    isFeatured: false,
+    isTrending: true
+  },
+  {
+    name: 'Fleece Sports Hoodie',
+    description: 'Warm, moisture-managing technical fleece pullover with ergonomic raglan sleeves and hood.',
+    price: 899,
+    categoryName: 'Gym Wear',
+    image: 'https://images.unsplash.com/photo-1543132220-4bf3de6e10ae?q=80&w=800',
     isFeatured: false,
     isTrending: false
   },
   {
-    name: 'Urban Puffer Utility Vest',
-    description: 'Insulated quilted zip-up vest with water-repellent shell.',
-    price: 1299,
-    categoryName: 'Urban Elite',
-    image: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?q=80&w=800',
+    name: 'Tech Fleece Training Joggers',
+    description: 'Sleek tapered fit tech fleece track pants with zippered utility pockets and elastic waist.',
+    price: 799,
+    categoryName: 'Gym Wear',
+    image: 'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=800',
+    isFeatured: true,
+    isTrending: false
+  },
+  {
+    name: 'Elite Performance Track Jacket',
+    description: 'Full-zip athletic track jacket with a high mock neck, side pockets, and breathable mesh inserts.',
+    price: 999,
+    categoryName: 'Gym Wear',
+    image: 'https://images.unsplash.com/photo-1483726234730-29b5314a04d1?q=80&w=800',
+    isFeatured: false,
+    isTrending: false
+  },
+  {
+    name: 'Thermal Workout Leggings',
+    description: 'High-stretch compression leggings designed to retain heat and support muscles during training.',
+    price: 599,
+    categoryName: 'Gym Wear',
+    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=800',
+    isFeatured: false,
+    isTrending: false
+  },
+  {
+    name: 'Ventilated Mesh Gym Shorts',
+    description: 'Classic loose-fit mesh athletic shorts with side ventilation slits and adjustable drawcord.',
+    price: 399,
+    categoryName: 'Gym Wear',
+    image: 'https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=800',
+    isFeatured: false,
+    isTrending: true
+  },
+  {
+    name: 'Windproof Hooded Running Jacket',
+    description: 'Ultra-light windproof running shell with reflective safety details and secure zip pockets.',
+    price: 1199,
+    categoryName: 'Gym Wear',
+    image: 'https://images.unsplash.com/photo-1548883354-7622d03aca27?q=80&w=800',
+    isFeatured: false,
+    isTrending: false
+  },
+  {
+    name: 'Ultra-Soft Recovery Joggers',
+    description: 'Super-soft modal fleece pants designed for rest, recovery, and warm-down stretches.',
+    price: 699,
+    categoryName: 'Gym Wear',
+    image: 'https://images.unsplash.com/photo-1551854838-212c50b4c184?q=80&w=800',
     isFeatured: false,
     isTrending: false
   }
@@ -520,11 +484,11 @@ const seedDatabase = async () => {
     console.log(`✓ Logistical Network Established (${createdAddresses.length} addresses).`);
 
     // 5. Seed Boutique Categories (The 4 Pillars)
-    const categorySeeds = [
-      { name: 'Minimalist Noir', description: 'The core aesthetic. Stripped back luxury.', image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=800' },
-      { name: 'Avant-Garde Edge', description: 'Architectural silhouettes and bold statements.', image: 'https://images.unsplash.com/photo-1543132220-4bf3de6e10ae?q=80&w=800' },
-      { name: 'Midnight Selection', description: 'Premium evening essentials for the modern elite.', image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800' },
-      { name: 'Urban Elite', description: 'Street-ready staples with a boutique finish.', image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800' }
+        const categorySeeds = [
+      { name: 'Pants', description: 'Tailored trousers, premium chinos, relaxed joggers, and durable utility pants.', image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=800' },
+      { name: 'Shirts', description: 'Oxford button-downs, premium linen shirts, and sleek evening attire.', image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?q=80&w=800' },
+      { name: 'T-Shirts', description: 'Organic cotton crewnecks, oversized streetwear tees, and modern knits.', image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=800' },
+      { name: 'Gym Wear', description: 'Moisture-wicking compression tees, running shorts, and technical training joggers.', image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=800' }
     ];
     const createdCats = await Category.bulkCreate(categorySeeds);
     console.log('✓ Boutique Collections Defined');
@@ -579,7 +543,7 @@ const seedDatabase = async () => {
     }
 
     await ProductImage.bulkCreate(productImages);
-    console.log(`✓ 44 Real, Trending Dresses seeded with unique images and prices (299-1299).`);
+    console.log(`✓ 40 Real, Trending products seeded with unique images and prices (249-1299).`);
 
     // 7. Seed Coupons
     const welcomeCoupon = await Coupon.create({
@@ -608,19 +572,19 @@ const seedDatabase = async () => {
     // 8. Seed Promotions (Active Campaign Banners)
     await Promotion.bulkCreate([
       { 
-        title: 'Minimalist Noir Campaign', 
-        subtitle: 'Stripped back luxury essentials', 
-        bannerImage: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=1200', 
+        title: 'Premium Pants Collection', 
+        subtitle: 'Tailored for ultimate comfort and fit', 
+        bannerImage: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1200', 
         targetLink: '/shop?category=' + createdCats[0].id,
         priority: 2,
         startDate: new Date(),
         endDate: new Date(Date.now() + 30 * 86400000)
       },
       { 
-        title: 'Midnight Collection Elite', 
-        subtitle: 'Sharp silhouettes for evening attire', 
-        bannerImage: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=1200', 
-        targetLink: '/shop?category=' + createdCats[2].id,
+        title: 'Elite Gym Wear Collection', 
+        subtitle: 'High performance training apparel', 
+        bannerImage: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1200', 
+        targetLink: '/shop?category=' + createdCats[3].id,
         priority: 1,
         startDate: new Date(),
         endDate: new Date(Date.now() + 30 * 86400000)

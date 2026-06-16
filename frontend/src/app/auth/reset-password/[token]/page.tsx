@@ -40,7 +40,15 @@ export default function ResetPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-background">
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="w-full max-w-md">
-        <Image src="/images/LOGO.png" alt="SouthZone" width={140} height={42} className="h-8 w-auto rounded mb-8" />
+        <div className="relative h-16 w-[240px] mb-8 -ml-4">
+          <Image
+            src="/images/Final_LOGO.JPG"
+            alt="SouthZone"
+            fill
+            sizes="240px"
+            className="object-contain object-left origin-left mix-blend-screen"
+          />
+        </div>
         <h1 className="text-3xl font-bold text-white">Reset Password</h1>
         <p className="mt-2 text-sm text-white/40">Enter your new secure password below.</p>
 
