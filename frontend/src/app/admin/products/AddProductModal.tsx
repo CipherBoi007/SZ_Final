@@ -41,6 +41,8 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, initialDat
     { size: 'M', color: '', price: '', stock: '', sku: '' },
   ]);
   
+  const [applyAll, setApplyAll] = useState({ color: '', price: '', stock: '' });
+  
   const [images, setImages] = useState<File[]>([]);
 
   useEffect(() => {
@@ -76,6 +78,17 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, initialDat
   }, [isOpen, initialData]);
 
   if (!isOpen) return null;
+
+  const handleApplyAll = () => {
+    if (!applyAll.color && !applyAll.price && !applyAll.stock) return;
+    setVariants(variants.map(v => ({
+      ...v,
+      color: applyAll.color || v.color,
+      price: applyAll.price || v.price,
+      stock: applyAll.stock || v.stock,
+    })));
+    toast.success('Values applied to all variants');
+  };
 
   const addVariant = () => {
     setVariants([...variants, { size: 'M', color: '', price: '', stock: '', sku: '' }]);
@@ -151,8 +164,17 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, initialDat
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setImages(Array.from(e.target.files));
+      const newFiles = Array.from(e.target.files);
+      setImages(prev => {
+        const combined = [...prev, ...newFiles];
+        if (combined.length > 5) toast.error('Maximum 5 images allowed');
+        return combined.slice(0, 5);
+      });
     }
+  };
+
+  const removeImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -213,6 +235,29 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, initialDat
               </button>
             </div>
             
+            {/* Apply to All Section */}
+            {variants.length > 1 && (
+              <div className="mb-4 p-4 rounded-xl bg-white/5 border border-dashed border-white/20">
+                <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+                  <div className="flex-1 space-y-1">
+                    <label className="text-[10px] font-semibold uppercase text-accent">Apply Color</label>
+                    <input value={applyAll.color} onChange={(e) => setApplyAll({ ...applyAll, color: e.target.value })} placeholder="e.g. Olive Green" className="w-full py-2 px-3 rounded-lg bg-black/20 border border-white/5 text-xs text-white placeholder:text-white/20 outline-none focus:border-accent/50" />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <label className="text-[10px] font-semibold uppercase text-accent">Apply Price</label>
+                    <input type="number" min="0" value={applyAll.price} onChange={(e) => setApplyAll({ ...applyAll, price: e.target.value })} placeholder="e.g. 799" className="w-full py-2 px-3 rounded-lg bg-black/20 border border-white/5 text-xs text-white placeholder:text-white/20 outline-none focus:border-accent/50" />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <label className="text-[10px] font-semibold uppercase text-accent">Apply Stock</label>
+                    <input type="number" min="0" value={applyAll.stock} onChange={(e) => setApplyAll({ ...applyAll, stock: e.target.value })} placeholder="e.g. 20" className="w-full py-2 px-3 rounded-lg bg-black/20 border border-white/5 text-xs text-white placeholder:text-white/20 outline-none focus:border-accent/50" />
+                  </div>
+                  <button type="button" onClick={handleApplyAll} className="w-full sm:w-auto px-4 py-2 bg-accent/20 hover:bg-accent hover:text-white text-accent rounded-lg text-xs font-bold uppercase tracking-wider transition-all border border-accent/30 shrink-0">
+                    Apply to All
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="space-y-3">
               {variants.map((variant, idx) => (
                 <div key={idx} className="flex flex-wrap gap-3 p-4 rounded-xl bg-white/5 border border-white/10 items-end">
@@ -261,9 +306,16 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, initialDat
                 <p className="text-xs text-emerald-400 mb-3">{images.length} files selected</p>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {images.map((file, i) => (
-                    <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-white/20">
+                    <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-white/20 group">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={URL.createObjectURL(file)} alt="Preview" className="w-full h-full object-cover" />
+                      <button 
+                        type="button" 
+                        onClick={() => removeImage(i)}
+                        className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-4 h-4 text-white" />
+                      </button>
                     </div>
                   ))}
                 </div>

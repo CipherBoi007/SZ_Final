@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Library, PlusCircle, PenLine, Trash2, CheckCircle2, X } from 'lucide-react';
+import { Library, PlusCircle, PenLine, Trash2, CheckCircle2, X, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { adminAPI } from '@/lib/api';
 
@@ -22,6 +22,7 @@ export default function AdminCategories() {
     description: '',
     image: '',
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     fetchCategories();
@@ -52,6 +53,7 @@ export default function AdminCategories() {
       setEditId(null);
       setFormData({ name: '', type: 'men', description: '', image: '' });
     }
+    setImageFile(null);
     setIsModalOpen(true);
   };
 
@@ -59,11 +61,22 @@ export default function AdminCategories() {
     e.preventDefault();
     setSaving(true);
     try {
+      const payload = new FormData();
+      payload.append('name', formData.name);
+      payload.append('type', formData.type);
+      payload.append('description', formData.description);
+      
+      if (imageFile) {
+        payload.append('image', imageFile);
+      } else if (formData.image) {
+        payload.append('image', formData.image);
+      }
+
       if (editId) {
-        await adminAPI.updateCategory(editId, formData);
+        await adminAPI.updateCategory(editId, payload);
         toast.success('Category updated successfully');
       } else {
-        await adminAPI.createCategory(formData);
+        await adminAPI.createCategory(payload);
         toast.success('Category created successfully');
       }
       setIsModalOpen(false);
@@ -162,14 +175,39 @@ export default function AdminCategories() {
                 <label className="text-xs font-semibold uppercase text-white/50">Parent Type</label>
                 <select value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} className="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:border-accent/50 outline-none [&>option]:bg-background">
                   <option value="men">Men</option>
-                  <option value="women">Women</option>
                   <option value="kids">Kids</option>
                 </select>
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase text-white/50">Image URL</label>
-                <input value={formData.image} onChange={(e) => setFormData({ ...formData, image: e.target.value })} placeholder="https://image-url.com/hero.jpg" className="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:border-accent/50 outline-none" />
+                <label className="text-xs font-semibold uppercase text-white/50">Category Image</label>
+                <div className="relative border border-white/10 border-dashed rounded-xl p-4 text-center hover:bg-white/5 transition-colors cursor-pointer" onClick={() => document.getElementById('category-image-upload')?.click()}>
+                  <input 
+                    id="category-image-upload"
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        setImageFile(e.target.files[0]);
+                      }
+                    }} 
+                  />
+                  {(imageFile || formData.image) ? (
+                    <div className="relative w-full h-32 rounded-lg overflow-hidden border border-white/10 group">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={imageFile ? URL.createObjectURL(imageFile) : formData.image} alt="Preview" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <p className="text-xs font-bold text-white uppercase tracking-wider">Change Image</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="py-6 flex flex-col items-center">
+                      <Upload className="w-8 h-8 text-white/20 mb-2" />
+                      <p className="text-xs text-white/50 font-medium">Click to upload category image</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-2">

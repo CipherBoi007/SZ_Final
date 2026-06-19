@@ -54,6 +54,14 @@ exports.getAllProducts = catchAsync(async (req, res, next) => {
     }
   }
 
+  // Handle 'isNew' tag dynamically to match getNewArrivals logic
+  if (queryOptions.where.isNew) {
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    queryOptions.where.createdAt = { [Op.gte]: threeMonthsAgo };
+    delete queryOptions.where.isNew;
+  }
+
   const variantFilter = {};
   if (queryOptions.where.price) {
     variantFilter.price = queryOptions.where.price;
@@ -190,7 +198,18 @@ exports.createProduct = catchAsync(async (req, res, next) => {
   const result = await sequelize.transaction(async (t) => {
     const product = await Product.create(req.body, { transaction: t });
     if (req.body.variants) {
-      await ProductVariant.bulkCreate(req.body.variants.map(v => ({ ...v, productId: product.id })), { transaction: t });
+      let variants = req.body.variants;
+      if (typeof variants === 'string') {
+        try { variants = JSON.parse(variants); } catch (e) { variants = []; }
+      }
+      if (Array.isArray(variants)) {
+        const cleanedVariants = variants.map(v => ({
+          ...v,
+          productId: product.id,
+          sku: v.sku && v.sku.trim() !== '' ? v.sku.trim() : null
+        }));
+        await ProductVariant.bulkCreate(cleanedVariants, { transaction: t });
+      }
     }
     return product;
   });
@@ -221,9 +240,33 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
   if (!product) return next(new AppError('Product not found', 404));
 
   await product.update(req.body);
+
+  if (req.files && req.files.length > 0) {
+    const existingImagesCount = await ProductImage.count({ where: { productId: product.id } });
+    
+    const uploadPromises = req.files.map(async (file, i) => {
+      const cloudinaryUrl = await imageService.uploadImage(file, 'products');
+      return {
+        productId: product.id,
+        url: cloudinaryUrl,
+        isPrimary: existingImagesCount === 0 && i === 0,
+        order: existingImagesCount + i,
+      };
+    });
+    
+    const images = await Promise.all(uploadPromises);
+    await ProductImage.bulkCreate(images);
+  }
+
   await cacheService.del(`product:${req.params.id}`);
   await cacheService.delByPattern('products:*');
-  res.status(200).json({ status: 'success', data: product });
+  
+  // Refetch the updated product with associations to return it
+  const updatedProduct = await Product.findByPk(req.params.id, {
+    include: [{ model: ProductImage, as: 'images', separate: true, order: [['order', 'ASC']] }]
+  });
+
+  res.status(200).json({ status: 'success', data: updatedProduct });
 });
 
 // @desc    Delete product

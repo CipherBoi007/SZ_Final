@@ -20,6 +20,7 @@ const whatsappRoutes = require('./routes/whatsappRoutes');
 const configRoutes = require('./routes/configRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const promotionRoutes = require('./routes/promotionRoutes');
+const lookbookRoutes = require('./routes/lookbookRoutes');
 
 const errorHandler = require('./middleware/errorHandler');
 const AppError = require('./utils/AppError');
@@ -138,6 +139,7 @@ app.use('/api/whatsapp', whatsappRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/promotions', promotionRoutes);
+app.use('/api/lookbook', lookbookRoutes);
 
 // M6: Health check with DB/Redis readiness
 app.get('/health', async (req, res) => {

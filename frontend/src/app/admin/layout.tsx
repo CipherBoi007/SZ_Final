@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, Package, ShoppingCart, Users, Tag, 
   ChevronLeft, Settings, CreditCard, Megaphone, Star, Monitor,
-  Menu, X
+  Menu, X, Image as ImageIcon
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 
@@ -19,6 +19,7 @@ const navItems = [
   { href: '/admin/categories', label: 'Categories', icon: Tag },
   { href: '/admin/customers', label: 'Customers', icon: Users },
   { href: '/admin/coupons', label: 'Coupons', icon: Tag },
+  { href: '/admin/lookbook', label: 'Lookbook', icon: ImageIcon },
   { href: '/admin/promotions', label: 'Promotions', icon: Megaphone },
   { href: '/admin/reviews', label: 'Reviews', icon: Star },
   { href: '/admin/settings', label: 'Settings', icon: Settings },

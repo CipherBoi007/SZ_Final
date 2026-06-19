@@ -23,9 +23,6 @@ const sequelize = new Sequelize(config.DB.NAME, config.DB.USER, config.DB.PASSWO
     acquire: 30000,
     idle: 10000,
   },
-  retry: {
-    max: 3,                       // Retry connection up to 3 times
-  },
 });
 
 module.exports = sequelize;

@@ -97,7 +97,7 @@ export default function ProductReviewsPage() {
             </div>
           </div>
           <div className="flex flex-col items-end">
-            <StarRating rating={product.rating || 4.2} count={reviews.length} />
+            <StarRating rating={product.rating || 0} count={reviews.length} />
             <p className="text-[9px] text-accent font-black uppercase tracking-widest mt-2">Overall Quality Score</p>
           </div>
         </div>

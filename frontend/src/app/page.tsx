@@ -278,14 +278,14 @@ function ProductGridSection({ title, subtitle, products, viewAllLink }: {
                         <span className="text-sm font-semibold text-white">₹{minD.toLocaleString()}</span>
                         {hasDiscount && <span className="text-[10px] text-white/30 line-through">₹{min.toLocaleString()}</span>}
                       </div>
-                      <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                        (product.rating || 4.5) >= 4 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                        (product.rating || 4.5) >= 3 ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
-                        (product.rating || 4.5) >= 2 ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' :
+                      <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold tracking-widest ${
+                        (product.rating || 0) >= 4 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                        (product.rating || 0) >= 3 ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
+                        (product.rating || 0) >= 2 ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' :
                         'bg-red-500/10 text-red-400 border border-red-500/20'
                       }`}>
-                        <Star className="w-2.5 h-2.5 fill-current" />
-                        <span>{product.rating || '4.5'}</span>
+                        <Star className="w-3 h-3 fill-current" />
+                        <span>{product.rating || '0.0'}</span>
                       </div>
                     </div>
                   </Link>
@@ -338,27 +338,34 @@ function OffersSection({ promotions }: { promotions: any[] }) {
 }
 
 /* ─── Lookbook ─────────────────────────────────────────── */
-function LookbookSection({ sectionConfig }: { sectionConfig: any }) {
-  const images = sectionConfig?.config?.images || ['/images/hero4.jpg', '/images/hero5.jpg', '/images/hero6.jpg'];
+function LookbookSection({ sectionConfig, images }: { sectionConfig: any, images: any[] }) {
+  if (!images || images.length === 0) return null;
   return (
     <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6 }} className="text-center mb-16">
-        <span className="font-serif text-accent text-xs font-semibold tracking-[0.2em] uppercase">Lookbook</span>
-        <h2 className="font-serif mt-3 text-3xl sm:text-4xl font-bold gradient-text">{sectionConfig?.title || 'Style Inspiration'}</h2>
-        <p className="mt-3 text-white/40 max-w-md mx-auto">{sectionConfig?.subtitle || 'Get inspired by our latest campaign looks'}</p>
+      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-100px' }} transition={{ duration: 0.6 }} className="flex items-end justify-between mb-16">
+        <div className="text-left">
+          <span className="font-serif text-accent text-xs font-semibold tracking-[0.2em] uppercase">Lookbook</span>
+          <h2 className="font-serif mt-3 text-3xl sm:text-4xl font-bold gradient-text">{sectionConfig?.title || 'Style Inspiration'}</h2>
+          <p className="mt-3 text-white/40 max-w-md">{sectionConfig?.subtitle || 'Get inspired by our latest campaign looks'}</p>
+        </div>
+        <Link href="/lookbook" className="hidden sm:flex items-center gap-1 text-sm font-semibold text-white/50 hover:text-accent transition-all group">
+          Explore All <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        </Link>
       </motion.div>
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        {images.map((img: string, i: number) => (
+        {images.slice(0, 3).map((img: any, i: number) => (
           <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.1 }} className="relative rounded-2xl overflow-hidden group aspect-[4/5] sm:aspect-[3/4]">
             <Image 
-              src={img} 
+              src={img.imageUrl} 
               alt={`Lookbook ${i + 1}`} 
               fill 
               sizes="(max-width: 768px) 50vw, 33vw"
               className="object-cover transition-transform duration-700 group-hover:scale-105" 
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-500 flex items-center justify-center">
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-6 py-2 rounded-full glass text-sm text-white font-medium">View Look</span>
+              <Link href="/lookbook" className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-6 py-2 rounded-full glass text-sm text-white font-medium">
+                View Look
+              </Link>
             </div>
           </motion.div>
         ))}
@@ -371,8 +378,9 @@ function LookbookSection({ sectionConfig }: { sectionConfig: any }) {
 const sectionComponents: Record<string, React.ComponentType<any>> = {
   hero: HeroSection,
   categories: CategoriesSection,
-  offers: OffersSection,
+  products: ProductGridSection,
   lookbook: LookbookSection,
+  offers: OffersSection,
 };
 
 /* ─── Page ─────────────────────────────────────────────── */
@@ -383,26 +391,29 @@ export default function Home() {
   const [trending, setTrending] = useState<any[]>([]);
   const [topRated, setTopRated] = useState<any[]>([]);
   const [promotions, setPromotions] = useState<any[]>([]);
+  const [lookbookImages, setLookbookImages] = useState<any[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [featRes, newRes, trendRes, topRes, catRes, promoRes] = await Promise.allSettled([
+        const [featRes, newRes, trendRes, topRes, catRes, promoRes, lookRes] = await Promise.allSettled([
           productAPI.getFeatured(),
           productAPI.getNewArrivals(),
           productAPI.getTrending(),
           productAPI.getTopRated(),
           configAPI.getCategories(),
           configAPI.getPromotions(),
+          configAPI.getLookbook()
         ]);
         
+        if (catRes.status === 'fulfilled') setCategories(catRes.value.data?.data || []);
         if (featRes.status === 'fulfilled') setFeatured(featRes.value.data?.data || []);
         if (newRes.status === 'fulfilled') setNewArrivals(newRes.value.data?.data || []);
         if (trendRes.status === 'fulfilled') setTrending(trendRes.value.data?.data || []);
         if (topRes.status === 'fulfilled') setTopRated(topRes.value.data?.data || []);
-        if (catRes.status === 'fulfilled') setCategories(catRes.value.data?.data || []);
         if (promoRes.status === 'fulfilled') setPromotions(promoRes.value.data?.data || []);
+        if (lookRes.status === 'fulfilled') setLookbookImages(lookRes.value.data?.data || []);
       } catch { /* ignore */ }
       setLoaded(true);
     }
@@ -451,7 +462,7 @@ export default function Home() {
       />
 
       <OffersSection promotions={promotions} />
-      <LookbookSection sectionConfig={{ title: 'Style Inspiration' }} />
+      <LookbookSection sectionConfig={{ title: 'Style Inspiration' }} images={lookbookImages} />
 
       {/* ─── WhatsApp Community Section ─── */}
       <section className="py-20 md:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">

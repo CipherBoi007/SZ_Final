@@ -61,37 +61,38 @@ module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
+  let error = { ...err };
+  error.message = err.message;
+  error.name = err.name;
+  error.stack = err.stack;
+
+  // Sequelize Validation Error
+  if (err.name === 'SequelizeValidationError') {
+    error = handleSequelizeValidationError(err);
+  }
+
+  // Sequelize Unique Constraint Error
+  if (err.name === 'SequelizeUniqueConstraintError') {
+    error = handleSequelizeUniqueConstraintError(err);
+  }
+
+  // Sequelize Foreign Key Constraint Error
+  if (err.name === 'SequelizeForeignKeyConstraintError') {
+    error = handleSequelizeForeignKeyConstraintError(err);
+  }
+
+  // Sequelize Database Error (e.g., invalid UUID)
+  if (err.name === 'SequelizeDatabaseError') {
+    error = handleSequelizeDatabaseError(err);
+  }
+
+  // JWT errors
+  if (err.name === 'JsonWebTokenError') error = handleJWTError();
+  if (err.name === 'TokenExpiredError') error = handleJWTExpiredError();
+
   if (config.NODE_ENV === 'development') {
-    sendErrorDev(err, res);
+    sendErrorDev(error, res);
   } else {
-    let error = { ...err };
-    error.message = err.message;
-    error.name = err.name;
-
-    // Sequelize Validation Error
-    if (err.name === 'SequelizeValidationError') {
-      error = handleSequelizeValidationError(err);
-    }
-
-    // Sequelize Unique Constraint Error
-    if (err.name === 'SequelizeUniqueConstraintError') {
-      error = handleSequelizeUniqueConstraintError(err);
-    }
-
-    // Sequelize Foreign Key Constraint Error
-    if (err.name === 'SequelizeForeignKeyConstraintError') {
-      error = handleSequelizeForeignKeyConstraintError(err);
-    }
-
-    // Sequelize Database Error (e.g., invalid UUID)
-    if (err.name === 'SequelizeDatabaseError') {
-      error = handleSequelizeDatabaseError(err);
-    }
-
-    // JWT errors
-    if (err.name === 'JsonWebTokenError') error = handleJWTError();
-    if (err.name === 'TokenExpiredError') error = handleJWTExpiredError();
-
     sendErrorProd(error, res);
   }
 };

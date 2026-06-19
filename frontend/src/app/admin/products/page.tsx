@@ -12,21 +12,38 @@ import AddProductModal from './AddProductModal';
 
 export default function AdminProducts() {
   const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editProduct, setEditProduct] = useState<any>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
     fetchProducts(page);
-  }, [page]);
+  }, [page, selectedCategory]);
+
+  async function fetchCategories() {
+    try {
+      const { data } = await adminAPI.getCategories();
+      setCategories(data.data || []);
+    } catch {
+      console.error('Failed to load categories');
+    }
+  }
 
   async function fetchProducts(currentPage: number) {
     setLoading(true);
     try {
-      const { data } = await productAPI.getAll({ page: currentPage, limit: 10 });
+      const params: any = { page: currentPage, limit: 10 };
+      if (selectedCategory) params.categoryId = selectedCategory;
+      const { data } = await productAPI.getAll(params);
       setProducts(data.data?.products || []);
       setTotalPages(data.data?.pagination?.pages || 1);
     } catch { 
@@ -59,14 +76,26 @@ export default function AdminProducts() {
         </button>
       </div>
 
-      <div className="relative mb-8 group max-w-xl">
-        <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-accent transition-colors" />
-        <input 
-          value={search} 
-          onChange={(e) => setSearch(e.target.value)} 
-          placeholder="Search by Name or Category..."
-          className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 pl-14 pr-6 text-sm text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner" 
-        />
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 w-full">
+        <div className="relative w-full sm:max-w-xl group">
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-accent transition-colors" />
+          <input 
+            value={search} 
+            onChange={(e) => setSearch(e.target.value)} 
+            placeholder="Search by Name or Category..."
+            className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 pl-14 pr-6 text-sm text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner" 
+          />
+        </div>
+        <select 
+          value={selectedCategory}
+          onChange={(e) => { setSelectedCategory(e.target.value); setPage(1); }}
+          className="w-full md:w-64 py-4 px-6 rounded-2xl bg-white/5 border border-white/5 text-sm text-white focus:border-accent/30 outline-none transition-all [&>option]:bg-background appearance-none cursor-pointer"
+        >
+          <option value="">All Categories</option>
+          {categories.map(cat => (
+            <option key={cat.id} value={cat.id}>{cat.name}</option>
+          ))}
+        </select>
       </div>
 
       {loading ? (

@@ -12,6 +12,7 @@ const Wishlist = require('./Wishlist');
 const Address = require('./Address');
 const ProductVariant = require('./ProductVariant');
 const Promotion = require('./Promotion');
+const Lookbook = require('./Lookbook');
 
 // User associations
 User.hasOne(Cart, { foreignKey: 'userId' });
@@ -86,4 +87,5 @@ module.exports = {
   Address,
   ProductVariant,
   Promotion,
+  Lookbook,
 };

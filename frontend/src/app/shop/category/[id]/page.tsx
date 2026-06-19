@@ -90,20 +90,26 @@ export default function CategoryPage() {
                 const discount = product.discount || 0;
                 const minD = getDiscountedPrice(min, discount);
                 const maxD = getDiscountedPrice(max, discount);
+                const hasDiscount = discount > 0;
                 return (
                   <motion.div key={product.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
                     <Link href={`/shop/${product.id}`} className="group block rounded-2xl overflow-hidden glass glass-hover">
                       <div className="relative aspect-[3/4] overflow-hidden">
                         <Image src={imgSrc} alt={product.name} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
-                        {discount > 0 && <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-accent text-white">{discount}% Off</span>}
+                        {hasDiscount && <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-accent text-white">{discount}% Off</span>}
                       </div>
                       <div className="p-3 sm:p-4">
                         <h3 className="text-sm font-medium text-white/80 group-hover:text-white transition-colors line-clamp-1">{product.name}</h3>
-                        <div className="mt-1.5">
-                          {minD === maxD
-                            ? <span className="text-sm font-bold text-white">₹{minD.toLocaleString()}</span>
-                            : <span className="text-sm font-bold text-white">₹{minD.toLocaleString()} – ₹{maxD.toLocaleString()}</span>
+                        <div className="flex items-center gap-2 mt-1.5">
+                          {minD === maxD 
+                            ? <span className="text-sm font-bold text-accent tracking-tighter">₹{minD.toLocaleString()}</span>
+                            : <span className="text-sm font-bold text-accent tracking-tighter">₹{minD.toLocaleString()} – ₹{maxD.toLocaleString()}</span>
                           }
+                          {hasDiscount && (
+                            <span className="text-[10px] text-white/30 line-through tracking-tighter">
+                              ₹{min.toLocaleString()}
+                            </span>
+                          )}
                         </div>
                         <div className="mt-1.5 flex items-center gap-1">
                           {[...Array(5)].map((_, j) => <Star key={j} className={`w-2.5 h-2.5 ${j < Math.floor(product.rating || 0) ? 'fill-accent text-accent' : 'text-white/10'}`} />)}

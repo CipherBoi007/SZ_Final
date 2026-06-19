@@ -234,6 +234,7 @@ export const paymentAPI = {
 export const configAPI = {
   getCategories: () => api.get('/config/categories'),
   getPromotions: () => api.get('/promotions/active'),
+  getLookbook: () => api.get('/lookbook'),
 };
 
 // ─── Admin ───────────────────────────────────────
@@ -264,8 +265,10 @@ export const adminAPI = {
   updateStock: (id: string, stock: number) => api.patch(`/products/${id}/stock`, { stock }),
   // Categories
   getCategories: () => api.get('/admin/categories'),
-  createCategory: (data: Record<string, string>) => api.post('/admin/categories', data),
-  updateCategory: (id: string, data: Record<string, string>) => api.patch(`/admin/categories/${id}`, data),
+  createCategory: (data: FormData | Record<string, string>) => 
+    api.post('/admin/categories', data, data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {}),
+  updateCategory: (id: string, data: FormData | Record<string, string>) => 
+    api.patch(`/admin/categories/${id}`, data, data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {}),
   deleteCategory: (id: string) => api.delete(`/admin/categories/${id}`),
   // Coupons
   getCoupons: () => api.get('/coupons'),
@@ -275,9 +278,17 @@ export const adminAPI = {
 
   // Promotions
   getPromotions: () => api.get('/promotions'),
-  createPromotion: (data: Record<string, unknown>) => api.post('/promotions', data),
-  updatePromotion: (id: string, data: Record<string, unknown>) => api.patch(`/promotions/${id}`, data),
+  createPromotion: (data: FormData | Record<string, unknown>) => 
+    api.post('/promotions', data, data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {}),
+  updatePromotion: (id: string, data: FormData | Record<string, unknown>) => 
+    api.patch(`/promotions/${id}`, data, data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {}),
   deletePromotion: (id: string) => api.delete(`/promotions/${id}`),
+
+  // Lookbook
+  getLookbook: () => api.get('/lookbook'),
+  addLookbookImages: (data: FormData) => api.post('/lookbook', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  deleteLookbookImage: (id: string) => api.delete(`/lookbook/${id}`),
+  reorderLookbook: (orderings: any[]) => api.patch('/lookbook/reorder', { orderings }),
 
   // Reviews
   getAllReviews: () => api.get('/products/reviews/all'),

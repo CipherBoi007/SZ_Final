@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
 const { protect, restrictTo } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 
 router.use(protect, restrictTo('admin'));
 
@@ -15,7 +16,6 @@ router.post('/users/:id/deactivate', adminController.deactivateUser);
 // Financial Ledger
 router.get('/transactions', adminController.getTransactions);
 
-
 // Orders management
 router.get('/orders', adminController.getAllOrders);
 router.get('/orders/:id', adminController.getOrder);
@@ -25,8 +25,8 @@ router.post('/orders/:id/refund', adminController.processRefund);
 
 // Categories management
 router.get('/categories', adminController.getAllCategories);
-router.post('/categories', adminController.createCategory);
-router.patch('/categories/:id', adminController.updateCategory);
+router.post('/categories', upload.single('image'), adminController.createCategory);
+router.patch('/categories/:id', upload.single('image'), adminController.updateCategory);
 router.delete('/categories/:id', adminController.deleteCategory);
 
 module.exports = router;

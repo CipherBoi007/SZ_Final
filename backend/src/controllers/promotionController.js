@@ -2,6 +2,7 @@ const { Promotion } = require('../models');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 const { Op } = require('sequelize');
+const imageService = require('../services/imageService');
 
 exports.getActivePromotions = catchAsync(async (req, res, next) => {
   const now = new Date();
@@ -9,14 +10,18 @@ exports.getActivePromotions = catchAsync(async (req, res, next) => {
   const promotions = await Promotion.findAll({
     where: {
       isActive: true,
-      [Op.or]: [
+      [Op.and]: [
         {
-          startDate: { [Op.lte]: now },
-          endDate: { [Op.gte]: now }
+          [Op.or]: [
+            { startDate: null },
+            { startDate: { [Op.lte]: now } }
+          ]
         },
         {
-          startDate: null,
-          endDate: null
+          [Op.or]: [
+            { endDate: null },
+            { endDate: { [Op.gte]: now } }
+          ]
         }
       ]
     },
@@ -40,7 +45,13 @@ exports.getAllPromotions = catchAsync(async (req, res) => {
 });
 
 exports.createPromotion = catchAsync(async (req, res) => {
-  const promotion = await Promotion.create(req.body);
+  const data = { ...req.body };
+  if (data.startDate === '') data.startDate = null;
+  if (data.endDate === '') data.endDate = null;
+  if (req.file) {
+    data.bannerImage = await imageService.uploadImage(req.file, 'promotions');
+  }
+  const promotion = await Promotion.create(data);
   res.status(201).json({ status: 'success', data: promotion });
 });
 
@@ -48,7 +59,15 @@ exports.updatePromotion = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const promotion = await Promotion.findByPk(id);
   if (!promotion) return next(new AppError('Promotion not found', 404));
-  await promotion.update(req.body);
+  
+  const data = { ...req.body };
+  if (data.startDate === '') data.startDate = null;
+  if (data.endDate === '') data.endDate = null;
+  if (req.file) {
+    data.bannerImage = await imageService.uploadImage(req.file, 'promotions');
+  }
+  
+  await promotion.update(data);
   res.status(200).json({ status: 'success', data: promotion });
 });
 

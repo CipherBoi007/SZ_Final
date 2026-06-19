@@ -16,7 +16,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { useAuthStore } from '@/store/authStore';
 import { getDiscountedPrice } from '@/types';
-import { formatDeliveryDate } from '@/lib/utils';
+import { formatDeliveryDate, getColorCode } from '@/lib/utils';
 import WishlistButton from '@/components/WishlistButton';
 
 /* ─── Shared Components ────────────────────────────────── */
@@ -68,7 +68,7 @@ const MiniProductCard = ({ product }: { product: any }) => {
         <h4 className="text-[11px] font-medium text-white/90 line-clamp-1 uppercase tracking-wide">{product.name}</h4>
         <div className="flex items-center justify-between mt-2">
           <span className="text-sm font-semibold text-accent tracking-tighter">₹{discounted.toLocaleString()}</span>
-          <StarRating rating={product.rating || 4.0} />
+          <StarRating rating={product.rating || 0} />
         </div>
       </div>
     </div>
@@ -247,7 +247,7 @@ export default function ProductDetail() {
             
             <div className="flex items-center gap-8 mb-8">
               <Link href={`/shop/${product.id}/reviews`} className="group/rating flex items-center gap-6 hover:opacity-80 transition-all">
-                <StarRating rating={product.rating || 4.2} count={product.numReviews} />
+                <StarRating rating={product.rating || 0} count={product.numReviews} />
               </Link>
               <button className="text-[11px] font-black text-white/30 hover:text-white uppercase tracking-[0.4em] transition-all">Share Piece</button>
             </div>
@@ -303,7 +303,7 @@ export default function ProductDetail() {
                   <div className="flex gap-4">
                     {colorsForSelectedSize.map((color: string) => (
                       <button key={color} onClick={() => setSelectedColor(color)} className={`w-10 h-10 rounded-full transition-all border-2 ${selectedColor === color ? 'border-accent p-1' : 'border-white/5 hover:border-white/20'}`}>
-                        <div className="w-full h-full rounded-full shadow-inner" style={{ backgroundColor: color.toLowerCase() }} />
+                        <div className="w-full h-full rounded-full shadow-inner" style={{ backgroundColor: getColorCode(color) }} />
                       </button>
                     ))}
                   </div>
@@ -340,7 +340,7 @@ export default function ProductDetail() {
             <div className="flex items-center justify-between mb-12">
               <div>
                 <h2 className="text-3xl font-serif font-black text-white uppercase tracking-tight mb-2">Social Proof</h2>
-                <StarRating rating={product.rating || 4.2} count={reviews.length} />
+                <StarRating rating={product.rating || 0} count={reviews.length} />
               </div>
               {reviews.length > 2 && (
                 <Link href={`/shop/${product.id}/reviews`} className="px-8 py-3.5 rounded-full border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all flex items-center gap-3">

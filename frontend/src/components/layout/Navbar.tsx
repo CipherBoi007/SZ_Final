@@ -226,7 +226,7 @@ export default function Navbar() {
             {/* Mobile hamburger */}
             <button
               onClick={() => setMobileOpen(true)}
-              className="lg:hidden p-2 text-white/70 hover:text-white transition-colors"
+              className="lg:hidden p-2 mt-1.5 text-white/70 hover:text-white transition-colors"
               aria-label="Open menu"
             >
               <Menu className="w-6 h-6" />
@@ -234,12 +234,12 @@ export default function Navbar() {
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 shrink-0 lg:-ml-4 -ml-2">
-              <div className="relative h-12 w-[180px] lg:h-16 lg:w-[240px]">
+              <div className="relative h-9 w-[130px] lg:h-16 lg:w-[240px]">
                 <Image
                   src="/images/Final_LOGO.JPG"
                   alt="SouthZone"
                   fill
-                  sizes="(max-width: 1024px) 180px, 240px"
+                  sizes="(max-width: 1024px) 130px, 240px"
                   className="object-contain object-left origin-left mix-blend-screen"
                   priority
                 />
@@ -250,7 +250,7 @@ export default function Navbar() {
             <div className="hidden lg:block flex-1" />
 
             {/* Right icons */}
-            <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 mt-1.5 lg:mt-0">
               <Link
                 href="/shop"
                 className="p-2 sm:p-2.5 text-white/70 hover:text-white transition-colors rounded-full hover:bg-white/5"
@@ -460,12 +460,12 @@ export default function Navbar() {
               className="fixed top-0 left-0 z-50 h-full w-80 bg-surface border-r border-white/5 p-0 flex flex-col shadow-2xl"
             >
               <div className="flex items-center justify-between p-6 border-b border-white/5">
-                <div className="relative h-12 w-[180px] -ml-2">
+                <div className="relative h-9 w-[130px] -ml-2">
                   <Image
                     src="/images/Final_LOGO.JPG"
                     alt="SouthZone"
                     fill
-                    sizes="180px"
+                    sizes="130px"
                     className="object-contain object-left origin-left mix-blend-screen"
                   />
                 </div>

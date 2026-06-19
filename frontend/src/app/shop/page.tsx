@@ -158,11 +158,18 @@ const ProductCard = ({ product }: { product: any }) => {
         <div className="mt-auto pt-3 sm:pt-4 border-t border-white/5">
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-sm sm:text-base font-semibold text-accent tracking-tighter leading-none">
-                ₹{minDiscounted.toLocaleString()}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm sm:text-base font-semibold text-accent tracking-tighter leading-none">
+                  ₹{minDiscounted.toLocaleString()}
+                </span>
+                {hasDiscount && (
+                  <span className="text-[10px] text-white/30 line-through tracking-tighter">
+                    ₹{min.toLocaleString()}
+                  </span>
+                )}
+              </div>
             </div>
-            <StarRating rating={product.rating || 4.2} />
+            <StarRating rating={product.rating || 0} />
           </div>
         </div>
       </div>
@@ -515,8 +522,8 @@ function ShopContent() {
                 className="space-y-4 sm:space-y-6"
               >
                 <DiscoverySection title="Most Liked" products={topRated} icon={Heart} onExplore={() => setSortBy('Rating')} />
-                <DiscoverySection title="Trending Now" products={trending} icon={TrendingUp} onExplore={() => toggleTag('Trending')} />
-                <DiscoverySection title="New Arrivals" products={newArrivals} icon={Sparkles} onExplore={() => toggleTag('New Drops')} />
+                <DiscoverySection title="Trending Now" products={trending} icon={TrendingUp} onExplore={() => router.push('/shop/trending')} />
+                <DiscoverySection title="New Arrivals" products={newArrivals} icon={Sparkles} onExplore={() => router.push('/shop/new-arrivals')} />
                 
                 {categorySections.map((section) => (
                   <DiscoverySection 

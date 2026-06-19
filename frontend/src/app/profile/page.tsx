@@ -187,7 +187,7 @@ function ProfileContent() {
   const handleLogout = () => { logout(); router.push('/'); };
 
   if (loading) return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-black">
+    <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-background">
       <div className="w-12 h-12 border-2 border-accent border-t-transparent rounded-full animate-spin" />
       <p className="text-[10px] text-white/20 uppercase tracking-[0.6em]">Authorizing Access</p>
     </div>
@@ -196,7 +196,7 @@ function ProfileContent() {
   const activeOrdersCount = orders.filter(o => o.status !== 'Delivered' && o.status !== 'Cancelled').length;
 
   return (
-    <div className="min-h-screen bg-black pt-24 lg:pt-32 pb-32 overflow-hidden">
+    <div className="min-h-screen bg-background pt-24 lg:pt-32 pb-32 overflow-hidden">
       {/* Visual Ambient Atmosphere */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-accent/5 blur-[150px] rounded-full" />
@@ -221,7 +221,7 @@ function ProfileContent() {
               </div>
               <div>
                 <p className="text-[10px] font-black text-accent uppercase tracking-[0.5em] mb-2">Member • Platinum Tier</p>
-                <h1 className="text-4xl lg:text-5xl font-serif font-black text-white uppercase tracking-tight">{name}</h1>
+                <h1 className="text-4xl lg:text-5xl font-serif font-black text-white uppercase tracking-tight text-glow">{name}</h1>
               </div>
             </motion.div>
 
@@ -253,11 +253,11 @@ function ProfileContent() {
                   <button 
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.4em] transition-all ${
-                      activeTab === tab.id ? 'bg-accent text-white glow-red shadow-2xl' : 'text-white/20 hover:text-white hover:bg-white/5'
+                    className={`w-full flex items-center gap-4 px-6 py-4 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
+                      activeTab === tab.id ? 'bg-accent/10 text-accent shadow-[0_0_20px_rgba(220,20,60,0.05)]' : 'text-white/30 hover:text-white hover:bg-white/5'
                     }`}
                   >
-                    <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? 'fill-white/20' : ''}`} /> {tab.label}
+                    <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? 'text-accent' : ''}`} /> {tab.label}
                   </button>
                 ))}
               </div>
@@ -332,7 +332,7 @@ function ProfileContent() {
                         </div>
                         {isEditing && (
                           <div className="md:col-span-2 flex justify-end">
-                            <button type="submit" disabled={saving} className="px-12 py-5 rounded-2xl bg-white text-black text-[10px] font-black uppercase tracking-[0.3em] hover:bg-accent hover:text-white transition-all shadow-2xl glow-red-hover">
+                            <button type="submit" disabled={saving} className="px-10 py-4 rounded-2xl bg-accent text-white text-[11px] font-black uppercase tracking-widest hover:bg-accent-hover transition-all shadow-2xl glow-red">
                               {saving ? 'Syncing...' : 'Save Profile'}
                             </button>
                           </div>
@@ -408,7 +408,7 @@ function ProfileContent() {
                       <div className="py-32 text-center border-2 border-dashed border-white/5 rounded-3xl">
                         <ShoppingBag className="w-12 h-12 text-white/5 mx-auto mb-6" />
                         <p className="text-[11px] text-white/20 uppercase tracking-[0.6em] font-black">Your archive is empty</p>
-                        <Link href="/shop" className="mt-8 inline-block px-10 py-4 rounded-full bg-white text-black text-[10px] font-black uppercase tracking-[0.4em] hover:bg-accent hover:text-white transition-all">Enter Showroom</Link>
+                        <Link href="/shop" className="mt-8 inline-block px-10 py-4 rounded-2xl bg-accent text-white text-[11px] font-black uppercase tracking-widest hover:bg-accent-hover transition-all shadow-2xl glow-red">Enter Showroom</Link>
                       </div>
                     )}
                   </div>
@@ -490,7 +490,7 @@ function ProfileContent() {
                               <input value={addrForm.landmark} onChange={(e) => setAddrForm({ ...addrForm, landmark: e.target.value })} placeholder="E.g. Near Sovereign Tower (Optional)..." className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 px-5 text-xs text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner tracking-wide font-semibold" />
                             </div>
 
-                            <button type="submit" disabled={saving} className="px-12 py-5 rounded-2xl bg-white text-black text-[10px] font-black uppercase tracking-[0.3em] hover:bg-accent hover:text-white transition-all shadow-2xl glow-red-hover">
+                            <button type="submit" disabled={saving} className="px-12 py-5 rounded-2xl bg-accent text-white text-[11px] font-black uppercase tracking-widest hover:bg-accent-hover transition-all shadow-2xl glow-red">
                               {saving ? 'Syncing...' : (editingId ? 'Update Address' : 'Save Address')}
                             </button>
                           </form>
@@ -546,7 +546,7 @@ function ProfileContent() {
                         <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">New Password</label>
                         <input type="password" placeholder="••••••••••••" className="w-full rounded-2xl bg-white/5 border border-white/5 py-4 px-5 text-xs text-white placeholder:text-white/10 outline-none focus:border-accent/30 transition-all shadow-inner tracking-widest font-semibold" />
                       </div>
-                      <button className="w-full py-5 rounded-2xl bg-white text-black text-[11px] font-black uppercase tracking-[0.3em] hover:bg-accent hover:text-white transition-all shadow-2xl glow-red-hover">Update Password</button>
+                      <button className="w-full py-5 rounded-2xl bg-accent text-white text-[11px] font-black uppercase tracking-widest hover:bg-accent-hover transition-all shadow-2xl glow-red">Update Password</button>
                     </form>
                   </div>
                 </motion.div>
@@ -562,7 +562,7 @@ function ProfileContent() {
 export default function ProfilePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-black">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-background">
         <div className="w-12 h-12 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         <p className="text-[10px] text-white/20 uppercase tracking-[0.6em]">Authorizing Access</p>
       </div>

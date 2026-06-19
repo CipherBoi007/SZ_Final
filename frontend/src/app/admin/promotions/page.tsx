@@ -20,6 +20,8 @@ export default function AdminPromotions() {
   
   // Form State
   const [editId, setEditId] = useState<string | null>(null);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     subtitle: '',
@@ -33,6 +35,7 @@ export default function AdminPromotions() {
 
   useEffect(() => {
     fetchPromotions();
+    adminAPI.getCategories().then((res) => setCategories(res.data?.data || [])).catch(() => {});
   }, []);
 
   async function fetchPromotions() {
@@ -72,6 +75,7 @@ export default function AdminPromotions() {
         isActive: true 
       });
     }
+    setImageFile(null);
     setIsModalOpen(true);
   };
 
@@ -79,11 +83,21 @@ export default function AdminPromotions() {
     e.preventDefault();
     setSaving(true);
     try {
+      const form = new FormData();
+      form.append('title', formData.title);
+      form.append('subtitle', formData.subtitle);
+      form.append('targetLink', formData.targetLink);
+      form.append('startDate', formData.startDate);
+      form.append('endDate', formData.endDate);
+      form.append('priority', formData.priority.toString());
+      form.append('isActive', formData.isActive.toString());
+      if (imageFile) form.append('image', imageFile);
+
       if (editId) {
-        await adminAPI.updatePromotion(editId, formData);
+        await adminAPI.updatePromotion(editId, form as any);
         toast.success('Promotion updated');
       } else {
-        await adminAPI.createPromotion(formData);
+        await adminAPI.createPromotion(form as any);
         toast.success('Promotion created');
       }
       setIsModalOpen(false);
@@ -235,17 +249,24 @@ export default function AdminPromotions() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-white/20 tracking-widest">Banner Image URL</label>
+                <label className="text-[10px] font-black uppercase text-white/20 tracking-widest">Banner Image</label>
                 <div className="relative group">
-                  <ImageIcon className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-white/10 group-focus-within:text-accent transition-colors" />
-                  <input value={formData.bannerImage} onChange={(e) => setFormData({ ...formData, bannerImage: e.target.value })} required className="w-full py-4 pl-14 pr-6 rounded-2xl bg-white/5 border border-white/5 text-sm text-white focus:border-accent/30 outline-none transition-all" placeholder="https://image-url.com/banner.jpg" />
+                  <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} className="w-full py-4 pl-6 pr-6 rounded-2xl bg-white/5 border border-white/5 text-sm text-white focus:border-accent/30 outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-accent/10 file:text-accent hover:file:bg-accent/20 cursor-pointer" />
+                  {formData.bannerImage && !imageFile && <p className="text-xs text-white/50 mt-2 ml-2">Current: {formData.bannerImage}</p>}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase text-white/20 tracking-widest">Target Link</label>
-                  <input value={formData.targetLink} onChange={(e) => setFormData({ ...formData, targetLink: e.target.value })} className="w-full py-4 px-6 rounded-2xl bg-white/5 border border-white/5 text-sm font-mono text-white focus:border-accent/30 outline-none transition-all" placeholder="/shop" />
+                  <select value={formData.targetLink} onChange={(e) => setFormData({ ...formData, targetLink: e.target.value })} className="w-full py-4 px-6 rounded-2xl bg-[#0f0f0f] border border-white/5 text-sm text-white focus:border-accent/30 outline-none transition-all">
+                    <option value="/shop">All Shop</option>
+                    <option value="/shop/new-arrivals">New Arrivals</option>
+                    <option value="/shop/trending">Trending Now</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={`/shop?category=${cat.id}`}>Category: {cat.name}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase text-white/20 tracking-widest">Priority Weight</label>
