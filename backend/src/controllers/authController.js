@@ -168,7 +168,13 @@ exports.googleAuthCallback = catchAsync(async (req, res, next) => {
   });
 
   // Redirect to frontend with token
-  const redirectURL = `${config.FRONTEND_URL}/auth/google-callback?token=${token}`;
+  const stateURL = req.query.state;
+  let frontendURL = config.FRONTEND_URL;
+  if (stateURL && (stateURL.startsWith('http://') || stateURL.startsWith('https://'))) {
+    frontendURL = stateURL;
+  }
+  
+  const redirectURL = `${frontendURL}/auth/google-callback?token=${token}`;
   res.redirect(redirectURL);
 });
 

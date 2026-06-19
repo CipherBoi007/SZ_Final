@@ -27,7 +27,13 @@ router.post('/verify-otp', authLimiter, authController.verifyOTP);
 router.patch('/update-password', protect, validate(passwordValidation), authController.updatePassword);
 
 // Google OAuth
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google', (req, res, next) => {
+  const redirect = req.query.redirect || '';
+  passport.authenticate('google', { 
+    scope: ['profile', 'email'],
+    state: redirect
+  })(req, res, next);
+});
 router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/login' }), authController.googleAuthCallback);
 
 module.exports = router;
