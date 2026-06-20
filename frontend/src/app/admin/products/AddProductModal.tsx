@@ -35,6 +35,7 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, initialDat
     material: '',
     discount: '0',
     categoryId: '',
+    isFeatured: false,
   });
   
   const [variants, setVariants] = useState<VariantRow[]>([
@@ -56,6 +57,7 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, initialDat
           material: initialData.material || '',
           discount: initialData.discount?.toString() || '0',
           categoryId: initialData.categoryId || '',
+          isFeatured: initialData.isFeatured || false,
         });
         // Load existing variants if editing
         if (initialData.variants && initialData.variants.length > 0) {
@@ -70,7 +72,7 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, initialDat
           setVariants([{ size: 'M', color: '', price: '', stock: '', sku: '' }]);
         }
       } else {
-        setFormData({ name: '', brand: '', description: '', material: '', discount: '0', categoryId: '' });
+        setFormData({ name: '', brand: '', description: '', material: '', discount: '0', categoryId: '', isFeatured: false });
         setVariants([{ size: 'M', color: '', price: '', stock: '', sku: '' }]);
       }
       setImages([]);
@@ -137,6 +139,7 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, initialDat
       form.append('material', formData.material);
       form.append('discount', formData.discount);
       form.append('categoryId', formData.categoryId);
+      form.append('isFeatured', String(formData.isFeatured));
       form.append('variants', JSON.stringify(variants.map((v) => ({
         size: v.size,
         color: v.color.trim(),
@@ -222,6 +225,19 @@ export default function AddProductModal({ isOpen, onClose, onSuccess, initialDat
               <div className="space-y-2 sm:col-span-2">
                 <label className="text-xs font-semibold uppercase text-white/50">Material (Optional)</label>
                 <input value={formData.material} onChange={(e) => setFormData({ ...formData, material: e.target.value })} className="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:border-accent/50 outline-none" />
+              </div>
+              <div className="sm:col-span-2 flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/5 mt-2">
+                <input 
+                  type="checkbox" 
+                  id="isFeatured"
+                  checked={formData.isFeatured} 
+                  onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })} 
+                  className="w-5 h-5 accent-accent" 
+                />
+                <label htmlFor="isFeatured" className="text-sm font-bold text-white cursor-pointer select-none">
+                  Mark as Featured Product
+                  <span className="block text-xs font-normal text-white/40 mt-1">This product will be highlighted on the landing page as a "Featured Drop"</span>
+                </label>
               </div>
             </div>
           </div>
