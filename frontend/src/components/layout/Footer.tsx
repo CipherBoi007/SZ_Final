@@ -1,8 +1,21 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    toast.success('Subscribed successfully!');
+    setEmail('');
+  };
+
   return (
     <footer className="border-t border-white/5 bg-surface mt-auto overflow-hidden relative">
       {/* Newsletter Section */}
@@ -13,16 +26,19 @@ export default function Footer() {
               <h3 className="font-serif text-3xl font-black tracking-widest uppercase mb-2">Join the SouthZone Club</h3>
               <p className="text-sm text-white/40">Subscribe for early access to drops and exclusive offers.</p>
             </div>
-            <div className="w-full max-w-md flex flex-col sm:flex-row items-center gap-3">
+            <form onSubmit={handleSubscribe} className="w-full max-w-md flex flex-col sm:flex-row items-center gap-3">
               <input 
                 type="email" 
                 placeholder="ENTER YOUR EMAIL" 
-                className="w-full sm:flex-1 bg-white/5 border border-white/5 rounded-2xl px-5 py-4 text-xs text-white placeholder:text-white/20 outline-none focus:border-accent/30 transition-all shadow-inner tracking-wider uppercase font-semibold"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full sm:flex-1 bg-white/5 border border-white/5 rounded-2xl px-5 py-4 text-xs text-white placeholder:text-white/20 outline-none focus:border-accent/30 transition-all shadow-inner tracking-wider font-semibold"
               />
-              <button className="w-full sm:w-auto bg-white text-black px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-accent hover:text-white transition-all glow-red-hover">
+              <button type="submit" className="w-full sm:w-auto bg-white text-black px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-accent hover:text-white transition-all glow-red-hover">
                 Join
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </div>

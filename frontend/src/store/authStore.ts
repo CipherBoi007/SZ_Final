@@ -32,9 +32,11 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         set({ user: null, token: null, isLoading: false });
-        // Clear cart on logout
+        // Clear cart and wishlist on logout
         const { useCartStore } = require('./cartStore');
+        const { useWishlistStore } = require('./wishlistStore');
         useCartStore.getState().resetCart();
+        useWishlistStore.getState().clearWishlist();
       },
 
       updateUser: (userData) => {

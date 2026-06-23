@@ -39,7 +39,7 @@ export default function RootLayout({
                 borderRadius: '12px',
                 fontSize: '14px',
               },
-              success: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
+              success: { iconTheme: { primary: '#10b981', secondary: '#fff' } },
             }}
           />
           <Navbar />

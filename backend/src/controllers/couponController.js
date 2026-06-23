@@ -56,7 +56,7 @@ exports.validateCoupon = catchAsync(async (req, res, next) => {
     return next(new AppError('You have already used this coupon', 400));
   }
 
-  if (orderAmount && orderAmount < coupon.minOrderValue) {
+  if (orderAmount && Number(orderAmount) < Number(coupon.minOrderValue)) {
     return next(new AppError(`Minimum order value should be ₹${coupon.minOrderValue}`, 400));
   }
 

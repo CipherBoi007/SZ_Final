@@ -23,6 +23,7 @@ interface WishlistState {
   removeItem: (id: string) => Promise<void>;
   isInWishlist: (productId: string) => boolean;
   getWishlistItemId: (productId: string) => string | undefined;
+  clearWishlist: () => void;
 }
 
 export const useWishlistStore = create<WishlistState>()(
@@ -114,6 +115,10 @@ export const useWishlistStore = create<WishlistState>()(
 
       getWishlistItemId: (productId) => {
         return get().items.find((item) => item.productId === productId)?.id;
+      },
+
+      clearWishlist: () => {
+        set({ items: [] });
       },
     }),
     {
