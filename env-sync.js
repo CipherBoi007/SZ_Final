@@ -86,6 +86,7 @@ DB_PORT=${env.DB_PORT || '5432'}
 DB_USER=${env.DB_USER || 'postgres'}
 DB_PASSWORD=${env.DB_PASSWORD || 'root'}
 DB_NAME=${env.DB_NAME || 'SZ'}
+DB_SSL=${env.DB_SSL || 'true'}
 
 # Redis Configuration
 REDIS_HOST=${env.REDIS_HOST || 'localhost'}
